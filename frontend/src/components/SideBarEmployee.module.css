@@ -1,0 +1,8 @@
+.sideBar {
+  width: 300px;
+  padding-top: 37px;
+  align-self: stretch;
+}
+.active {
+  background-color: #e5f3fc;
+}

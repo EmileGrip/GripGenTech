@@ -1,0 +1,13 @@
+.MuiOutlinedInput-notchedOutline {
+  border-radius: 8px !important;
+  border-color: rgba(242, 242, 242, 0.9) !important;
+}
+.MuiInputBase-input {
+  background: #f2f2f2;
+  opacity: 0.9;
+}
+
+.MuiTextField-root {
+  background: #f2f2f2;
+  opacity: 0.9;
+}
