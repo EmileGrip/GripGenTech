@@ -1,6 +1,6 @@
-import { createTheme } from "@mui/material/styles";
+import { createTheme, responsiveFontSizes } from "@mui/material/styles";
 
-export const theme = createTheme({
+const theme = createTheme({
   palette: {
     primary: {
       main: "#353C44",
@@ -68,6 +68,11 @@ export const theme = createTheme({
       fontSize: 16,
       lineHeight: 1.5,
     },
+    body2: {
+      fontFamily: ["Poppins", "sans-serif"].join(","),
+      fontSize: 12,
+      lineHeight: 1.5,
+    },
   },
   components: {
     MuiTooltip: {
@@ -84,3 +89,5 @@ export const theme = createTheme({
     },
   },
 });
+
+export const responsiveTheme = responsiveFontSizes(theme);

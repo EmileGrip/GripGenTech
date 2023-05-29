@@ -1,4 +1,4 @@
-import { theme } from "./theme";
+import { responsiveTheme, theme } from "./theme";
 import { ThemeProvider } from "@mui/material/styles";
 import DevelopmentPage from "./pages/employee/development/DevelopmentPage";
 import { CssBaseline } from "@mui/material";
@@ -27,11 +27,14 @@ import {
   ADMIN_ANALYTICS_SKILLS_ANALYSIS_ROUTE,
   ADMIN_ANALYTICS_USAGE_ROUTE,
   ADMIN_FRAMEWORK,
-  ADMIN_FRAMEWORK_ORGRANIGRAM_INITIAL_SETUP_ROUTE,
-  ADMIN_FRAMEWORK_ORGRANIGRAM_ROUTE,
-  ADMIN_FRAMEWORK_ORGRANIGRAM_COMPANY_INFO_ROUTE,
-  ADMIN_FRAMEWORK_SKILL_PROFILE,
+  ADMIN_ORGANIZATION_COMPANY_PROFILE_INITIAL_SETUP_ROUTE,
+  ADMIN_ORGANIZATION_COMPANY_PROFILE_ROUTE,
+  ADMIN_ORGANIZATION_COMPANY_PROFILE_COMPANY_INFO_ROUTE,
+  ADMIN_SKILL_PROFILE,
+  ADMIN_ORGANIZATION_ORGRANIGRAM_ROUTE,
   EMPLOYEE_MY_SKILLS_PROFILE,
+  EMPLOYEE_ORGANIGRAM_ROUTE,
+  ADMIN_EMPLOYEES_LIST_ROUTE,
 } from "./routes/paths";
 import WorkExperience from "./pages/employee/workExperience/WorkExperience";
 import LearningExperience from "./pages/employee/learningExperience/LearningExperience";
@@ -44,19 +47,37 @@ import Analytics from "./components/analytics_section/Analytics";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Usage from "./components/analytics_section/Usage";
 import SkillsAnalysis from "./components/analytics_section/SkillsAnalysis";
-import AdminOrganigram from "./pages/admin/organigram/AdminOrganigram";
-import OrgInitialSetup from "./pages/admin/organigram/OrgInitialSetup";
+import OrgInitialSetup from "./pages/admin/companyProfile/OrgInitialSetup";
 import Profile from "./components/profile-section/profile/Profile";
 import SkillProfile from "./pages/admin/skillProfile/SkillProfile";
+import ChartTree from "./pages/admin/organigram/ChartTree";
+import Summary from "./pages/admin/organigram/summary/Summary";
+import { useState } from "react";
+import ProtectedManager from "./components/ProtectedManager";
+import ProtectedAdmin from "./components/ProtectedAdmin";
+import ProtectedEmplpoyee from "./components/ProtectedEmployee";
+import Signup from "./pages/signup/signup";
+import Recover from "./pages/recover/recover";
 
 function App() {
+  const [role, setRole] = useState(null);
+
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={responsiveTheme}>
       <CssBaseline />
       <div className="app">
         <main className="content">
           <Routes>
-            <Route path={EMPLOYEE_PAGE_ROUTE} element={<Employee />}>
+            <Route index element={<Login />} />
+
+            <Route
+              path={EMPLOYEE_PAGE_ROUTE}
+              element={
+                <ProtectedEmplpoyee>
+                  <Employee />
+                </ProtectedEmplpoyee>
+              }
+            >
               <Route path={EMPLOYEE_MY_SKILLS_ROUTE} element={<MySkills />}>
                 <Route index element={<InitialSetup />} />
                 <Route
@@ -72,21 +93,36 @@ function App() {
                   element={<Profile />}
                 />
               </Route>
+
               <Route
                 path={EMPLOYEE_DEVELOPMENT_ROUTE}
                 element={<DevelopmentPage />}
               />
+
               <Route
                 path={EMPLOYEE_WORK_EXPREIENCE_PATH}
                 element={<WorkExperience />}
               />
+
               <Route
                 path={EMPLOYEE_LEARNING_EXPREIENCE_PATH}
                 element={<LearningExperience />}
               />
+
+              <Route
+                path={EMPLOYEE_ORGANIGRAM_ROUTE}
+                element={<Organigram />}
+              />
             </Route>
 
-            <Route path={MANAGER_PAGE_ROUTE} element={<ManagerDashBoard />}>
+            <Route
+              path={MANAGER_PAGE_ROUTE}
+              element={
+                <ProtectedManager>
+                  <ManagerDashBoard />
+                </ProtectedManager>
+              }
+            >
               <Route path={MANAGER_EMPLOYEES_ROUTE} element={<Employees />} />
               <Route path={MANAGER_ORGANIGRAM_ROUTE} element={<Organigram />} />
               <Route path={MANAGER_ANALYTICS_ROUTE} element={<Analytics />}>
@@ -102,29 +138,30 @@ function App() {
               </Route>
             </Route>
 
-            <Route index element={<AdminDashboard />} />
-
-            <Route path={ADMIN_PAGE_ROUTE} element={<AdminDashboard />}>
+            <Route
+              path={ADMIN_PAGE_ROUTE}
+              element={
+                <ProtectedAdmin>
+                  <AdminDashboard />
+                </ProtectedAdmin>
+              }
+            >
               <Route path={AMDIN_EMPLOYEE_ROUTE} element={<Employees />} />
-              <Route
-                path={ADMIN_FRAMEWORK_ORGRANIGRAM_ROUTE}
-                element={<AdminOrganigram />}
-              >
-                <Route index element={<OrgInitialSetup />} />
-                <Route
-                  path={ADMIN_FRAMEWORK_ORGRANIGRAM_INITIAL_SETUP_ROUTE}
-                  element={<OrgInitialSetup />}
-                />
-                <Route
-                  path={ADMIN_FRAMEWORK_ORGRANIGRAM_COMPANY_INFO_ROUTE}
-                  element={<DevelopmentPage />}
-                />
-              </Route>
 
               <Route
-                path={ADMIN_FRAMEWORK_SKILL_PROFILE}
-                element={<SkillProfile />}
+                path={ADMIN_ORGANIZATION_COMPANY_PROFILE_ROUTE}
+                element={<OrgInitialSetup />}
               />
+
+              <Route
+                path={ADMIN_ORGANIZATION_ORGRANIGRAM_ROUTE}
+                element={<ChartTree />}
+              />
+
+              <Route path={ADMIN_EMPLOYEES_LIST_ROUTE} element={<Summary />} />
+
+              <Route path={ADMIN_SKILL_PROFILE} element={<SkillProfile />} />
+
               <Route path={ADMIN_ANALYTICS_ROUTE} element={<Analytics />}>
                 <Route index element={<SkillsAnalysis />} />
                 <Route
@@ -134,7 +171,10 @@ function App() {
                 <Route path={ADMIN_ANALYTICS_USAGE_ROUTE} element={<Usage />} />
               </Route>
             </Route>
+
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/recover" element={<Recover />} />
             <Route path="*" element={<NoMatch />} />
           </Routes>
         </main>

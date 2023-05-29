@@ -7,14 +7,19 @@ import {
   Stack,
   TextField,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import cameraLogo from "../../../assets/camera_icon.svg";
 import Uppy from "@uppy/core";
 import ResumeUploader from "./ResumeUploader";
-import DropContainer from "./DropContainer";
+import DropContainer from "../../../components/DropContainer";
 
 import { EMPLOYEE_MY_SKILLS_OVERVIEW_ROUTE } from "../../../routes/paths";
+import { useFormik } from "formik";
+import PhotoDropContainer from "./PhotoDropContainer";
+import { resumeValidationSchema } from "./validations/validationSchema";
 
 const acceptTypes = {
   "application/pdf": [".pdf"],
@@ -27,12 +32,34 @@ const acceptTypes = {
   //   [".pptx"],
 };
 
+const initialValues = {
+  photo: null,
+  resume: null,
+  linkedIn: "",
+};
+
 const InitialSetup = () => {
+  const theme = useTheme();
+  const lgMatches = useMediaQuery(theme.breakpoints.up("lg"));
+  const mdMatches = useMediaQuery(theme.breakpoints.up("md"));
+
   const navigate = useNavigate();
   const submitHandler = (e) => {
     e.preventDefault();
     navigate(EMPLOYEE_MY_SKILLS_OVERVIEW_ROUTE);
   };
+  const formik = useFormik({
+    initialValues: initialValues,
+    validationSchema: resumeValidationSchema,
+    onSubmit: (values, { setSubmitting }) => {
+      setTimeout(() => {
+        // submit to the server
+        alert(JSON.stringify(values, null, 2));
+        // navigate("");
+        setSubmitting(false);
+      }, 1000);
+    },
+  });
 
   return (
     <>
@@ -49,32 +76,22 @@ const InitialSetup = () => {
         </Typography>
       </Typography>
 
-      <form onSubmit={submitHandler}>
-        <Stack flexDirection="row" gap="53px" alignItems="center" mb={7.75}>
-          <Stack spacing={2}>
-            <Stack
-              justifyContent="center"
-              alignItems="center"
-              sx={{
-                width: "189px",
-                height: "189px",
-                background: "#D9D9D9",
-                borderRadius: "50%",
-              }}
-            >
-              <img src={cameraLogo} alt="camera-icon" />
-            </Stack>
-            <Button
-              variant="outlined"
-              sx={{ border: "none !important", textTransform: "capitalize" }}
-              component="label"
-            >
-              Upload Photo
-              <input hidden accept="image/*" multiple type="file" />
-            </Button>
-          </Stack>
+      <form onSubmit={formik.handleSubmit}>
+        <Stack
+          sx={{
+            flexDirection: { xs: "column-reverse", md: "row" },
+            gap: { xs: "30px", md: "53px" },
+            alignItems: { md: "center" },
+            mb: { xs: 3.5, md: 7.75 },
+          }}
+        >
+          <PhotoDropContainer formik={formik} name="photo" />
 
-          <Typography variant="body1" fontSize={"48px"} color="secondary">
+          <Typography
+            variant="body1"
+            color="secondary"
+            sx={{ fontSize: { xs: "36px", md: "40px", lg: "48px" } }}
+          >
             Hi Maximiliam,
             <br />
             welcome to grip
@@ -85,13 +102,13 @@ const InitialSetup = () => {
           sx={{
             flexDirection: {
               xs: "column",
-              xl: "row",
+              lg: "row",
             },
-            mb: 5.375,
+            mb: { xs: 5.375 },
+            gap: { xs: "62.5px", lg: "125px" },
           }}
-          gap="125px"
         >
-          <Box>
+          <Box sx={{ flex: { lg: 1 } }}>
             <Typography
               variant="h4"
               color="secondary.main"
@@ -99,10 +116,15 @@ const InitialSetup = () => {
             >
               Upload Resume
             </Typography>
-            <DropContainer title={"Drag Resumé Here"} fileTypes={acceptTypes} />
+            <DropContainer
+              title={"Drag Resumé Here"}
+              fileTypes={acceptTypes}
+              formik={formik}
+              name={"resume"}
+            />
           </Box>
 
-          <Box mr={4} flex={1}>
+          <Box sx={{ mr: { xs: 0 } }} flex={2}>
             <Typography
               variant="h4"
               color="secondary.main"
@@ -111,7 +133,7 @@ const InitialSetup = () => {
               Connect your Linkedin Profile
             </Typography>
 
-            <Box sx={{ pr: 5 }}>
+            <Box sx={{ pr: { xs: 0 } }}>
               <TextField
                 id="Linkedin URL"
                 label="Linkedin URL"
@@ -120,6 +142,7 @@ const InitialSetup = () => {
                 size="small"
                 fullWidth
                 sx={{
+                  mb: { xs: 1.5, lg: 0 },
                   maxWidth: "600px",
                   "> div": {
                     paddingRight: 0,
@@ -136,23 +159,41 @@ const InitialSetup = () => {
                 }}
                 InputProps={{
                   endAdornment: (
-                    <InputAdornment position="end">
-                      <Button
-                        variant="contained"
-                        color="secondary"
-                        disableElevation
-                        sx={{
-                          textTransform: "capitalize",
-                          fontWeight: "400",
-                          px: "41px",
-                        }}
-                      >
-                        Connect
-                      </Button>
-                    </InputAdornment>
+                    <>
+                      {mdMatches && (
+                        <InputAdornment position="end">
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            disableElevation
+                            sx={{
+                              textTransform: "capitalize",
+                              fontWeight: "400",
+                              px: "41px",
+                            }}
+                          >
+                            Connect
+                          </Button>
+                        </InputAdornment>
+                      )}
+                    </>
                   ),
                 }}
               />
+              {!mdMatches && (
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  disableElevation
+                  sx={{
+                    textTransform: "capitalize",
+                    fontWeight: "400",
+                    px: "41px",
+                  }}
+                >
+                  Connect
+                </Button>
+              )}
             </Box>
           </Box>
         </Stack>

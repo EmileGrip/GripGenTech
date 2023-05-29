@@ -1,56 +1,72 @@
-import { Box, Button, Stack, Typography } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Button,
+  Stack,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import React from "react";
-import ProfileHeadersTable from "./ProfileHeadersTable";
-import ProfileTableContent from "./ProfileTableContent";
 import { skillsTableHeaders as headers } from "../../../data/mySkillsProfileData";
+import { skillsTable as dataTable } from "../../../data/mySkillsProfileData";
 import profileImage from "../../../assets/avatar blue 1.svg";
-import WorkExperience from "./WorkExperience";
-import LearningExperience from "./LearningExperience";
+import employee_0 from "../../../assets/employee_0.jpg";
+import employee_1 from "../../../assets/employee_1.jpg";
+import WorkExperience from "./WorkExpSection";
+import LearningExperience from "./LearningExpSection";
 import CareerPath from "./CareerPath";
+import SkillHeadersRow from "../../SkillHeadersRow";
+import SkillTableRow from "../../SkillTableRow";
 
 const Profile = () => {
+  const theme = useTheme();
+  const mdMatches = useMediaQuery(theme.breakpoints.down("md"));
+  const lgMatches = useMediaQuery(theme.breakpoints.down("lg"));
+
   return (
     <>
       <Stack
-        spacing={7}
-        direction={{ sm: "row" }}
-        alignItems="center"
-        mb="70px"
+        sx={{
+          flexDirection: { xs: "column", lg: "row" },
+          alignItems: { xs: "center" },
+          mb: { xs: "50px", lg: "70px" },
+          gap: { xs: "12px", lg: "57px" },
+        }}
       >
-        <Button
+        <Avatar
+          src={employee_1}
+          alt="avatar image"
           sx={{
-            width: "227px",
-            height: "227px",
+            width: { xs: "112px", lg: "227px" },
+            height: { xs: "112px", lg: "227px" },
           }}
-        >
-          <img width="100%" src={profileImage} alt="Profile_Image" />
-        </Button>
-        {/* <img
-          style={{ width: "227px", objectFit: "contain", height: "auto" }}
-          src={profileImage}
-          alt="Profile_Image"
-        /> */}
+        />
+
         <Box sx={{ textAlign: { xs: "center", sm: "left" } }}>
           <Typography
+            variant="h3"
             sx={{
               textTransform: "capitalize",
               color: "#1E394C",
-              fontSize: { xs: "18px", sm: "30px" },
-              lineHeight: { xs: "27px", sm: "45px" },
+              fontSize: { xs: "18px", lg: "30px" },
+              fontWeight: 400,
             }}
           >
             maximiliam bellingham
           </Typography>
           <Stack
-            direction={{ xs: "row", sm: "column" }}
-            justifyContent="space-between"
-            alignItems={{ xs: "center", sm: "flex-start" }}
+            sx={{
+              flexDirection: { xs: "row", lg: "column" },
+              justifyContent: "flex-start",
+              alignItems: { xs: "center", lg: "flex-start" },
+              gap: "15px",
+            }}
           >
             <Typography
               sx={{
                 color: "#1E394C",
-                fontSize: { xs: "13px", sm: "20px" },
-                lineHeight: { xs: "20px", sm: "30px" },
+                fontSize: { xs: "13px", lg: "20px" },
               }}
             >
               Senior UI Developer
@@ -58,9 +74,8 @@ const Profile = () => {
             <Typography
               sx={{
                 textTransform: "capitalize",
-                color: "rgba(30, 57, 76, 0.5);",
-                fontSize: { xs: "12px", sm: "20px" },
-                lineHeight: { xs: "18px", sm: "30px" },
+                opacity: 0.5,
+                fontSize: { xs: "12px", lg: "20px" },
               }}
             >
               He / Him
@@ -68,12 +83,25 @@ const Profile = () => {
           </Stack>
         </Box>
       </Stack>
-      <Typography variant="h2" color={"primary.main"} fontSize={{ xs: "24px" }}>
+
+      <Typography
+        variant="h2"
+        sx={{
+          fontSize: { xs: "20px", lg: "32px" },
+          mb: { xs: "24px", lg: "48px" },
+          color: "primary.main",
+        }}
+      >
         Skill profile
       </Typography>
-      <Stack className="displayData__section" mt={5.5} sx={{ width: "100%" }}>
-        <ProfileHeadersTable data={headers} />
-        <ProfileTableContent />
+
+      <Stack className="displayData__section" sx={{ width: "100%" }}>
+        <SkillHeadersRow data={headers} />
+        <Box className="tableContent__section">
+          {dataTable.map((skill, index) => (
+            <SkillTableRow skill={skill} key={skill.skillName} index={index} />
+          ))}
+        </Box>
       </Stack>
       <WorkExperience />
       <LearningExperience />

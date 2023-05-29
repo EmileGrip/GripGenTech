@@ -13,8 +13,8 @@ import Grid2 from "@mui/material/Unstable_Grid2";
 import { useState } from "react";
 import CustomModal from "../../../ui/CustomModal";
 import { learningExperienceData as data } from "../../../data/ExperienceData";
-import EducationCard from "./EducationCard";
-import CourseCard from "./CourseCard";
+import EducationCard from "../../../components/EducationCard";
+import CourseCard from "../../../components/CourseCard";
 import AddEducationForm from "./AddEducationForm";
 import { useOutletContext } from "react-router-dom";
 import useLocationChange from "../../../hooks/useLocationChange";
@@ -28,14 +28,14 @@ const LearningExperience = () => {
     degree: "",
     institution: "",
     level: "",
-    started: Date.now(),
-    finished: Date.now(),
+    started: new Date(),
+    finished: new Date(),
   };
   const courseDefaultValues = {
     degree: "",
     institution: "",
-    started: Date.now(),
-    finished: Date.now(),
+    started: new Date(),
+    finished: new Date(),
   };
 
   const [open, setOpen] = useState(false);
@@ -73,6 +73,7 @@ const LearningExperience = () => {
   const handleCloseDialog = () => {
     setOpenDialog(false);
   };
+
   return (
     <>
       <CustomModal open={open} onClose={handleClose} title={`add ${btnType}`}>
@@ -131,7 +132,13 @@ const LearningExperience = () => {
           add education
         </Button>
       </Stack>
-      <Grid2 container rowSpacing={2.5} columnSpacing={3.375} mb={6.75}>
+
+      <Grid2
+        container
+        rowSpacing={2.5}
+        columnSpacing={3.375}
+        sx={{ mb: { xs: 3, md: 6.75 } }}
+      >
         {data.education.map((card) => (
           <Grid2 xs={12} lg={6} key={card.id}>
             <EducationCard
@@ -142,6 +149,7 @@ const LearningExperience = () => {
           </Grid2>
         ))}
       </Grid2>
+
       <Stack
         flexDirection="row"
         alignItems="center"
@@ -166,6 +174,7 @@ const LearningExperience = () => {
           add course
         </Button>
       </Stack>
+
       <Grid2 container rowSpacing={2.5} columnSpacing={3.375}>
         {data.courses.map((card) => (
           <Grid2 xs={12} lg={6} key={card.id}>

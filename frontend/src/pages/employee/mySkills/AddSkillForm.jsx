@@ -14,7 +14,13 @@ import SuggestedSkillChip from "./SuggestedSkillChip";
 import * as yup from "yup";
 import { useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
-import validationsForm from "./validations/validationSchema";
+import { validationsForm } from "./validations/validationSchema";
+
+const formControlWrapperStyle = {
+  minHeight: "140px",
+  mb: 9.375,
+};
+
 const AddSkillForm = ({ data }) => {
   const [value, setValue] = useState("");
   const [inputValue, setInputValue] = useState("");
@@ -28,12 +34,13 @@ const AddSkillForm = ({ data }) => {
     initialValues: {
       skill: "",
     },
+    validationSchema: validationsForm,
     onSubmit: (values, { setSubmitting }) => {
-      if (values.skill === null || values.skill.trim() === "") {
-        alert("Please Enter a valid value");
-        setSubmitting(false);
-        return;
-      }
+      // if (values.skill === null || values.skill.trim() === "") {
+      //   alert("Please Enter a valid value");
+      //   setSubmitting(false);
+      //   return;
+      // }
       setTimeout(() => {
         // submit to the server
         alert(JSON.stringify(values, null, 2));
@@ -49,10 +56,12 @@ const AddSkillForm = ({ data }) => {
 
   return (
     <form onSubmit={formik.handleSubmit}>
-      <Stack>
-        <Box mb={9.375}>
+      <Stack sx={{ px: { xs: 2.5, lg: 0 } }}>
+        <Box sx={formControlWrapperStyle}>
           <Typography
             variant="h3"
+            component="label"
+            htmlFor="search_skill"
             mb={2.5}
             sx={{
               textTransform: "capitalize",
@@ -77,6 +86,7 @@ const AddSkillForm = ({ data }) => {
                 helperText={formik.touched.skill ? formik.errors.skill : ""}
                 name="search_skill"
                 fullWidth
+                placeholder="Search Skill"
                 {...params}
                 type="search"
                 // value={value}
@@ -98,6 +108,8 @@ const AddSkillForm = ({ data }) => {
         <Box>
           <Typography
             variant="h3"
+            component="label"
+            htmlFor="search_skill"
             mb={2.75}
             sx={{
               textTransform: "capitalize",

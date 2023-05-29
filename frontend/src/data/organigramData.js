@@ -10,8 +10,6 @@ export const treeData = {
       jobTitle: "web developer",
       img: employee_1,
       field: "operations",
-      person: 2,
-      group: 2,
     },
     {
       id: "node-2",
@@ -19,8 +17,6 @@ export const treeData = {
       jobTitle: "web developer",
       img: employee_0,
       field: "operations",
-      person: 1,
-      group: 0,
     },
     {
       id: "node-3",
@@ -28,8 +24,6 @@ export const treeData = {
       jobTitle: "web developer",
       img: employee_0,
       field: "operations",
-      person: 1,
-      group: 0,
     },
     {
       id: "node-4",
@@ -37,8 +31,6 @@ export const treeData = {
       jobTitle: "web developer",
       img: employee_0,
       field: "operations",
-      person: 1,
-      group: 0,
     },
   ],
 };

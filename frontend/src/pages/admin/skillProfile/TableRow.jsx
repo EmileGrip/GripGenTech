@@ -61,6 +61,7 @@ const TableRow = ({ skill }) => {
         <IconButton sx={{ alignSelf: "center" }} onClick={handleClick}>
           <img src={moreHoriz__icon} alt="icon" />
         </IconButton>
+
         <Popover
           open={open}
           anchorEl={anchorEl}
@@ -207,8 +208,9 @@ const TableRow = ({ skill }) => {
             ...gridStyles,
             justifyContent: { md: "center", lg: "center", xl: "flex-start" },
             flexDirection: { lg: "column", xl: "row" },
-            alignItems: { lg: "flex-start", xl: "center" },
+            alignItems: "center",
             gap: { xl: "34px" },
+            mt: 1,
           }}
         >
           <Tooltip

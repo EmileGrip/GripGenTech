@@ -14,7 +14,13 @@ import SuggestedSkillChip from "../../employee/mySkills/SuggestedSkillChip";
 // import * as yup from "yup";
 import { useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
-// import validationsForm from "../../employee/mySkills/validations/validationSchema";
+import validationsForm from "./validations/validationSchema";
+
+const formControlWrapperStyle = {
+  minHeight: "140px",
+  mb: 9.375,
+};
+
 const AddJobForm = ({ data }) => {
   const [value, setValue] = useState("");
 
@@ -27,12 +33,13 @@ const AddJobForm = ({ data }) => {
     initialValues: {
       job: "",
     },
+    validationSchema: validationsForm,
     onSubmit: (values, { setSubmitting }) => {
-      if (values.job === null || values.job.trim() === "") {
-        alert("Please Enter a valid value");
-        setSubmitting(false);
-        return;
-      }
+      // if (values.job === null || values.job.trim() === "") {
+      //   alert("Please Enter a valid value");
+      //   setSubmitting(false);
+      //   return;
+      // }
       setTimeout(() => {
         // submit to the server
         alert(JSON.stringify(values, null, 2));
@@ -48,16 +55,17 @@ const AddJobForm = ({ data }) => {
 
   return (
     <form onSubmit={formik.handleSubmit}>
-      <Stack>
-        <Box mb={9.375}>
+      <Stack sx={{ px: { xs: 2.5, lg: 0 } }}>
+        <Box sx={formControlWrapperStyle}>
           <Typography
             variant="h3"
+            component="label"
+            htmlFor="search_job"
             mb={2.5}
             sx={{
               textTransform: "capitalize",
               fontWeight: 400,
               color: "secondary.main",
-              ml: { xs: "20px", md: "0" },
             }}
           >
             search job
@@ -98,12 +106,13 @@ const AddJobForm = ({ data }) => {
         <Box>
           <Typography
             variant="h3"
+            component="label"
+            htmlFor="search_job"
             mb={2.75}
             sx={{
               textTransform: "capitalize",
               fontWeight: 400,
               color: "secondary.main",
-              ml: { xs: "20px", md: "0" },
             }}
           >
             suggested jobs
@@ -130,7 +139,6 @@ const AddJobForm = ({ data }) => {
               textTransform: "capitalize",
               fontSize: "14px",
               px: "50px",
-              ml: { xs: "20px", md: "0" },
             }}
           >
             add job

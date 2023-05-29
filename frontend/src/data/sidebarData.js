@@ -15,8 +15,10 @@ import {
   AMDIN_EMPLOYEE_ROUTE,
   ADMIN_ANALYTICS_SKILLS_ANALYSIS_ROUTE,
   ADMIN_ANALYTICS_USAGE_ROUTE,
-  ADMIN_FRAMEWORK_ORGRANIGRAM_ROUTE,
-  ADMIN_FRAMEWORK_SKILL_PROFILE,
+  ADMIN_ORGANIZATION_COMPANY_PROFILE_ROUTE,
+  ADMIN_SKILL_PROFILE,
+  ADMIN_ORGANIZATION_ORGRANIGRAM_ROUTE,
+  EMPLOYEE_ORGANIGRAM_ROUTE,
 } from "../routes/paths";
 
 import skills_active from "../assets/skills_active.svg";
@@ -55,7 +57,7 @@ export const sidebarEmployeeData = [
   },
   {
     categoryName: "Organigram",
-    catergoryPath: ORGANIGRAM_PATH,
+    catergoryPath: EMPLOYEE_ORGANIGRAM_ROUTE,
     iconsPath: {
       active: usertag_active,
       inactive: usertag_inactive,
@@ -111,19 +113,28 @@ export const sidebarAdminData = [
     subCategory: [],
   },
   {
-    categoryName: "Framework",
-    catergoryPath: ADMIN_FRAMEWORK_ORGRANIGRAM_ROUTE,
+    categoryName: "Organization",
+    catergoryPath: ADMIN_ORGANIZATION_COMPANY_PROFILE_ROUTE,
+    iconsPath: {
+      active: briefcase_active,
+      inactive: briefcase_inactive,
+    },
+    subCategory: [
+      {
+        name: "Company Profile",
+        path: ADMIN_ORGANIZATION_COMPANY_PROFILE_ROUTE,
+      },
+      { name: "Organigram", path: ADMIN_ORGANIZATION_ORGRANIGRAM_ROUTE },
+    ],
+  },
+  {
+    categoryName: "Skill Profile",
+    catergoryPath: ADMIN_SKILL_PROFILE,
     iconsPath: {
       active: usertag_active,
       inactive: usertag_inactive,
     },
-    subCategory: [
-      {
-        name: "Organigram",
-        path: ADMIN_FRAMEWORK_ORGRANIGRAM_ROUTE,
-      },
-      { name: "Skill Profile", path: ADMIN_FRAMEWORK_SKILL_PROFILE },
-    ],
+    subCategory: [],
   },
   {
     categoryName: "Analytics",

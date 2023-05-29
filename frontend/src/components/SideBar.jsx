@@ -18,6 +18,8 @@ import logoutIcon from "../assets/logout.svg";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
+import { useDispatch } from "react-redux";
+import { logout } from "../features/auth/authSlice";
 
 const mobileDefaultStyle = {
   width: "100%",
@@ -35,6 +37,10 @@ const laptopDefaultStyle = {
 };
 
 const SideBar = ({ sidebarData, onOpen, currentStyle }) => {
+  const dispatch = useDispatch();
+  const handleLogout = () => {
+    dispatch(logout());
+  };
   const [openMain, setOpenMain] = useState(`main__0`);
   const [openSub, setOpenSub] = useState(`sub__0`);
 
@@ -216,6 +222,7 @@ const SideBar = ({ sidebarData, onOpen, currentStyle }) => {
             })}
           </List>
         </Box>
+
         <Box sx={{ marginTop: "auto !important" }}>
           <Divider />
           <List
@@ -254,7 +261,7 @@ const SideBar = ({ sidebarData, onOpen, currentStyle }) => {
                 }}
               />
             </ListItemButton>
-            <ListItemButton>
+            <ListItemButton onClick={handleLogout}>
               <ListItemIcon>
                 <img src={logoutIcon} alt="icon" />
               </ListItemIcon>

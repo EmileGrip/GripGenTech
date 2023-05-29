@@ -12,12 +12,24 @@ import { DatePicker } from "@mui/x-date-pickers";
 import Grid2 from "@mui/material/Unstable_Grid2";
 import { useFormik, withFormik } from "formik";
 import * as yup from "yup";
-// import validationsForm from "../validations/validationSchema";
+import { AddEducationValidationForm } from "./validations/validationSchema";
+
+const stackStyles = {
+  flexDirection: { xs: "row" },
+  justifyContent: { xs: "space-between" },
+  alignItems: { xs: "baseline" },
+  minHeight: "82px",
+};
+
+const formControlStyles = {
+  width: "190px",
+  "& .MuiInputBase-root": { borderRadius: "7px" },
+};
 
 const AddEducationForm = ({ data, onClose }) => {
   const formik = useFormik({
     initialValues: data,
-    validationSchema: "",
+    validationSchema: AddEducationValidationForm,
     onSubmit: (values, { setSubmitting }) => {
       setTimeout(() => {
         // submit to the server
@@ -27,9 +39,10 @@ const AddEducationForm = ({ data, onClose }) => {
       }, 1000);
     },
   });
+
   return (
     <form onSubmit={formik.handleSubmit}>
-      <Stack>
+      <Stack sx={{ px: { xs: 2.5, lg: 0 } }}>
         <Grid2
           container
           rowSpacing={4}
@@ -37,20 +50,22 @@ const AddEducationForm = ({ data, onClose }) => {
           sx={{ flexGrow: 1 }}
           mb={"50px"}
         >
-          <Grid2 xs={6}>
-            <Stack
-              flexDirection="row"
-              gap="46px"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="span" color={"secondary"} fontWeight={500}>
+          <Grid2 xs={12} lg={6}>
+            <Stack sx={stackStyles}>
+              <Typography
+                component="label"
+                variant="span"
+                htmlFor="degree"
+                color={"secondary"}
+                fontWeight={500}
+                sx={{ textTransform: "capitalize", whiteSpace: "nowrap" }}
+              >
                 Degree
               </Typography>
               <TextField
                 id="degree"
                 name="degree"
-                label="Degree"
+                placeholder="degree"
                 size="medium"
                 type="text"
                 value={formik.values.degree}
@@ -58,66 +73,64 @@ const AddEducationForm = ({ data, onClose }) => {
                 onBlur={formik.handleBlur}
                 helperText={formik.touched.degree ? formik.errors.degree : ""}
                 error={formik.touched.degree && Boolean(formik.errors.degree)}
-                margin="normal"
                 variant="outlined"
                 fullWidth
-                sx={{
-                  "> *": { borderRadius: "7px !important" },
-                  width: "170px",
-                }}
+                sx={formControlStyles}
               />
             </Stack>
           </Grid2>
 
-          <Grid2 xs={6} mt={2}>
-            <Stack
-              flexDirection="row"
-              gap="46px"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="span" color={"secondary"} fontWeight={500}>
+          <Grid2 xs={12} lg={6}>
+            <Stack sx={stackStyles}>
+              <Typography
+                component="label"
+                variant="span"
+                htmlFor="started"
+                color={"secondary"}
+                fontWeight={500}
+                sx={{ textTransform: "capitalize", whiteSpace: "nowrap" }}
+              >
                 Started
               </Typography>
               <DatePicker
-                onChange={(value) => {
-                  formik.setFieldValue("started", Date.parse(value));
-                }}
+                size="medium"
                 value={formik.values.started}
-                sx={{ width: "190px", "> *": { borderRadius: "7px " } }}
-                slots={
+                onChange={(value) => {
+                  formik.setFieldValue("started", value);
+                }}
+                maxDate={new Date()}
+                sx={formControlStyles}
+                slot={(params) => (
                   <TextField
-                    className="myDatePicker"
+                    {...params}
                     error={Boolean(
                       formik.touched.started && formik.errors.started
                     )}
                     helperText={formik.touched.started && formik.errors.started}
-                    label="Started"
-                    margin="normal"
+                    id="started"
                     name="started"
-                    variant="standard"
-                    fullWidth
-                    sx={{ mb: 2 }}
                   />
-                }
+                )}
               />
             </Stack>
           </Grid2>
 
-          <Grid2 xs={6}>
-            <Stack
-              flexDirection="row"
-              gap="46px"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="span" color={"secondary"} fontWeight={500}>
+          <Grid2 xs={12} lg={6}>
+            <Stack sx={stackStyles}>
+              <Typography
+                component="label"
+                variant="span"
+                htmlFor="institution"
+                color={"secondary"}
+                fontWeight={500}
+                sx={{ textTransform: "capitalize", whiteSpace: "nowrap" }}
+              >
                 Institution
               </Typography>
               <TextField
                 id="institution"
                 name="institution"
-                label="Institution"
+                placeholder="institution"
                 size="medium"
                 type="text"
                 value={formik.values.institution}
@@ -130,68 +143,66 @@ const AddEducationForm = ({ data, onClose }) => {
                   formik.touched.institution &&
                   Boolean(formik.errors.institution)
                 }
-                margin="normal"
                 variant="outlined"
                 fullWidth
-                sx={{
-                  mb: 2,
-                  "> *": { borderRadius: "7px !important" },
-                  width: "170px",
-                }}
+                sx={formControlStyles}
               />
             </Stack>
           </Grid2>
 
-          <Grid2 xs={6} mt={2}>
-            <Stack
-              flexDirection="row"
-              gap="46px"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="span" color={"secondary"} fontWeight={500}>
+          <Grid2 xs={12} lg={6}>
+            <Stack sx={stackStyles}>
+              <Typography
+                component="label"
+                variant="span"
+                htmlFor="finished"
+                color={"secondary"}
+                fontWeight={500}
+                sx={{ textTransform: "capitalize", whiteSpace: "nowrap" }}
+              >
                 Finished
               </Typography>
               <DatePicker
-                onChange={(value) => {
-                  formik.setFieldValue("finished", Date.parse(value));
-                }}
+                size="medium"
                 value={formik.values.finished}
-                sx={{ width: "190px", "> *": { borderRadius: "7px " } }}
-                slots={
+                onChange={(value) => {
+                  formik.setFieldValue("finished", value);
+                }}
+                maxDate={new Date()}
+                sx={formControlStyles}
+                slot={(params) => (
                   <TextField
+                    {...params}
                     error={Boolean(
                       formik.touched.finished && formik.errors.finished
                     )}
                     helperText={
                       formik.touched.finished && formik.errors.finished
                     }
-                    label="finished"
-                    margin="normal"
+                    id="finished"
                     name="finished"
-                    variant="standard"
-                    fullWidth
-                    sx={{ "> *": { borderRadius: "7px !important" } }}
                   />
-                }
+                )}
               />
             </Stack>
           </Grid2>
 
-          <Grid2 xs={6}>
-            <Stack
-              flexDirection="row"
-              gap="46px"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="span" color={"secondary"} fontWeight={500}>
+          <Grid2 xs={12} lg={6}>
+            <Stack sx={stackStyles}>
+              <Typography
+                component="label"
+                variant="span"
+                htmlFor="level"
+                color={"secondary"}
+                fontWeight={500}
+                sx={{ textTransform: "capitalize", whiteSpace: "nowrap" }}
+              >
                 Level
               </Typography>
               <TextField
                 id="level"
                 name="level"
-                label="Level"
+                placeholder="level"
                 size="medium"
                 type="text"
                 value={formik.values.level}
@@ -199,14 +210,9 @@ const AddEducationForm = ({ data, onClose }) => {
                 onBlur={formik.handleBlur}
                 helperText={formik.touched.level ? formik.errors.level : ""}
                 error={formik.touched.level && Boolean(formik.errors.level)}
-                margin="normal"
                 variant="outlined"
                 fullWidth
-                sx={{
-                  mb: 2,
-                  "> *": { borderRadius: "7px !important" },
-                  width: "170px",
-                }}
+                sx={formControlStyles}
               />
             </Stack>
           </Grid2>

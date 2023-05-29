@@ -3,12 +3,24 @@ import { DatePicker } from "@mui/x-date-pickers";
 import Grid2 from "@mui/material/Unstable_Grid2";
 import { useFormik, withFormik } from "formik";
 import * as yup from "yup";
-// import validationsForm from "../validations/validationSchema";
+import validationsForm from "./validations/validationSchema";
+
+const stackStyles = {
+  flexDirection: { xs: "row" },
+  justifyContent: { xs: "space-between" },
+  alignItems: { xs: "baseline" },
+  minHeight: "82px",
+};
+
+const formControlStyles = {
+  width: "190px",
+  "& .MuiInputBase-root": { borderRadius: "7px" },
+};
 
 const AddJobForm = ({ onClose, data }) => {
   const formik = useFormik({
     initialValues: data,
-    validationSchema: "",
+    validationSchema: validationsForm,
     onSubmit: (values, { setSubmitting }) => {
       setTimeout(() => {
         // submit to the server
@@ -20,7 +32,7 @@ const AddJobForm = ({ onClose, data }) => {
   });
   return (
     <form onSubmit={formik.handleSubmit}>
-      <Stack>
+      <Stack sx={{ px: { xs: 2.5, lg: 0 } }}>
         <Grid2
           container
           rowSpacing={4}
@@ -28,20 +40,21 @@ const AddJobForm = ({ onClose, data }) => {
           sx={{ flexGrow: 1 }}
           mb={"50px"}
         >
-          <Grid2 xs={6}>
-            <Stack
-              flexDirection="row"
-              gap="46px"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="span" color={"secondary"} fontWeight={500}>
+          <Grid2 xs={12} lg={6}>
+            <Stack sx={stackStyles}>
+              <Typography
+                variant="span"
+                component="label"
+                htmlFor="position"
+                color={"secondary"}
+                fontWeight={500}
+              >
                 Position
               </Typography>
               <TextField
                 id="position"
                 name="position"
-                label="Position"
+                placeholder="Position"
                 size="medium"
                 type="text"
                 value={formik.values.position}
@@ -53,68 +66,65 @@ const AddJobForm = ({ onClose, data }) => {
                 error={
                   formik.touched.position && Boolean(formik.errors.position)
                 }
-                margin="normal"
                 variant="outlined"
                 fullWidth
-                sx={{
-                  "> *": { borderRadius: "7px !important" },
-                  width: "170px",
-                }}
+                sx={formControlStyles}
               />
             </Stack>
           </Grid2>
 
-          <Grid2 xs={6} mt={2}>
-            <Stack
-              flexDirection="row"
-              gap="46px"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="span" color={"secondary"} fontWeight={500}>
-                Joined
+          <Grid2 xs={12} lg={6}>
+            <Stack sx={stackStyles}>
+              <Typography
+                component="label"
+                variant="span"
+                htmlFor="joinDate"
+                color={"secondary"}
+                fontWeight={500}
+                sx={{ textTransform: "capitalize", whiteSpace: "nowrap" }}
+              >
+                joined
               </Typography>
               <DatePicker
-                onChange={(value) => {
-                  formik.setFieldValue("joinedDate", Date.parse(value));
-                }}
+                size="medium"
                 value={formik.values.joinedDate}
-                sx={{ width: "190px", "> *": { borderRadius: "7px " } }}
-                slots={
+                onChange={(value) => {
+                  formik.setFieldValue("joinedDate", value);
+                }}
+                maxDate={new Date()}
+                sx={formControlStyles}
+                slot={(params) => (
                   <TextField
-                    className="myDatePicker"
+                    {...params}
                     error={Boolean(
                       formik.touched.joinedDate && formik.errors.joinedDate
                     )}
                     helperText={
                       formik.touched.joinedDate && formik.errors.joinedDate
                     }
-                    label="Join"
-                    margin="normal"
+                    id="joinedDate"
                     name="joinedDate"
-                    variant="standard"
-                    fullWidth
-                    sx={{ mb: 2 }}
                   />
-                }
+                )}
               />
             </Stack>
           </Grid2>
 
-          <Grid2 xs={6}>
-            <Stack
-              flexDirection="row"
-              gap="46px"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="span" color={"secondary"} fontWeight={500}>
+          <Grid2 xs={12} lg={6}>
+            <Stack sx={stackStyles}>
+              <Typography
+                variant="span"
+                component="label"
+                htmlFor="company"
+                color={"secondary"}
+                fontWeight={500}
+              >
                 Company
               </Typography>
               <TextField
                 id="company"
                 name="company"
-                label="Company"
+                placeholder="Company"
                 size="medium"
                 type="text"
                 value={formik.values.company}
@@ -122,50 +132,48 @@ const AddJobForm = ({ onClose, data }) => {
                 onBlur={formik.handleBlur}
                 helperText={formik.touched.company ? formik.errors.company : ""}
                 error={formik.touched.company && Boolean(formik.errors.company)}
-                margin="normal"
                 variant="outlined"
                 fullWidth
                 sx={{
-                  mb: 2,
-                  "> *": { borderRadius: "7px !important" },
-                  width: "170px",
+                  ...formControlStyles,
                 }}
               />
             </Stack>
           </Grid2>
 
-          <Grid2 xs={6} mt={2}>
-            <Stack
-              flexDirection="row"
-              gap="46px"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="span" color={"secondary"} fontWeight={500}>
-                Left
+          <Grid2 xs={12} lg={6}>
+            <Stack sx={stackStyles}>
+              <Typography
+                component="label"
+                variant="span"
+                htmlFor="leftDate"
+                color={"secondary"}
+                fontWeight={500}
+                sx={{ textTransform: "capitalize", whiteSpace: "nowrap" }}
+              >
+                left
               </Typography>
               <DatePicker
-                onChange={(value) => {
-                  formik.setFieldValue("leftDate", Date.parse(value));
-                }}
+                size="medium"
                 value={formik.values.leftDate}
-                sx={{ width: "190px", "> *": { borderRadius: "7px " } }}
-                slots={
+                onChange={(value) => {
+                  formik.setFieldValue("leftDate", value);
+                }}
+                maxDate={new Date()}
+                sx={formControlStyles}
+                slot={(params) => (
                   <TextField
+                    {...params}
                     error={Boolean(
                       formik.touched.leftDate && formik.errors.leftDate
                     )}
                     helperText={
                       formik.touched.leftDate && formik.errors.leftDate
                     }
-                    label="Left"
-                    margin="normal"
+                    id="leftDate"
                     name="leftDate"
-                    variant="standard"
-                    fullWidth
-                    sx={{ "> *": { borderRadius: "7px !important" } }}
                   />
-                }
+                )}
               />
             </Stack>
           </Grid2>
@@ -174,6 +182,8 @@ const AddJobForm = ({ onClose, data }) => {
         <Box width={"100%"} mb={3}>
           <Typography
             variant="body1"
+            component="label"
+            htmlFor="description"
             mb={2}
             color={"secondary"}
             fontWeight={500}
@@ -181,8 +191,7 @@ const AddJobForm = ({ onClose, data }) => {
             Description
           </Typography>
           <TextField
-            id="description-textarea"
-            label="Type here"
+            id="description"
             placeholder="Type description separated with ' - '"
             multiline
             rows={4}

@@ -1,7 +1,4 @@
 import { Avatar, Box, Button, Stack, Typography } from "@mui/material";
-import person_icon from "../../../assets/person_icon.svg";
-import group_icon from "../../../assets/group_icon.svg";
-import hide_icon from "../../../assets/hide_icon.svg";
 import { Handle, Position } from "reactflow";
 
 const Node = ({ data, isConnectable }) => {
@@ -80,44 +77,6 @@ const Node = ({ data, isConnectable }) => {
           >
             {data.field}
           </Typography>
-        </Stack>
-
-        <Stack
-          className="data__bar"
-          sx={{
-            alignSelf: "center",
-            flexDirection: "row",
-            justifyContent: "space-around",
-            alignItems: "center",
-            background: "#D9D9D9",
-            borderRadius: "0px 0px 4px 4px",
-            py: 0.5,
-            width: "145px",
-          }}
-        >
-          <Box sx={{ lineHeight: "12px" }}>
-            <img src={person_icon} alt="icon" />
-            <Typography variant="span" ml={0.5}>
-              {data.person}
-            </Typography>
-          </Box>
-          <Box sx={{ lineHeight: "12px" }}>
-            <img src={group_icon} alt="icon" />
-            <Typography variant="span" ml={0.5}>
-              {data.group}
-            </Typography>
-          </Box>
-          <Box>
-            <button
-              style={{
-                border: "none",
-                backgroundColor: "transparent",
-                cursor: "pointer",
-              }}
-            >
-              <img src={hide_icon} alt="icon" />
-            </button>
-          </Box>
         </Stack>
       </Stack>
 

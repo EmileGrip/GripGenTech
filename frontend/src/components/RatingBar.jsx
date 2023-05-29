@@ -5,15 +5,21 @@ import {
   MdRectangleLeft,
   MdRectangleRight,
 } from "../ui/my-react-icons/md";
-
-const customIcons = [
-  { icon: <MdRectangleLeft size={35} /> },
-  { icon: <MdRectangle size={35} /> },
-  { icon: <MdRectangle size={35} /> },
-  { icon: <MdRectangleRight size={35} /> },
-];
+import { useMediaQuery, useTheme } from "@mui/material";
 
 export const RatingBar = (props) => {
+  const theme = useTheme();
+  const mdMatches = useMediaQuery(theme.breakpoints.up("md"));
+  const lgMatches = useMediaQuery(theme.breakpoints.up("lg"));
+
+  const size = lgMatches ? 35 : mdMatches ? 30 : 20;
+
+  const customIcons = [
+    { icon: <MdRectangleLeft size={size} /> },
+    { icon: <MdRectangle size={size} /> },
+    { icon: <MdRectangle size={size} /> },
+    { icon: <MdRectangleRight size={size} /> },
+  ];
   return (
     <Rating
       showTooltip={false}

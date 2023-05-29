@@ -12,6 +12,8 @@ import useLocationChange from "../../../hooks/useLocationChange";
 import CustomModal from "../../../ui/CustomModal";
 import AddJobForm from "./AddJobForm";
 import { suggestedJobs } from "../../../data/skillsData";
+import InitialContent from "./InitialContent";
+import MockContent from "./MockContent";
 const DevelopmentPage = () => {
   const [title, setTitle] = useOutletContext();
   useLocationChange(setTitle);
@@ -25,52 +27,13 @@ const DevelopmentPage = () => {
       <CustomModal open={open} onClose={handleClose} title="Add Job">
         <AddJobForm data={suggestedJobs} />
       </CustomModal>
-      <Stack
-        flexDirection={"row"}
-        justifyContent={"space-between"}
-        mb={11.625}
-        className="header__section"
-      >
-        <Typography variant="h3" mb={3} color={"primary.main"}>
-          Your Career path
-        </Typography>
-        <Button
-          variant="contained"
-          color="secondary"
-          sx={{
-            alignSelf: "flex-start",
-            textTransform: "capitalize",
-            mt: 1,
-            fontSize: "14px",
-          }}
-          endIcon={<AddIcon />}
-          onClick={handleOpen}
-        >
-          add job
-        </Button>
-      </Stack>
-      <Stack className="role__section" flexDirection={"row"} mb={14}>
-        <Typography color="#808080" variant="body1">
-          Current Role
-        </Typography>
-      </Stack>
-      <Stack
-        className="job__section"
-        flexDirection="row"
-        alignItems="center"
-        mb={29}
-      >
-        <JobChip marginRight={{ marginRight: "22px" }}>
-          Customer Specialist
-        </JobChip>
-        <DashLine />
-        <Link to={EMPLOYEE_DEVELOPMENT_ROUTE}>
-          <Stack>
-            <img style={{ alignSelf: "center" }} src={addIcon} alt="logo" />
-            <Typography color="#66C1FF">Add Job</Typography>
-          </Stack>
-        </Link>
-      </Stack>
+
+      <Typography variant="h2" color={"primary.main"}>
+        Your Career path
+      </Typography>
+
+      {/* <InitialContent /> */}
+      <MockContent />
       <Box
         className="recommended__section"
         sx={{ borderTop: "2px solid #E9E9E9", pt: 2.375 }}
@@ -78,7 +41,12 @@ const DevelopmentPage = () => {
         <Typography variant="h3" pb={2.375} color={"primary.main"}>
           Recommended For You
         </Typography>
-        <Stack flexDirection="row" gap="36px">
+        <Stack
+          sx={{
+            flexDirection: { xs: "column", lg: "row" },
+            gap: { xs: "20px", lg: "36px" },
+          }}
+        >
           {data.map((item) => (
             <RecommendChip
               key={item.title}

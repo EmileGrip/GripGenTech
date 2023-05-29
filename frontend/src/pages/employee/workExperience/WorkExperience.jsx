@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { workExperienceData as data } from "../../../data/ExperienceData";
-import ExpCard from "./ExpCard";
+import ExpCard from "../../../components/ExpCard";
 import { useState } from "react";
 import AddJobForm from "./AddJobForm";
 import CustomModal from "../../../ui/CustomModal";
@@ -24,8 +24,8 @@ const WorkExperience = () => {
   const defaultValues = {
     position: "",
     company: "",
-    joinedDate: Date.now(),
-    leftDate: Date.now(),
+    joinedDate: new Date(),
+    leftDate: new Date(),
     description: "",
   };
   const [open, setOpen] = useState(false);
@@ -78,7 +78,13 @@ const WorkExperience = () => {
         </DialogActions>
       </Dialog>
 
-      <Stack flexDirection="row" justifyContent="space-between" mb={5.875}>
+      <Stack
+        sx={{
+          flexDirection: { xs: "column", md: "row" },
+          justifyContent: { xs: "center", md: "space-between" },
+          mb: { xs: 2.5, lg: 5.875 },
+        }}
+      >
         <Typography variant="h3" component="h2" color={"primary.main"}>
           Work Experience
         </Typography>

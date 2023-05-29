@@ -2,13 +2,14 @@ import {
   Backdrop,
   Box,
   Modal,
+  Stack,
   Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
-const mdStyle = {
+const lgStyles = {
   position: "absolute",
   top: "50%",
   left: "50%",
@@ -32,7 +33,8 @@ const xsStyle = {
 const CustomModal = ({ open, onClose, title, children }) => {
   const theme = useTheme();
   const mdMatches = useMediaQuery(theme.breakpoints.up("md"));
-  const currentStyle = mdMatches ? mdStyle : xsStyle;
+  const lgMatches = useMediaQuery(theme.breakpoints.up("lg"));
+  const currentStyle = lgMatches ? lgStyles : xsStyle;
   return (
     <Modal
       open={open}
@@ -55,36 +57,47 @@ const CustomModal = ({ open, onClose, title, children }) => {
           ...currentStyle,
         }}
       >
-        <CloseIcon
-          sx={{
-            position: "absolute",
-            top: { xs: "20px", md: "36px" },
-            right: { xs: "20px", md: "41px" },
-            color: "secondary.main",
-            cursor: "pointer",
-            zIndex: "1",
-          }}
-          fontSize="large"
-          onClick={onClose}
-        />
-        {title && (
-          <Typography
-            variant="h2"
+        <Box sx={{ overflowY: "auto", overflowX: "hidden", maxHeight: "95%" }}>
+          <Stack
             sx={{
-              fontSize: "30px",
-              textTransform: "capitalize",
-              fontWeight: "400",
-              mb: "69px",
-              position: { xs: "relative", md: "static" },
-              top: { xs: "20px" },
-              left: { xs: "20px" },
-              color: "secondary.main",
+              flexDirection: { xs: "row" },
+              justifyContent: { xs: "space-between" },
+              alignitems: { xs: "center" },
+              mb: { xs: "40px", lg: "70px" },
+              px: { xs: 2.5, lg: 0 },
+              py: { xs: 2 },
             }}
           >
-            {title}
-          </Typography>
-        )}
-        {children}
+            {!!title && (
+              <Typography
+                variant="h2"
+                sx={{
+                  fontSize: "30px",
+                  textTransform: "capitalize",
+                  fontWeight: "400",
+                  position: { xs: "relative", md: "static" },
+
+                  color: "secondary.main",
+                }}
+              >
+                {title}
+              </Typography>
+            )}
+            <CloseIcon
+              sx={{
+                // position: "absolute",
+                // top: { xs: "20px", md: "36px" },
+                // right: { xs: "20px", md: "41px" },
+                color: "secondary.main",
+                cursor: "pointer",
+                zIndex: "1",
+              }}
+              fontSize="large"
+              onClick={onClose}
+            />
+          </Stack>
+          {children}
+        </Box>
       </Box>
     </Modal>
   );

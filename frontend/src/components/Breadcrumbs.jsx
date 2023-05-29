@@ -13,7 +13,7 @@ const Breadcrumbs = () => {
 
       return (
         <div className="crumb" key={crumb}>
-          <span>{crumb}</span>
+          <span>{crumb.replace(/-/g, " ")}</span>
         </div>
       );
     });

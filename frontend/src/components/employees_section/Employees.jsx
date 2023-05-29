@@ -42,7 +42,7 @@ const Employees = () => {
   return (
     <>
       {/* <CustomDialog open={open} onClose={handleClose} data={dialogData} /> */}
-      <CustomModal open={open} onClose={handleClose} title={false}>
+      <CustomModal open={open} onClose={handleClose} title=" ">
         <EmployeeProfile data={dialogData} />
       </CustomModal>
 

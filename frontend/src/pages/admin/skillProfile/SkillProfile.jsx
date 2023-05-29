@@ -1,4 +1,12 @@
-import { Box, Button, IconButton, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  IconButton,
+  Menu,
+  MenuItem,
+  Stack,
+  Typography,
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import React, { useState } from "react";
@@ -11,6 +19,21 @@ import TableRow from "./TableRow";
 
 const SkillProfile = () => {
   const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const jobs = tableData.map((data) => data.jobTitle);
+  const [selectedJob, setSelectedJob] = useState(jobs[0]);
+  const skills = tableData
+    .filter((data) => data.jobTitle === selectedJob)
+    .map((data) => data.skills);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = (option) => {
+    setAnchorEl(null);
+    setSelectedJob(option);
+  };
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -34,11 +57,22 @@ const SkillProfile = () => {
               color={"primary.main"}
               fontSize={{ xs: "24px" }}
             >
-              Senior UI Developer
+              {selectedJob}
             </Typography>
-            <IconButton>
+            <IconButton id="demo-button" onClick={handleClick}>
               <KeyboardArrowDownIcon />
             </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={() => setAnchorEl(null)}
+            >
+              {jobs.map((job) => (
+                <MenuItem key={job} onClick={() => handleCloseMenu(job)}>
+                  {job}
+                </MenuItem>
+              ))}
+            </Menu>
           </Stack>
         </Box>
         <Button
@@ -58,8 +92,12 @@ const SkillProfile = () => {
       </Stack>
       <Stack className="displayData__section" mt={5.5} sx={{ width: "100%" }}>
         <HeadersTableSkillProfile />
-        {tableData.map((skill, index) => (
-          <TableRow skill={skill} key={skill.skillName} />
+        {skills[0].map((skill, index) => (
+          <TableRow
+            skill={skill}
+            key={skill.skillName}
+            jobTitle={selectedJob}
+          />
         ))}
       </Stack>
     </>
