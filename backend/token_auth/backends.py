@@ -10,6 +10,7 @@ from time import mktime
 
 from datetime import datetime, timedelta
 
+from django.forms.models import model_to_dict
 
 import logging
 
@@ -53,17 +54,17 @@ class JWTAuthentication(authentication.BaseAuthentication):
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
         except jwt.ExpiredSignatureError:
-            msg = 'Signature has expired.'
+            msg = 'Authentication Error, the token has expired.'
             raise exceptions.AuthenticationFailed(msg)
         except jwt.DecodeError:
-            msg = 'Error decoding signature.'
+            msg = 'Authentication Error, please try again.'
             raise exceptions.AuthenticationFailed(msg)
         except jwt.InvalidTokenError:
             msg = 'Invalid authentication token.'
             raise exceptions.AuthenticationFailed(msg)
 
         try:
-            user = GripUser.objects.get(id=payload['user_id'])
+            user = GripUser.objects.get(id=payload['user']['id'])
         except GripUser.DoesNotExist:
             msg = 'No user matching this token was found.'
             raise exceptions.AuthenticationFailed(msg)
@@ -72,10 +73,16 @@ class JWTAuthentication(authentication.BaseAuthentication):
 
 
 
-def RefreshToken (user_id):
+def RefreshToken (user):
+    user = model_to_dict(user)
+    del user['password']
+    del user['date_joined']
+    del user['groups']
+    del user['user_permissions']
     expiration =mktime((datetime.now() + timedelta(days=settings.JWT_EXPIRATION_DAYS)).timetuple()) 
+
     NewToken = jwt.encode({
-        'user_id': user_id,
-        'exp': int(expiration)
+        'expire_in': int(expiration),
+        'user': user
         },settings.SECRET_KEY, algorithm='HS256')
     return NewToken

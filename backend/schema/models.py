@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from .managers import GUserManager
-#from neo4django.db import models as neo_models
+from neomodel import StructuredNode, StringProperty, UniqueIdProperty,IntegerProperty, RelationshipTo
 # Create your models here.
 
 ##########################################
@@ -20,6 +20,8 @@ class GripFile(models.Model):
     type = models.CharField(max_length=20, null=False)
     #file created at
     created_at = models.DateTimeField(auto_now_add=True)
+    #user id
+    user = models.ForeignKey('GripUser', on_delete=models.CASCADE, null=True)
     def __str__(self):
         return self.name
     
@@ -71,28 +73,24 @@ class GripUser(AbstractUser):
     last_name = models.CharField(max_length=20, null=False)
     #email
     email = models.EmailField(max_length=50, null=False, unique=True)
+    #gender
+    gender = models.CharField(max_length=10, null=False)
     #forien key to company model
     company_id = models.ForeignKey(Company, on_delete=models.CASCADE, null=True)
     #phone number
     phone = models.CharField(max_length=20, null=True)
     #country
-    country = models.CharField(max_length=20, null=True)
-    #city
-    city = models.CharField(max_length=20, null=True)
-    #address
-    address = models.CharField(max_length=100, null=True)
-    #postal code
-    postal_code = models.CharField(max_length=10, null=True)
+    location = models.CharField(max_length=150, null=True)
     #created at 
     created_at = models.DateTimeField(auto_now_add=True)
     #profile picture, foriegn key to file model
     profile_picture = models.ForeignKey(GripFile, on_delete=models.CASCADE, null=True, related_name='profile_pictures')
     #resume, foriegn key to file model, allow null
     resume = models.ForeignKey(GripFile, on_delete=models.CASCADE, null=True, related_name='resume')
-    #is manager
-    is_manager = models.BooleanField(default=False)
-    #is staff
-    is_staff = models.BooleanField(default=False)
+    #role
+    system_role = models.CharField(max_length=20, null=False)
+    #person id 
+    person_id = models.CharField(max_length=50, null=True)
     #define username field
     USERNAME_FIELD = 'email'
     #define required fields
@@ -139,8 +137,12 @@ class Experience(models.Model):
     start_date = models.DateField(null=False)
     #experience end date
     end_date = models.DateField(null=True)
+    #experience is current
+    is_current = models.BooleanField(default=False)
     #user id
     user_id = models.ForeignKey(GripUser, on_delete=models.CASCADE, null=False)
+    #company id
+    company_id = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)
     def __str__(self):
         return f"{self.title} at {self.company}"
     
@@ -153,8 +155,6 @@ class Education(models.Model):
     degree = models.CharField(max_length=50, null=False)
     #education level
     level = models.CharField(max_length=50, null=False)
-    #education description
-    description = models.CharField(max_length=200, null=True)
     #institution (just name)
     institution = models.CharField(max_length=50, null=False)
     #education start date
@@ -163,6 +163,8 @@ class Education(models.Model):
     end_date = models.DateField(null=True)
     #user id
     user_id = models.ForeignKey(GripUser, on_delete=models.CASCADE, null=False)
+    #company id
+    company_id = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)
     def __str__(self):
         return f"{self.level} of {self.degree} at {self.institution}"
     
@@ -172,9 +174,7 @@ class Course(models.Model):
     #course id
     id = models.AutoField(primary_key=True)
     #course title
-    title = models.CharField(max_length=50, null=False)
-    #course description
-    description = models.CharField(max_length=200, null=True)
+    degree = models.CharField(max_length=50, null=False)
     #institution (just name)
     institution = models.CharField(max_length=50, null=False)
     #course start date
@@ -183,11 +183,131 @@ class Course(models.Model):
     end_date = models.DateField(null=True)
     #user id
     user_id = models.ForeignKey(GripUser, on_delete=models.CASCADE, null=False)
+    #company id
+    company_id = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)
     #set app label
     def __str__(self):
         return self.title
     
-'''
+#define skill proficiency model
+class SkillProficiency(models.Model):
+    #skill proficiency id
+    id = models.AutoField(primary_key=True)
+    #skill title
+    title = models.CharField(max_length=100, null=False)
+    #skill description
+    description = models.CharField(max_length=700, null=True)
+    #skill proficiency level
+    level = models.IntegerField(null=False)
+    #skill id
+    skill_id = models.CharField(max_length=50, null=False)
+    #user id
+    user_id = models.ForeignKey(GripUser, on_delete=models.CASCADE, null=False)
+    #company id
+    company_id = models.ForeignKey(Company, on_delete=models.CASCADE, null=True)
+    def __str__(self):
+        return f"{self.skill_id} at level {self.level}"
+    
+#define skill proficiency model
+class SkillWish(models.Model):
+    #skill proficiency id
+    id = models.AutoField(primary_key=True)
+    #skill title
+    title = models.CharField(max_length=100, null=False)
+    #skill description
+    description = models.CharField(max_length=700, null=True)
+    #skill id
+    skill_id = models.CharField(max_length=50, null=False)
+    #user id
+    user_id = models.ForeignKey(GripUser, on_delete=models.CASCADE, null=False)
+    #company id
+    company_id = models.ForeignKey(Company, on_delete=models.CASCADE, null=True)
+    def __str__(self):
+        return f"{self.skill_id}"
+    
+#define job profile model 
+
+class JobProfile(models.Model):
+    #job profile id
+    id = models.AutoField(primary_key=True)
+    #job profile title
+    title = models.CharField(max_length=50, null=False)
+    #job id
+    job_id = models.CharField(max_length=50, null=False)
+    #company id
+    company_id = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)
+    #set app label
+    def __str__(self):
+        return self.title
+    
+#define skill requirement model
+
+class SkillRequirement(models.Model):
+    #skill requirement id
+    id = models.AutoField(primary_key=True)
+    #skill title 
+    title = models.CharField(max_length=100, null=False)
+    #skill description
+    description = models.CharField(max_length=700, null=True)
+    #skill requirement level
+    level = models.IntegerField(null=False)
+    #skill id
+    skill_id = models.CharField(max_length=50, null=False)
+    #job profile id
+    job_profile_id = models.ForeignKey(JobProfile, on_delete=models.CASCADE, null=False)
+    #company id
+    company_id = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)
+    def __str__(self):
+        return f"{self.skill_id} at level {self.level}"
+        
+#define career job model 
+
+class CareerJob(models.Model):
+    #career job id
+    id = models.AutoField(primary_key=True)
+    #career job profile id
+    job_profile_id = models.ForeignKey(JobProfile, on_delete=models.CASCADE, null=True,blank=True)
+    #user id
+    user_id = models.ForeignKey(GripUser, on_delete=models.CASCADE, null=False)
+    
+    def __str__(self):
+        return f"{self.user_id} at {self.job_profile_id}"
+    
+class CareerLink(models.Model):
+    id = models.AutoField(primary_key=True)
+    #source careerjob
+    source = models.ForeignKey(CareerJob, on_delete=models.CASCADE, null=False,related_name='source')
+    #target careerjob
+    target = models.ForeignKey(CareerJob, on_delete=models.CASCADE, null=False,related_name='target')
+    #user_id
+    user_id = models.ForeignKey(GripUser, on_delete=models.CASCADE, null=False)
+    def __str__(self):
+        return f"{self.source} -> {self.target}"
+    
+#define role model
+class Role(models.Model):
+    #role id
+    id = models.AutoField(primary_key=True)
+    #company id
+    company_id = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)
+    #job profile id
+    job_profile_id = models.ForeignKey(JobProfile, on_delete=models.SET_NULL, null=True, blank=True)
+    #department
+    department = models.CharField(max_length=50, null=True)
+    #user id
+    user_id = models.ForeignKey(GripUser, on_delete=models.CASCADE, null=True, blank=True)
+    #title
+    title = models.CharField(max_length=50, null=True)
+    #parend role id
+    parent_role = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
+    #selected role id 
+    selected_role_id = models.IntegerField(null=True)
+    allign = models.CharField(max_length=50, null=True)
+
+    def __str__(self):
+        return f"{self.title} at {self.company_id}"
+#define position model 
+
 
 ##########################################
 ##              Neo4j Models            ##
@@ -195,97 +315,92 @@ class Course(models.Model):
 #documentation: https://neo4django.readthedocs.io/en/latest/writing-models.html
 
 #define skill group model on neo4j
-class SkillGroup(neo_models.NodeModel):
+class SkillGroup(StructuredNode):
     #skill group id
-    conceptUri = neo_models.IntegerProperty(primary_key=True)
+    conceptUri = UniqueIdProperty()
     #skill group preferred label
-    preferredLabel = neo_models.StringProperty(unique_index=True, null=False)
+    preferredLabel = StringProperty(null=False)
     #skill group description
-    description = neo_models.StringProperty(null=True)
+    description = StringProperty(null=True)
     def __str__(self):
         return self.preferredLabel
     
 #define ISCOGroup model on neo4j
 
-class ISCOGroup(neo_models.NodeModel):
+class ISCOGroup(StructuredNode):
     #skill ISCOGroup id
-    conceptUri = neo_models.IntegerProperty(primary_key=True)
+    conceptUri = UniqueIdProperty()
     #skill ISCOGroup preferred label
-    preferredLabel = neo_models.StringProperty(unique_index=True, null=False)
+    preferredLabel = StringProperty(null=False)
     #skill ISCOGroup description
-    description = neo_models.StringProperty(null=True)
+    description = StringProperty(null=True)
     def __str__(self):
         return self.preferredLabel
     
 #define skill model on neo4j
-class Skill(neo_models.NodeModel):
+class Skill(StructuredNode):
     #skill id
-    conceptUri = neo_models.IntegerProperty(primary_key=True)
+    conceptUri =StringProperty(null=False)
     #skill preferred label
-    preferredLabel = neo_models.StringProperty(unique_index=True, null=False)
+    preferredLabel = StringProperty(null=False)
     #skill description
-    description = neo_models.StringProperty(null=True)
+    description = StringProperty(null=True)
     #skill type 
-    type = neo_models.StringProperty(null=False)
+    type = StringProperty(null=False)
     #skill alternative labels
-    altLabels = neo_models.StringProperty(null=True)
+    altLabels = StringProperty(null=True)
     #skill relationships
     #related skills
-    RelatedTo = neo_models.Relationship('self', 'RelatedTo')
+    RelatedTo = RelationshipTo('Skill', 'RelatedTo')
     #part of groups
-    PartOfGroup = neo_models.Relationship(SkillGroup, 'PartOfGroup')
+    PartOfGroup = RelationshipTo("SkillGroup", 'PartOfGroup')
     def __str__(self):
         return self.preferredLabel
     
 #define occupation model on neo4j
 
-class Occupation(neo_models.NodeModel):
+class Occupation(StructuredNode):
     #Occupation id
-    conceptUri = neo_models.IntegerProperty(primary_key=True)
+    conceptUri =StringProperty(null=False)
     #Occupation preferred label
-    preferredLabel = neo_models.StringProperty(unique_index=True, null=False)
+    preferredLabel = StringProperty(null=False)
     #Occupation description
-    description = neo_models.StringProperty(null=True)
+    description = StringProperty(null=True)
     #Occupation alternative labels
-    altLabels = neo_models.StringProperty(null=True)
+    altLabels = StringProperty(null=True)
     #relationship
     #occupation skills
-    HasSkill = neo_models.Relationship(Skill, 'HasSkill')
+    hasSkill = RelationshipTo("Skill", 'hasSkill')
     #occupation experiences
-    PartOfGroup = neo_models.Relationship(ISCOGroup, 'PartOfGroup')
+    PartOfGroup = RelationshipTo("ISCOGroup", 'PartOfGroup')
     
     def __str__(self):
         return self.preferredLabel
     
 #define jobTitle model on neo4j
 
-class JobTitle(neo_models.NodeModel):
-    #jobTitle id
-    id = neo_models.IntegerProperty(primary_key=True)
+class JobTitle(StructuredNode):
+
     #jobTitle label
-    label = neo_models.StringProperty(unique_index=True, null=False)
+    label = StringProperty( null=False)
     #relationship
     #jobTitle relation to occupation
-    SimilarTo = neo_models.Relationship(Occupation, 'SimilarTo')
+    SimilarTo = RelationshipTo("Occupation", 'SimilarTo')
     def __str__(self):
         return self.label
 
 #define person model on neo4j
 
-class Person(neo_models.NodeModel):
-    #person id
-    id = neo_models.IntegerProperty(primary_key=True)
+class Person(StructuredNode):
     #person name
-    name = neo_models.StringProperty(null=False)
-    #person reference id
-    reference_id = neo_models.IntegerProperty(unique_index=True, null=False)
+    name = StringProperty(null=False)
     #person company id 
-    company_id = neo_models.IntegerProperty(null=False)
+    company = StringProperty(null=True)
     #relationship
     #person skills
-    HasSkill = neo_models.Relationship(Skill, 'HasSkill')
+    HasSkill = RelationshipTo("Skill", 'HasSkill')
     #person experiences
-    HasJob = neo_models.Relationship(JobTitle, 'HasJob')
+    HasJob = RelationshipTo("JobTitle", 'HasJob')
     
     def __str__(self):
         return self.name
@@ -293,4 +408,3 @@ class Person(neo_models.NodeModel):
 
     
     
-'''

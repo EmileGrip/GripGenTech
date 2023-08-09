@@ -1,3 +1,5 @@
 **/__pycache__/*
 **/*.sqlite3
 schema/.$schema.drawio.bkp
+grip_env
+.env

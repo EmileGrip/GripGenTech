@@ -16,6 +16,30 @@ import posixpath
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Get all Needed environment variables 
+env_vars = {
+    "POSTGRES_DB": os.environ.get('POSTGRES_DB'),
+    "POSTGRES_USER" : os.environ.get('POSTGRES_USER'),
+    "POSTGRES_PASSWORD" : os.environ.get('POSTGRES_PASSWORD'),
+    "POSTGRES_HOST" : os.environ.get('POSTGRES_HOST'),
+    "POSTGRES_PORT" : os.environ.get('POSTGRES_PORT'),
+    "NEO4J_BOLT_URL" : os.environ.get('NEO4J_BOLT_URL'),
+    "EMAIL_HOST" : os.environ.get('EMAIL_HOST'),
+    "EMAIL_PORT" : os.environ.get('EMAIL_PORT'),
+    "EMAIL_HOST_USER" : os.environ.get('EMAIL_HOST_USER'),
+    "EMAIL_HOST_PASSWORD" : os.environ.get('EMAIL_HOST_PASSWORD'),
+    "GRIP_HOST":os.environ.get('GRIP_HOST'),
+    "AWS_ACCESS_KEY_ID":os.environ.get('AWS_ACCESS_KEY_ID'),
+    "AWS_SECRET_ACCESS_KEY":os.environ.get('AWS_SECRET_ACCESS_KEY'),
+    "AWS_STORAGE_BUCKET_NAME":os.environ.get('AWS_STORAGE_BUCKET_NAME'),
+}
+#iterate through all environment variables and check if they are set
+not_set = []
+for key, value in env_vars.items():
+    if value is None:
+        not_set.append(key)
+if len(not_set) > 0:
+    raise Exception("Error : the following environment variables are not set : " + str(not_set))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
@@ -25,14 +49,28 @@ SECRET_KEY = 'a86af676-b476-42a4-9946-0d0ec3715613'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [env_vars["GRIP_HOST"], 'localhost', '127.0.0.1']
 
 # Application references
 # https://docs.djangoproject.com/en/2.1/ref/settings/#std:setting-INSTALLED_APPS
 INSTALLED_APPS = [
+    'company',
+    'user',
     'schema',
     'token_auth',
-    'tenancy',
+    'experience',
+    'education',
+    'search',
+    'job_profile',
+    'skill_profile',
+    'skill_proficiency',
+    'role',
+    'analytics',
+    'course',
+    'careerpath',
+    'files',
+    'skill_wish',
+    'recommendations',
     # Add your apps here to enable them
     'django.contrib.admin',
     'django.contrib.auth',
@@ -42,7 +80,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    
+    'django_neomodel',
+    'corsheaders',
+    "storages",
 ]
 
 # Middleware framework
@@ -55,7 +95,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'griphr-backend.urls'
 
@@ -81,22 +123,22 @@ WSGI_APPLICATION = 'griphr-backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 DATABASES = {
+    #'default': {
+    #    'ENGINE': 'django.db.backends.sqlite3',
+    #    'NAME': 'postgres.sqlite3',
+    #},
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'postgres.sqlite3',
-    },
-}
-'''
-NEO4J_DATABASES = {
-    'default' : {
-        'HOST':'localhost',
-        'PORT':7474,
-        'ENDPOINT':'/db/data'
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env_vars["POSTGRES_DB"],
+        'USER': env_vars["POSTGRES_USER"],
+        'PASSWORD': env_vars["POSTGRES_PASSWORD"],
+        'HOST': env_vars["POSTGRES_HOST"],
+        'PORT': env_vars["POSTGRES_PORT"],
     }
 }
-# Database routers
-DATABASE_ROUTERS = ['neo4django.utils.Neo4djangoIntegrationRouter']
-'''
+
+NEOMODEL_NEO4J_BOLT_URL = env_vars["NEO4J_BOLT_URL"]
+
 
 AUTH_USER_MODEL = "schema.GripUser" 
 # Password validation
@@ -146,9 +188,27 @@ PASSWORD_RESET_TIMEOUT = 300
 #EMAIL_FILE_PATH=BASE_DIR+'/tmp/django-email-dev'
 
 EMAIL_BACKEND= 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = '' #past the key or password app here
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = 'JWT Authentication system'
+EMAIL_HOST = env_vars["EMAIL_HOST"]
+EMAIL_HOST_USER = env_vars["EMAIL_HOST_USER"]
+EMAIL_HOST_PASSWORD = env_vars["EMAIL_HOST_PASSWORD"]
+EMAIL_PORT = env_vars["EMAIL_PORT"]
+EMAIL_USE_SSL = True
+DEFAULT_FROM_EMAIL = 'GripHR'
+
+# s3 configuration
+if  os.environ.get('AWS_S3_ENDPOINT_URL', None) is not None:
+    AWS_S3_ENDPOINT_URL=os.environ.get('AWS_S3_ENDPOINT_URL', None)
+if  os.environ.get('AWS_S3_REGION_NAME', None) is not None:
+    AWS_S3_REGION_NAME=os.environ.get('AWS_S3_REGION_NAME', None)
+AWS_ACCESS_KEY_ID=env_vars["AWS_ACCESS_KEY_ID"]
+AWS_SECRET_ACCESS_KEY=env_vars["AWS_SECRET_ACCESS_KEY"]
+AWS_STORAGE_BUCKET_NAME=env_vars["AWS_STORAGE_BUCKET_NAME"]
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
+    }
+}

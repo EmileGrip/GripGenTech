@@ -18,23 +18,34 @@ class GUserManager(BaseUserManager):
             raise ValueError(_('Users must have a first name'))
         if not last_name:
             raise ValueError(_('Users must have a last name'))
-        if not extra_fields.get('company_id',None) and not extra_fields.get('is_staff'):
+        if not extra_fields.get('company_id',None) and not extra_fields.get('system_role')=="staff":
             raise ValueError(_('Users must have a company'))
         email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+        user = self.model(username=email,email=email,first_name=first_name,last_name=last_name, **extra_fields)
         user.set_password(password)
         user.save()
         return user
 
     def create_staff(self,first_name,last_name, email, password, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError(_('Superuser must have is_staff=True.'))
+        extra_fields.setdefault('system_role', "staff")
+        if extra_fields.get('system_role') != "staff":
+            raise ValueError(_('Staff must have system_role = staff.'))
         return self.create_user(first_name,last_name,email, password, **extra_fields)
     
     def create_manager(self,first_name,last_name, email, password, **extra_fields):
-        extra_fields.setdefault('is_manager', True)
-        if extra_fields.get('is_manager') is not True:
-            raise ValueError(_('Superuser must have is_manager=True.'))
+        extra_fields.setdefault('system_role', "manager")
+        if not extra_fields.get('system_role') == "manager":
+            raise ValueError(_('Manager must have system_role = manager.'))
         return self.create_user(first_name,last_name,email, password, **extra_fields)
-
+    
+    def create_employee(self,first_name,last_name, email, password, **extra_fields):
+        extra_fields.setdefault('system_role', "employee")
+        if not extra_fields.get('system_role') == "employee":
+            raise ValueError(_('Employee must have system_role = employee.'))
+        return self.create_user(first_name,last_name,email, password, **extra_fields)
+    
+    def create_admin(self,first_name,last_name, email, password, **extra_fields):
+        extra_fields.setdefault('system_role', "admin")
+        if not extra_fields.get('system_role') == "admin":
+            raise ValueError(_('Admin must have system_role = admin.'))
+        return self.create_user(first_name,last_name,email, password, **extra_fields)

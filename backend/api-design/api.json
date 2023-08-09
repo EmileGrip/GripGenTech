@@ -1,0 +1,3866 @@
+{
+  "openapi": "3.0.0",
+  "x-stoplight": {
+    "id": "c7yd1iya7e17i"
+  },
+  "info": {
+    "title": "GripHR api",
+    "version": "1.0",
+    "description": ""
+  },
+  "servers": [
+    {
+      "url": "api/",
+      "description": "base utl"
+    }
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Login to website",
+        "operationId": "post-auth-login",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "x-stoplight": {
+                        "id": "as5i3d56rgqpw"
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "x-stoplight": {
+                        "id": "xh3t7vfr61bdb"
+                      }
+                    },
+                    "payload": {
+                      "x-stoplight": {
+                        "id": "iqyv02pll99r9"
+                      },
+                      "type": "object",
+                      "properties": {
+                        "token": {
+                          "type": "string",
+                          "x-stoplight": {
+                            "id": "p78jlvhgywbvo"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "login to website",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "x-stoplight": {
+                      "id": "m2i5cgyt9geoi"
+                    }
+                  },
+                  "password": {
+                    "type": "string",
+                    "x-stoplight": {
+                      "id": "z7zntry34tmel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      },
+      "parameters": []
+    },
+    "/auth/reset_password": {
+      "post": {
+        "summary": "Request password reset",
+        "operationId": "post-auth-reset_password",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "x-stoplight": {
+                        "id": "bhu56wtykzn4n"
+                      },
+                      "default": true,
+                      "readOnly": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "x-stoplight": {
+                        "id": "ewiqw0e540bio"
+                      },
+                      "default": "reset token is sent, please check your email"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "request password reset for user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "x-stoplight": {
+                      "id": "9rzf65xoja0b4"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      },
+      "parameters": []
+    },
+    "/auth/change_password": {
+      "post": {
+        "summary": "Change password",
+        "operationId": "post-auth-change_password",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "x-stoplight": {
+                        "id": "93bp27dxi93yb"
+                      },
+                      "default": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "x-stoplight": {
+                        "id": "ufel6kwzj2lrh"
+                      },
+                      "default": "password changed successfully.",
+                      "readOnly": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "description": "change password after reset request with the sent token",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "x-stoplight": {
+                      "id": "lcya2gidccejz"
+                    }
+                  },
+                  "email": {
+                    "type": "string",
+                    "x-stoplight": {
+                      "id": "6wbdif5qlgn3u"
+                    }
+                  },
+                  "new_password": {
+                    "type": "string",
+                    "x-stoplight": {
+                      "id": "rgfzfkv1jo6u8"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      },
+      "parameters": []
+    },
+    "/auth/new_password": {
+      "post": {
+        "summary": "Set new password",
+        "operationId": "post-auth-new_password",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "x-stoplight": {
+                        "id": "nvd9chz0540e4"
+                      },
+                      "default": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "x-stoplight": {
+                        "id": "1n1nn0aycuxnb"
+                      },
+                      "default": "Password changed successfully.",
+                      "readOnly": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Set new password for user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "old_password": {
+                    "type": "string",
+                    "x-stoplight": {
+                      "id": "zwcc1hlkzdxyg"
+                    }
+                  },
+                  "new_password": {
+                    "type": "string",
+                    "x-stoplight": {
+                      "id": "tx85ccv6tju34"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "description": ""
+        },
+        "parameters": [],
+        "tags": [
+          "auth"
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ]
+      },
+      "parameters": []
+    },
+    "/company": {
+      "parameters": [],
+      "get": {
+        "summary": "Get company details by id",
+        "tags": [
+          "company"
+        ],
+        "responses": {
+          "200": {
+            "description": "If id exists, It return the company data, If not (for staff users), It returns all company data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "default": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "default": "comany returned successfully.",
+                      "readOnly": true
+                    },
+                    "payload": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer"
+                        },
+                        "num": {
+                          "type": "integer"
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Company"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-company-id",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "Company id"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "page",
+            "description": "page of retrieved data"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "num",
+            "description": "number of elements per page"
+          }
+        ],
+        "description": "",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Add new company",
+        "operationId": "post-company",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string",
+                      "default": "Company created successfully."
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/Company"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Add new company to database.",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "website": {
+                    "type": "string"
+                  },
+                  "linkedin": {
+                    "type": "string"
+                  },
+                  "industry": {
+                    "type": "string"
+                  },
+                  "address1": {
+                    "type": "string"
+                  },
+                  "address2": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "city": {
+                    "type": "string"
+                  },
+                  "country": {
+                    "type": "string"
+                  },
+                  "postal_code": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "tags": [
+          "company"
+        ]
+      },
+      "put": {
+        "summary": "Edit company details",
+        "operationId": "put-company",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "default": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "default": "company edited successfully."
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/Company"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Edit company details ",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "website": {
+                    "type": "string"
+                  },
+                  "linkedin": {
+                    "type": "string"
+                  },
+                  "industry": {
+                    "type": "string"
+                  },
+                  "address1": {
+                    "type": "string"
+                  },
+                  "address2": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "city": {
+                    "type": "string"
+                  },
+                  "country": {
+                    "type": "string"
+                  },
+                  "postal_code": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "company id",
+            "required": true
+          }
+        ],
+        "tags": [
+          "company"
+        ]
+      },
+      "delete": {
+        "summary": "",
+        "operationId": "delete-company",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "company id",
+            "required": true
+          }
+        ],
+        "tags": [
+          "company"
+        ]
+      }
+    },
+    "/user": {
+      "get": {
+        "summary": "Get user details",
+        "tags": [
+          "user"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer"
+                        },
+                        "num": {
+                          "type": "integer"
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/GripUser"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-user",
+        "description": "",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "user id"
+          }
+        ]
+      },
+      "post": {
+        "summary": "Add new user",
+        "operationId": "post-user",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/GripUser"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company": {
+                    "type": "integer"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "is_manager": {
+                    "type": "boolean"
+                  },
+                  "is_staff": {
+                    "type": "boolean"
+                  },
+                  "gender": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "first_name",
+                  "last_name",
+                  "phone"
+                ]
+              }
+            }
+          },
+          "description": ""
+        },
+        "tags": [
+          "user"
+        ]
+      },
+      "put": {
+        "summary": "Edit user",
+        "operationId": "put-user",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/GripUser"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  },
+                  "gender": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "profile_picture": {
+                    "type": "integer"
+                  },
+                  "resume": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          },
+          "description": ""
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "user id",
+            "required": true
+          }
+        ],
+        "tags": [
+          "user"
+        ]
+      },
+      "delete": {
+        "summary": "Delete user",
+        "operationId": "delete-user",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "user id",
+            "required": true
+          }
+        ],
+        "tags": [
+          "user"
+        ]
+      }
+    },
+    "/experience": {
+      "get": {
+        "summary": "Get Experience",
+        "tags": [
+          "experience"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Experience"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-experience",
+        "description": "",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "experience id "
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "user_id",
+            "description": "user_id"
+          }
+        ]
+      },
+      "post": {
+        "summary": "Add new experience",
+        "operationId": "post-experience",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/Experience"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/GripUser"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "company": {
+                    "type": "string"
+                  },
+                  "start_date": {
+                    "type": "string"
+                  },
+                  "end_date": {
+                    "type": "string"
+                  },
+                  "user_id": {
+                    "type": "integer"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "title",
+                  "company",
+                  "start_date",
+                  "end_date",
+                  "user_id"
+                ]
+              }
+            }
+          },
+          "description": ""
+        },
+        "tags": [
+          "experience"
+        ]
+      },
+      "put": {
+        "summary": "Edit Experience",
+        "operationId": "put-experience",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/Experience"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "company": {
+                    "type": "string"
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                }
+              }
+            }
+          },
+          "description": ""
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "experience id",
+            "required": true
+          }
+        ],
+        "tags": [
+          "experience"
+        ]
+      },
+      "delete": {
+        "summary": "Delete experience",
+        "operationId": "delete-experience",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "experience id",
+            "required": true
+          }
+        ],
+        "tags": [
+          "experience"
+        ],
+        "description": ""
+      },
+      "parameters": []
+    },
+    "/course": {
+      "get": {
+        "summary": "Get course",
+        "tags": [
+          "course"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Course"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-course",
+        "description": "",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "course id "
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "user_id",
+            "description": "user_id"
+          }
+        ]
+      },
+      "post": {
+        "summary": "Add new course",
+        "operationId": "post-course",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/Experience"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/GripUser"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "institution": {
+                    "type": "string"
+                  },
+                  "start_date": {
+                    "type": "string"
+                  },
+                  "end_date": {
+                    "type": "string"
+                  },
+                  "user_id": {
+                    "type": "integer"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "title",
+                  "institution",
+                  "start_date",
+                  "end_date",
+                  "user_id"
+                ]
+              }
+            }
+          },
+          "description": ""
+        },
+        "tags": [
+          "course"
+        ]
+      },
+      "put": {
+        "summary": "Edit course",
+        "operationId": "put-course",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/Experience"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "institution": {
+                    "type": "string"
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                }
+              }
+            }
+          },
+          "description": ""
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "course id",
+            "required": true
+          }
+        ],
+        "tags": [
+          "course"
+        ]
+      },
+      "delete": {
+        "summary": "Delete course",
+        "operationId": "delete-course",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "course id",
+            "required": true
+          }
+        ],
+        "tags": [
+          "course"
+        ]
+      },
+      "parameters": []
+    },
+    "/education": {
+      "get": {
+        "summary": "Get education",
+        "tags": [
+          "education"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Education"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-education",
+        "description": "",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "education id "
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "user_id",
+            "description": "user_id"
+          }
+        ]
+      },
+      "post": {
+        "summary": "Add new education",
+        "operationId": "post-education",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/Education"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/GripUser"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "degree": {
+                    "type": "string"
+                  },
+                  "level": {
+                    "type": "string"
+                  },
+                  "institution": {
+                    "type": "string"
+                  },
+                  "start_date": {
+                    "type": "string"
+                  },
+                  "end_date": {
+                    "type": "string"
+                  },
+                  "user_id": {
+                    "type": "integer"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "degree",
+                  "level",
+                  "start_date",
+                  "end_date",
+                  "user_id"
+                ]
+              }
+            }
+          },
+          "description": ""
+        },
+        "tags": [
+          "education"
+        ]
+      },
+      "put": {
+        "summary": "Edit education",
+        "operationId": "put-education",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/Experience"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "degree": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "level": {
+                    "type": "string"
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "institution": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "description": ""
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "education id",
+            "required": true
+          }
+        ],
+        "tags": [
+          "education"
+        ]
+      },
+      "delete": {
+        "summary": "Delete experience",
+        "operationId": "delete-education",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "education id",
+            "required": true
+          }
+        ],
+        "description": "",
+        "tags": [
+          "education"
+        ]
+      },
+      "parameters": []
+    },
+    "/job_profile": {
+      "get": {
+        "summary": "get job profile(s)",
+        "tags": [
+          "job profile"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/JobProfile"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-job_profile",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "get job profile by id"
+          }
+        ],
+        "description": "This endpoint will get job profile by id if id is given, else it will get job profiles by company id, at least, one of them should be given"
+      },
+      "post": {
+        "summary": "Add job profile",
+        "operationId": "post-job_profile",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/JobProfile"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "add new job profile, this endpoint adds new node with type JobTitle in neo4j database, ai model should figure out the relation between JobTitle and Occupation.",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "company_id": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "title",
+                  "company_id"
+                ]
+              }
+            }
+          },
+          "description": ""
+        }
+      },
+      "delete": {
+        "summary": "Delete job profile",
+        "operationId": "delete-job_profile",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "job profile id to be deleted",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/skill_profile": {
+      "get": {
+        "summary": "get Skill profile for job profile id",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SkillRequirement"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-skill_profile",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "job_profile_id",
+            "description": "the job profile id to deal with",
+            "required": true
+          }
+        ],
+        "description": "",
+        "tags": [
+          "skill requirement"
+        ]
+      },
+      "post": {
+        "summary": "Add skill requirement to job profile",
+        "operationId": "post-skill_profile",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/SkillRequirement"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "level": {
+                    "type": "integer"
+                  },
+                  "skill_id": {
+                    "type": "string"
+                  },
+                  "job_profile_id": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "delete skill requirement",
+        "operationId": "delete-skill_profile",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "skill requirement id"
+          }
+        ]
+      }
+    },
+    "/skill_proficiency": {
+      "get": {
+        "summary": "get Skill proficiency for a user",
+        "tags": [
+          "Skill proficiency"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SkillProficiency"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-skill_proficiency",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "user_id",
+            "description": "the user id to deal with",
+            "required": true
+          }
+        ],
+        "description": ""
+      },
+      "post": {
+        "summary": "Add skill proficiency to user",
+        "operationId": "post-skill_proficiency",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/SkillRequirement"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "level": {
+                    "type": "integer"
+                  },
+                  "skill_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "delete skill proficiency",
+        "operationId": "delete-skill_proficiency",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "skill requirement id"
+          }
+        ]
+      },
+      "put": {
+        "summary": "edit skill level",
+        "operationId": "put-skill_proficiency",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/SkillProficiency"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id"
+          }
+        ]
+      },
+      "parameters": []
+    },
+    "/skill_wish": {
+      "get": {
+        "summary": "get Skill wishlist for a user",
+        "tags": [
+          "skill wish"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SkillWish"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SkillWish"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-skill_wish",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "user_id",
+            "description": "user id to get wishlist "
+          }
+        ],
+        "description": ""
+      },
+      "post": {
+        "summary": "Add skill wish to user",
+        "operationId": "post-skill_whsi",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/SkillWish"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "skill_id": {
+                    "type": "string"
+                  },
+                  "user_id": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "delete skill wish",
+        "operationId": "delete-skill_wish",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "skill requirement id"
+          }
+        ]
+      },
+      "parameters": []
+    },
+    "/role": {
+      "get": {
+        "summary": "Your GET endpoint",
+        "tags": [
+          "role"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "object",
+                      "properties": {
+                        "roles": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "title": {
+                                "type": "string"
+                              },
+                              "parent_role": {
+                                "type": "integer"
+                              },
+                              "user": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "integer"
+                                  },
+                                  "first_name": {
+                                    "type": "string"
+                                  },
+                                  "last_name": {
+                                    "type": "string"
+                                  },
+                                  "email": {
+                                    "type": "string"
+                                  },
+                                  "location": {
+                                    "type": "string"
+                                  },
+                                  "phone": {
+                                    "type": "string"
+                                  },
+                                  "system_role": {
+                                    "type": "string"
+                                  },
+                                  "created_at": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  }
+                                }
+                              },
+                              "job_profile": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "integer"
+                                  },
+                                  "title": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "edges": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "source": {
+                                "type": "string"
+                              },
+                              "target": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-role",
+        "description": "get role by id, or roles in specific company",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "company_id",
+            "description": "company id for roles"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "id of the role "
+          }
+        ]
+      },
+      "post": {
+        "summary": "Add role",
+        "operationId": "post-role",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/Role"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer"
+                  },
+                  "user_id": {
+                    "type": "integer"
+                  },
+                  "department": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "edit role",
+        "operationId": "put-role",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/Role"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "id of the role being edited"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_id": {
+                    "type": "integer"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "department": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Delete role",
+        "operationId": "delete-role",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "role id"
+          }
+        ]
+      }
+    },
+    "/position": {
+      "get": {
+        "summary": "get company positions",
+        "tags": [
+          "position"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Position"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-position",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "company_id",
+            "description": "company id to get it's positions"
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "add new position",
+        "operationId": "post-position",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/Position"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer"
+                  },
+                  "parent_position_id": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "edit position (add role to it)",
+        "operationId": "put-position",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/Position"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "position id"
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "role_id": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "delete position",
+        "operationId": "delete-position",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "position id to be deleted"
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ]
+      }
+    },
+    "/search": {
+      "post": {
+        "summary": "",
+        "operationId": "post-search",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "key",
+            "description": "select which table to search in [\"user\",\"role\",\"skill\",\"job_profile\"]"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "value",
+            "description": "search keyword"
+          }
+        ],
+        "description": "search in database",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "select which table to search in [\"user\",\"role\",\"skill\",\"job_profile\"]\n",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "description": "search keyword"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "search"
+        ]
+      }
+    },
+    "/analytics": {
+      "get": {
+        "summary": "Your GET endpoint",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                },
+                "examples": {
+                  "entity = jobs": {
+                    "value": {
+                      "entity": "jobs",
+                      "data": [
+                        {
+                          "job": "job.title",
+                          "score": "int",
+                          "needed": "int",
+                          "target": "int"
+                        }
+                      ]
+                    }
+                  },
+                  "entity = skills": {
+                    "value": {
+                      "entity": "skills",
+                      "data": [
+                        {
+                          "job": "skill title",
+                          "score": "int",
+                          "needed": "int",
+                          "target": "int"
+                        }
+                      ]
+                    }
+                  },
+                  "entity = users": {
+                    "value": {
+                      "entity": "users",
+                      "data": [
+                        {
+                          "job": "user.title",
+                          "score": "int",
+                          "needed": "int",
+                          "target": "int"
+                        }
+                      ]
+                    }
+                  },
+                  "entity = level": {
+                    "value": {
+                      "entity": "levels",
+                      "data": [
+                        {
+                          "skill": "skill title",
+                          "basic": "int",
+                          "intermediate": "int",
+                          "advanced": "int",
+                          "expert": "int"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-analytics",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "entity": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "entity"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/career_path": {
+      "get": {
+        "summary": "get career path",
+        "tags": [
+          "career path"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "object",
+                      "properties": {
+                        "jobs": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "job_profile_id": {
+                                "type": "integer"
+                              },
+                              "title": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "edges": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "source": {
+                                "type": "integer"
+                              },
+                              "target": {
+                                "type": "integer"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "Without id": {
+                    "value": {
+                      "success": true,
+                      "message": "string",
+                      "payload": {
+                        "jobs": [
+                          {
+                            "id": 0,
+                            "job_profile_id": 0,
+                            "title": "string"
+                          }
+                        ],
+                        "edges": [
+                          {
+                            "id": "string",
+                            "source": 0,
+                            "target": 0
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "with id": {
+                    "value": {
+                      "success": true,
+                      "message": "string",
+                      "payload": {
+                        "jobs": [
+                          {
+                            "id": 0,
+                            "job_profile_id": 0,
+                            "title": "string"
+                          }
+                        ],
+                        "edges": [
+                          {
+                            "id": "string",
+                            "source": 0,
+                            "target": 0
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-career_path",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "description": "get career path data",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "career job id"
+          }
+        ]
+      },
+      "post": {
+        "summary": "add career path",
+        "operationId": "post-career_path",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "add career path for user",
+        "tags": [
+          "career path"
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "job_profile_id": {
+                    "type": "integer"
+                  },
+                  "parent_career_job_id": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "job_profile_id",
+                  "parent_career_job_id"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete career job",
+        "operationId": "delete-career_path",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "career path"
+        ],
+        "description": "delete career path ",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/files": {
+      "get": {
+        "summary": "Get file",
+        "tags": [
+          "files"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "object",
+                      "properties": {
+                        "file_url": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-files",
+        "description": "",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "required": true,
+            "description": "id of file in database"
+          }
+        ]
+      },
+      "post": {
+        "summary": "Upload file",
+        "operationId": "post-files",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "$ref": "#/components/schemas/GripFile"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "byte"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete file",
+        "operationId": "delete-files",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "required": true,
+            "description": "file id"
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Company": {
+        "title": "Company",
+        "x-stoplight": {
+          "id": "omxf4oh2bdcwf"
+        },
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "industry": {
+            "type": "string"
+          },
+          "linkedin": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "address1": {
+            "type": "string"
+          },
+          "address2": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "postal_code": {
+            "type": "string"
+          },
+          "logo": {
+            "type": "string"
+          }
+        }
+      },
+      "GripUser": {
+        "title": "GripUser",
+        "x-stoplight": {
+          "id": "19e072f908eee"
+        },
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "company": {
+            "type": "integer"
+          },
+          "email": {
+            "type": "string"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "profile_pic_file": {
+            "type": "integer"
+          },
+          "resume_file": {
+            "type": "integer"
+          },
+          "joined_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "is_staff": {
+            "type": "boolean"
+          },
+          "is_manager": {
+            "type": "boolean"
+          },
+          "position": {
+            "type": "integer"
+          }
+        },
+        "description": ""
+      },
+      "Experience": {
+        "title": "Experience",
+        "x-stoplight": {
+          "id": "sv47oggtdi3gi"
+        },
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "compny": {
+            "type": "string"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "user_id": {
+            "type": "integer"
+          }
+        }
+      },
+      "Course": {
+        "title": "Course",
+        "x-stoplight": {
+          "id": "k6ltcnfxl24o0"
+        },
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "institution": {
+            "type": "string"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        }
+      },
+      "Education": {
+        "title": "Education",
+        "x-stoplight": {
+          "id": "469tkfh3aw4eq"
+        },
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "degree": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "institution": {
+            "type": "string"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "user_id": {
+            "type": "integer"
+          }
+        }
+      },
+      "SkillRequirement": {
+        "title": "SkillRequirement",
+        "x-stoplight": {
+          "id": "ee93a6ef10f0c"
+        },
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "level": {
+            "type": "integer"
+          },
+          "skill_id": {
+            "type": "string"
+          },
+          "job_profile_id": {
+            "type": "integer"
+          },
+          "company_id": {
+            "type": "integer"
+          }
+        }
+      },
+      "SkillProficiency": {
+        "title": "SkillProficiency",
+        "x-stoplight": {
+          "id": "ijoe44j78csh4"
+        },
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "level": {
+            "type": "integer"
+          },
+          "skill_id": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "integer"
+          },
+          "origin": {
+            "type": "string"
+          },
+          "company_id": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "level",
+          "skill_id",
+          "user_id"
+        ]
+      },
+      "JobProfile": {
+        "title": "JobProfile",
+        "x-stoplight": {
+          "id": "n6xvnca5jb90f"
+        },
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "job_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "company_id": {
+            "type": "integer"
+          }
+        }
+      },
+      "Role": {
+        "title": "Role",
+        "x-stoplight": {
+          "id": "nm6xqencatp2t"
+        },
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "boolean"
+          },
+          "company_id": {
+            "type": "integer"
+          },
+          "job_profile_id": {
+            "type": "integer"
+          },
+          "department": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "parent_role": {
+            "type": "integer"
+          }
+        }
+      },
+      "Position": {
+        "title": "Position",
+        "x-stoplight": {
+          "id": "9jp4tmuz3am84"
+        },
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "company_id": {
+            "type": "integer"
+          },
+          "parent_id": {
+            "type": "integer"
+          },
+          "role_id": {
+            "type": "integer"
+          }
+        }
+      },
+      "SkillWish": {
+        "title": "SkillWish",
+        "x-stoplight": {
+          "id": "rna557mwam9io"
+        },
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "skill_id": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "integer"
+          }
+        }
+      },
+      "CareerJob": {
+        "title": "CareerJob",
+        "x-stoplight": {
+          "id": "x3zauf11n0816"
+        },
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "job_profile_id": {
+            "type": "integer"
+          },
+          "user_id": {
+            "type": "integer"
+          },
+          "previous_jobs": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "GripFile": {
+        "title": "GripFile",
+        "x-stoplight": {
+          "id": "6qtz8gdo51rvt"
+        },
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Authorization": {
+        "name": "token",
+        "type": "apiKey",
+        "in": "header"
+      }
+    },
+    "requestBodies": {},
+    "responses": {
+      "Unauthorized": {
+        "description": "Example response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "message": {
+                  "type": "string",
+                  "default": "Authorization failed, please login to do this operation.",
+                  "readOnly": true
+                }
+              }
+            }
+          }
+        },
+        "headers": {}
+      },
+      "Forbidden": {
+        "description": "Example response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string",
+                  "default": "You don't have permission to do this operation.",
+                  "readOnly": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {}
+  }
+}
