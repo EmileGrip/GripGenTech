@@ -1,32 +1,56 @@
 import React from "react";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { Doughnut } from "react-chartjs-2";
-import { Box } from "@mui/material";
-ChartJS.register(ArcElement, Tooltip, Legend);
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
+import { Box, CircularProgress } from "@mui/material";
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const options = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: "true",
-      position: "right",
+  indexAxis: "y",
+  elements: {
+    bar: {
+      borderWidth: 2,
     },
   },
+  plugins: {
+    legend: {
+      display: false,
+    },
+  },
+  responsive: true,
+
+  maintainAspectRatio: false,
 };
 
-const SkillPresenceChart = ({ data }) => (
-  <Box
-    sx={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      position: "relative",
-      height: "100%",
-    }}
-  >
-    <Doughnut data={data} options={options} />
-  </Box>
-);
+const SkillPresenceChart = ({ data }) => {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        position: "relative",
+        height: "100%",
+      }}
+    >
+      {!data && <CircularProgress />}
+      {data && <Bar data={data} options={options} />}
+    </Box>
+  );
+};
 
 export default SkillPresenceChart;

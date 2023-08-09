@@ -38,6 +38,11 @@ const RoleSkillTableRow = ({ skill }) => {
 
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen((prev) => !prev);
+
+  const skillName = smMatches
+    ? skill?.title?.slice(0, 25)
+    : skill?.title?.slice(0, 20);
+
   return (
     <Stack
       className="tableRow"
@@ -62,18 +67,21 @@ const RoleSkillTableRow = ({ skill }) => {
         <Grid xs={12} sm={10} sx={gridStyles}>
           <Stack sx={{ pl: { xs: "10px", lg: "15px" } }}>
             <Stack
+              title={skill.title}
               sx={{ flexDirection: "row", gap: { xs: "6px", lg: "14px" } }}
             >
               <Typography
                 sx={{
                   color: "#737373",
-
+                  textTransform: "capitalize",
                   whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
                   fontWeight: 400,
                 }}
                 variant="h5"
               >
-                {skill.skillName}
+                {skillName}
               </Typography>
               {lgMatches && (
                 <DescriptionTooltip
@@ -92,22 +100,22 @@ const RoleSkillTableRow = ({ skill }) => {
             title={
               <>
                 <div style={{ textAlign: "center" }}>Proficiency needed</div>
-                <RatingBar initialValue={4 - skill.currentProf} />
+                <RatingBar initialValue={skill.required_level - skill.level} />
               </>
             }
             placement="top-start"
             followCursor
           >
             <span>
-              <RatingBar initialValue={skill.currentProf} />
+              <RatingBar initialValue={skill.level} />
             </span>
           </Tooltip>
 
-          {/* <RatingBar initialValue={skill.currentProf} /> */}
+          {/* <RatingBar initialValue={skill.level} /> */}
         </Grid>
 
         <Grid xs={2} sm={2} sx={{ ...gridStyles, justifyContent: "flex-end" }}>
-          {skill.status === "complete" ? (
+          {skill.status === 0 ? (
             <img src={completeIcon} style={imgStyles} alt="logo" />
           ) : lgMatches ? (
             <Typography
@@ -128,13 +136,13 @@ const RoleSkillTableRow = ({ skill }) => {
         </Grid>
       </Grid>
 
-      {skill.status !== "complete" && !lgMatches && (
+      {skill.status !== 0 && !lgMatches && (
         <Collapse in={open} timeout="auto" unmountOnExit>
           <Grid
             container
             spacing={1}
             columns={{ xs: 20 }}
-            key={skill.skillName}
+            key={skill.title}
             sx={{
               height: "45px",
               minHeight: "45px",
@@ -165,7 +173,7 @@ const RoleSkillTableRow = ({ skill }) => {
               sx={{ ...gridStyles, mt: "3px", pl: { sm: 1 } }}
             >
               <span>
-                <RatingBar initialValue={4 - skill.currentProf} />
+                <RatingBar initialValue={skill.required_level - skill.level} />
               </span>
             </Grid>
 
@@ -175,7 +183,7 @@ const RoleSkillTableRow = ({ skill }) => {
               lg={4}
               sx={{ ...gridStyles, justifyContent: "flex-end" }}
             >
-              {skill.status === "complete" ? (
+              {skill.status === 0 ? (
                 <img src={completeIcon} style={imgStyles} alt="logo" />
               ) : (
                 <Typography

@@ -1,10 +1,16 @@
 import { Box, Button, List, ListItem, Stack, Typography } from "@mui/material";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import cameraLogo from "../../../assets/camera_icon.svg";
+import axiosInstance from "../../../helper/axiosInstance";
+import { fetchData } from "../../../redux/slices/admin/companyProfile/companyProfileSlice";
+import { fetchUserById } from "../../../redux/slices/admin/users/usersActions";
+import { EMPLOYEE_MY_SKILLS_OVERVIEW_ROUTE } from "../../../routes/paths";
 
 const fileTypes = {
-  "image/*": [".jpeg", ".jpg", ".png", ".avif", ".svg", ".webp"],
+  "image/*": [".jpeg", ".jpg", ".png"],
 };
 
 const containerStyle = {
@@ -14,18 +20,60 @@ const containerStyle = {
   paddingBottom: "14px",
 };
 
-const PhotoDropContainer = ({ formik, name }) => {
-  const [path, setPath] = useState(null);
-  console.log(path);
+const PhotoDropContainer = ({ name, logo }) => {
+  const { token, userInfo } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.users);
+  const dispatch = useDispatch();
+
+  const navigate = useNavigate();
+
+  const sendPhoto = useCallback(
+    async (token, photoFile) => {
+      const formData = new FormData();
+      formData.append("file", photoFile);
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+        params: {
+          use_as: name,
+        },
+      };
+
+      try {
+        const response = await axiosInstance.post(`files`, formData, config);
+        console.log(response.data);
+        // navigate(EMPLOYEE_MY_SKILLS_OVERVIEW_ROUTE);
+        // onSuccess(true);
+        // onClose();
+        // onFetch();
+      } catch (error) {
+        // onSuccess(false);
+        console.log(error.response.data);
+      } finally {
+        // setLoading(false);
+        if (logo) {
+          dispatch(fetchData(token));
+        } else {
+          dispatch(fetchUserById(userInfo.id));
+        }
+        // closeModal();
+      }
+    },
+    [token]
+  );
 
   const onDrop = useCallback(
     (acceptedFiles) => {
       if (acceptedFiles.length === 0) return;
-      formik.setFieldValue(name, acceptedFiles[0].path);
-      setPath(URL.createObjectURL(acceptedFiles[0]));
+      const file = acceptedFiles[0];
+      sendPhoto(token, file);
     },
-    [name, formik]
+    [name]
   );
+
   const { acceptedFiles, fileRejections, getRootProps, getInputProps } =
     useDropzone({
       onDrop,
@@ -33,6 +81,24 @@ const PhotoDropContainer = ({ formik, name }) => {
       maxFiles: 1,
       maxSize: 4 * 10 ** 6,
     });
+
+  const fileRejectionItems = fileRejections.map(({ file, errors }) => (
+    <Box key={file.path}>
+      <Typography variant="h5" color={"secondary.main"} fontWeight={"400"}>
+        Selected File:{" "}
+        <Typography variant="span" color={"secondary.main"} fontWeight={"700"}>
+          {file.path}
+        </Typography>
+      </Typography>
+      <List>
+        {errors.map((e) => (
+          <ListItem key={e.code} sx={{ color: "warning.main" }}>
+            {e.message}
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  ));
 
   return (
     <Box className="container" sx={containerStyle}>
@@ -42,33 +108,42 @@ const PhotoDropContainer = ({ formik, name }) => {
       >
         <input {...getInputProps()} />
         <Stack spacing={2} sx={{ alignItems: "center" }}>
-          <Stack
-            justifyContent="center"
-            alignItems="center"
-            sx={{
-              width: "189px",
-              height: "189px",
-              background: "#D9D9D9",
-              borderRadius: "50%",
-            }}
-          >
-            <img src={cameraLogo} alt="camera-icon" />
-          </Stack>
+          {user?.profile_picture?.url || logo?.url ? (
+            <img
+              src={logo?.url ? logo?.url : user?.profile_picture?.url}
+              alt={logo?.url ? logo?.name : user?.profile_picture?.name}
+              style={{
+                width: "189px",
+                height: "189px",
+                borderRadius: "50%",
+                objectFit: "cover",
+              }}
+            />
+          ) : (
+            <Stack
+              justifyContent="center"
+              alignItems="center"
+              sx={{
+                width: "189px",
+                height: "189px",
+                background: "#D9D9D9",
+                borderRadius: "50%",
+              }}
+            >
+              <img src={cameraLogo} alt="camera-icon" />
+            </Stack>
+          )}
 
           <Button
             variant="outlined"
             sx={{ border: "none !important", textTransform: "capitalize" }}
             component="label"
           >
-            Upload Photo
+            {logo ? "Upload logo" : "Upload photo"}
           </Button>
         </Stack>
-        {!!path && (
-          <Box sx={{ width: "100%" }}>
-            <img style={{ width: "100%" }} src={path} alt="file img" />
-          </Box>
-        )}
       </Box>
+      {fileRejectionItems}
     </Box>
   );
 };

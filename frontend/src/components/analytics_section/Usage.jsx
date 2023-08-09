@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  CircularProgress,
   Divider,
   Stack,
   Typography,
@@ -9,14 +10,53 @@ import {
 } from "@mui/material";
 import rightArrows from "../../assets/chevrons-right.svg";
 import filter from "../../assets/filter.svg";
-import { employeesData as data } from "../../data/analyticsData";
+// import { employeesData as data } from "../../data/analyticsData";
 import TotalEmployeeChart from "./components/TotalEmployeeChart";
 import ProfileChart from "./components/ProfileChart";
 import RolesRatioChart from "./components/RolesRatioChart";
+import { useEffect, useState } from "react";
+import { useCallback } from "react";
+import axiosInstance from "../../helper/axiosInstance";
+import { useSelector } from "react-redux";
 
 const Usage = () => {
   const theme = useTheme();
   const mdMatches = useMediaQuery(theme.breakpoints.up("md"));
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { token } = useSelector((state) => state.auth);
+  const totalEmployees = data?.total_users;
+  const completedProfiles = (
+    (data?.profile_completed?.data[0] / totalEmployees) *
+    100
+  ).toFixed(1);
+  const unCompletedProfiles = (100 - completedProfiles).toFixed(1);
+
+  useEffect(() => {
+    if (token) {
+      fetchAnalyticsData();
+    }
+  }, [token]);
+
+  const fetchAnalyticsData = useCallback(async () => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    };
+
+    try {
+      const response = await axiosInstance.get("analytics", config);
+      setData(response.data.payload.usage);
+      // console.log(response.data.payload);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
 
   return (
     <>
@@ -31,13 +71,16 @@ const Usage = () => {
         }}
       >
         <Typography variant="body1" color="primary" sx={{ mr: "24px" }}>
-          <Typography
-            variant="span"
-            color="primary"
-            sx={{ fontSize: "20px", fontWeight: "700", mr: "20px" }}
-          >
-            {data["totalEmployees"]}
-          </Typography>
+          {loading && <CircularProgress size={20} />}
+          {!loading && (
+            <Typography
+              variant="span"
+              color="primary"
+              sx={{ fontSize: "20px", fontWeight: "700", mr: "20px" }}
+            >
+              {totalEmployees}
+            </Typography>
+          )}
           Total Employees
         </Typography>
         {mdMatches && (
@@ -48,16 +91,19 @@ const Usage = () => {
           />
         )}
         <Typography variant="body1" color="primary" sx={{ mr: "24px" }}>
-          <Typography
-            variant="span"
-            color="primary"
-            sx={{ fontSize: "20px", fontWeight: "700", mr: "20px" }}
-          >
-            {data["completedProfiles"]} %
-          </Typography>
+          {loading && <CircularProgress size={20} />}
+          {!loading && (
+            <Typography
+              variant="span"
+              color="primary"
+              sx={{ fontSize: "20px", fontWeight: "700", mr: "20px" }}
+            >
+              {completedProfiles} %
+            </Typography>
+          )}
           Completed profiles
         </Typography>
-        {mdMatches && (
+        {/* {mdMatches && (
           <Divider
             orientation="vertical"
             flexItem
@@ -65,10 +111,10 @@ const Usage = () => {
           />
         )}
 
-        {mdMatches && <img src={rightArrows} alt="chevrons-right" />}
+        {mdMatches && <img src={rightArrows} alt="chevrons-right" />} */}
       </Stack>
 
-      <Button
+      {/* <Button
         sx={{
           alignSelf: "start",
           textTransform: "capitalize",
@@ -88,7 +134,7 @@ const Usage = () => {
         variant="outlined"
       >
         Filter
-      </Button>
+      </Button> */}
 
       <Stack
         className="main__wrapper"
@@ -120,7 +166,9 @@ const Usage = () => {
           >
             Total Employees
           </Typography>
-          <TotalEmployeeChart />
+          <TotalEmployeeChart
+            accountCreation={data?.account_creation["2023"]}
+          />
         </Stack>
 
         <Stack
@@ -149,7 +197,9 @@ const Usage = () => {
               Completed Profiles
             </Typography>
 
-            <ProfileChart />
+            <ProfileChart
+              profileCompletedData={[completedProfiles, unCompletedProfiles]}
+            />
           </Stack>
           <Stack
             sx={{
@@ -169,7 +219,7 @@ const Usage = () => {
             >
               Ratio of user roles
             </Typography>
-            <RolesRatioChart />
+            <RolesRatioChart rolesRatioData={data?.roles_ratio} />
           </Stack>
         </Stack>
       </Stack>

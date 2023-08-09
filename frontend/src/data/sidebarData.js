@@ -19,6 +19,9 @@ import {
   ADMIN_SKILL_PROFILE,
   ADMIN_ORGANIZATION_ORGRANIGRAM_ROUTE,
   EMPLOYEE_ORGANIGRAM_ROUTE,
+  STAFF_COMPANIES_ADD_COMPANY_ROUTE,
+  STAFF_COMPANIES_OVERVIEW_ROUTE,
+  STAFF_ANALYTICS_ROUTE,
 } from "../routes/paths";
 
 import skills_active from "../assets/skills_active.svg";
@@ -29,6 +32,10 @@ import usertag_active from "../assets/usertag_active.svg";
 import usertag_inactive from "../assets/usertag_inactive.svg";
 import analytics_active from "../assets/analytics_icon_on.svg";
 import analytics_inactive from "../assets/analytics_icon_off.svg";
+import skillProfile_active from "../assets/skillProfile_active.svg";
+import skillProfile_inactive from "../assets/skillProfile_inactive.svg";
+
+import edit_icon from "../assets/edit_icon.svg";
 
 export const sidebarEmployeeData = [
   {
@@ -116,8 +123,8 @@ export const sidebarAdminData = [
     categoryName: "Organization",
     catergoryPath: ADMIN_ORGANIZATION_COMPANY_PROFILE_ROUTE,
     iconsPath: {
-      active: briefcase_active,
-      inactive: briefcase_inactive,
+      active: usertag_active,
+      inactive: usertag_inactive,
     },
     subCategory: [
       {
@@ -131,8 +138,8 @@ export const sidebarAdminData = [
     categoryName: "Skill Profile",
     catergoryPath: ADMIN_SKILL_PROFILE,
     iconsPath: {
-      active: usertag_active,
-      inactive: usertag_inactive,
+      active: skillProfile_active,
+      inactive: skillProfile_inactive,
     },
     subCategory: [],
   },
@@ -150,5 +157,32 @@ export const sidebarAdminData = [
       },
       { name: "Usage", path: ADMIN_ANALYTICS_USAGE_ROUTE },
     ],
+  },
+];
+
+export const sidebarStaffData = [
+  {
+    categoryName: "Companies",
+    catergoryPath: STAFF_COMPANIES_ADD_COMPANY_ROUTE,
+    iconsPath: {
+      active: briefcase_active,
+      inactive: briefcase_inactive,
+    },
+    subCategory: [
+      {
+        name: "Add Company",
+        path: STAFF_COMPANIES_ADD_COMPANY_ROUTE,
+      },
+      { name: "Overview", path: STAFF_COMPANIES_OVERVIEW_ROUTE },
+    ],
+  },
+  {
+    categoryName: "Analytics",
+    catergoryPath: STAFF_ANALYTICS_ROUTE,
+    iconsPath: {
+      active: analytics_active,
+      inactive: analytics_inactive,
+    },
+    subCategory: [],
   },
 ];

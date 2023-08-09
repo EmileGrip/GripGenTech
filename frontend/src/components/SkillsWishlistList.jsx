@@ -1,43 +1,51 @@
-import { Box, Button, Tooltip, Typography } from "@mui/material";
-import { skillsWishlist as data } from "../data/skillsData";
-import Grid from "@mui/material/Unstable_Grid2";
-import hintIcon from "../assets/hintIcon.svg";
-import DescriptionTooltip from "../ui/DescriptionTooltip";
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import { Stack } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CustomModal from "../ui/CustomModal";
 import AddSkillWishlistForm from "../pages/employee/mySkills/AddSkillWishlistForm";
 import { suggestedSkills as ModalSuggestedSkills } from "../data/skillsData";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchSkillsWishlistData } from "../redux/slices/Employee/mySkills/mySkillsActions";
+import SkillWishTableRow from "./SkillWishTableRow";
 
 const SkillsWishlistList = () => {
-  const checkLastChild = (index, array) => index + 1 === array.length;
   const [open, setOpen] = useState(false);
+  const { userInfo, token } = useSelector((state) => state.auth);
+  const { skillsWishlist, skillsWishlistLoading, skillsRecommendation } =
+    useSelector((state) => state.mySkills);
+  const dispatch = useDispatch();
 
   const handleOpen = () => {
     setOpen(true);
   };
-
   const handleClose = () => setOpen(false);
 
-  const gridStyles = {
-    display: "flex",
-    flexDirection: "row",
-    height: "100%",
-    alignItems: "center",
-    p: 0,
-  };
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchSkillsWishlistData(userInfo.id));
+    }
+  }, [token, dispatch]);
+
+  const modifiedSkills = skillsWishlist
+    ?.slice()
+    ?.sort((a, b) => a?.title?.localeCompare(b?.title));
+
   return (
     <Box className="wishList__section">
-      <CustomModal open={open} onClose={handleClose} title="Add Skill Wishlist">
-        <AddSkillWishlistForm data={ModalSuggestedSkills} />
+      <CustomModal open={open} onClose={handleClose} title="Add Skill">
+        <AddSkillWishlistForm
+          data={skillsRecommendation}
+          closeModal={handleClose}
+        />
       </CustomModal>
       <Stack
         sx={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 2.25,
+          flexDirection: { xs: "column", sm: "row" },
+          justifyContent: { sm: "space-between" },
+          alignItems: { sm: "center" },
+          mb: 3.125,
+          gap: { xs: 1, sm: 0 },
         }}
       >
         <Typography variant={"h3"} color="primary.main" fontWeight={"400"}>
@@ -50,49 +58,30 @@ const SkillsWishlistList = () => {
             px: { xs: 4 },
             lineHeight: "1.5",
             textTransform: "capitalize",
-            alignSelf: { xs: "flex-start", md: "flex-end", lg: "flex-start" },
+            alignSelf: "flex-start",
           }}
           endIcon={<AddIcon />}
           onClick={handleOpen}
         >
-          Add Skill Wishlist
+          Add Skill
         </Button>
       </Stack>
-      {data.map((skill, index) => (
-        <Grid
-          container
-          spacing={1}
-          key={skill.skillName}
-          sx={{
-            background: "#f5f5f5",
-            borderRadius: "10px",
-            height: "45px",
-            minHeight: "45px",
-            mb: checkLastChild(index, data) ? 0 : 3.125,
-          }}
-        >
-          <Grid xs={12} sx={gridStyles}>
-            <Typography
-              sx={{
-                color: "#737373",
-                fontSize: "20px",
-                fontWeight: 400,
-                mr: 1.75,
-                pl: 2,
-              }}
-              variant="h5"
-            >
-              {skill.skillName}
+      {skillsWishlistLoading && <CircularProgress />}
+      {!skillsWishlistLoading && (
+        <>
+          {modifiedSkills.length < 1 ? (
+            <Typography variant="h3" color="primary" mb={3.125}>
+              No skills found
             </Typography>
-            <DescriptionTooltip
-              title={skill.description}
-              placement="bottom-start"
-            >
-              <img src={hintIcon} alt="icon" />
-            </DescriptionTooltip>
-          </Grid>
-        </Grid>
-      ))}
+          ) : (
+            <>
+              {modifiedSkills.map((skill, index) => (
+                <SkillWishTableRow skill={skill} key={skill.id} index={index} />
+              ))}
+            </>
+          )}
+        </>
+      )}
     </Box>
   );
 };

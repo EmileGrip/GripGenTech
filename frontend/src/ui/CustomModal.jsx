@@ -15,6 +15,7 @@ const lgStyles = {
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: 900,
+  height: "95%",
   border: "2px solid #FFF",
   borderRadius: "25px",
   pl: 13.625,
@@ -57,12 +58,19 @@ const CustomModal = ({ open, onClose, title, children }) => {
           ...currentStyle,
         }}
       >
-        <Box sx={{ overflowY: "auto", overflowX: "hidden", maxHeight: "95%" }}>
+        <Box
+          sx={{
+            overflowY: "auto",
+            overflowX: "hidden",
+            maxHeight: "95%",
+            pr: 2,
+          }}
+        >
           <Stack
             sx={{
               flexDirection: { xs: "row" },
               justifyContent: { xs: "space-between" },
-              alignitems: { xs: "center" },
+              alignItems: { xs: "center" },
               mb: { xs: "40px", lg: "70px" },
               px: { xs: 2.5, lg: 0 },
               py: { xs: 2 },

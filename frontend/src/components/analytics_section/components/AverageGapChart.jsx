@@ -12,8 +12,8 @@ import { Bar } from "react-chartjs-2";
 import { faker } from "@faker-js/faker";
 import { useEffect } from "react";
 import { useState } from "react";
-import { averageGaplevel as chartdata } from "../../../data/analyticsData";
-import { Box } from "@mui/material";
+// import { averageGaplevel as chartdata } from "../../../data/analyticsData";
+import { Box, CircularProgress } from "@mui/material";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -40,16 +40,59 @@ const options = {
   maintainAspectRatio: false,
 };
 
-const AverageGapChart = ({ select }) => {
-  const [datasetValue, setDatasetValue] = useState(chartdata["jobData"]);
-  // const currentDataset = select === "select__job" ? dataset[0] : dataset[1];
+const AverageGapChart = ({
+  select,
+  jobAvgGapData,
+  skillAvgGapData,
+  employeeAvgGapData,
+}) => {
+  const [datasetValue, setDatasetValue] = useState(null);
+
+  const jobData = {
+    labels: jobAvgGapData?.labels,
+    datasets: [
+      {
+        label: "Gap",
+        data: jobAvgGapData?.data,
+        borderColor: "rgb(170,220,254)",
+        backgroundColor: "rgba(170,220,254,0.5)",
+      },
+    ],
+  };
+
+  const skillData = {
+    labels: skillAvgGapData?.labels,
+    datasets: [
+      {
+        label: "Gap",
+        data: skillAvgGapData?.data,
+        borderColor: "rgb(255, 99, 132)",
+        backgroundColor: "rgba(255, 99, 132, 0.5)",
+      },
+    ],
+  };
+
+  const employeeData = {
+    labels: employeeAvgGapData?.labels,
+    datasets: [
+      {
+        label: "Gap",
+        data: employeeAvgGapData?.data,
+        borderColor: "rgb(99, 220, 132)",
+        backgroundColor: "rgba(99, 220, 132, 0.5)",
+      },
+    ],
+  };
+
   useEffect(() => {
     if (select === "select__job") {
-      setDatasetValue(chartdata["jobData"]);
+      setDatasetValue(jobData);
+    } else if (select === "select__skill") {
+      setDatasetValue(skillData);
     } else {
-      setDatasetValue(chartdata["skillData"]);
+      setDatasetValue(employeeData);
     }
-  }, [select]);
+  }, [select, jobAvgGapData, skillAvgGapData]);
 
   return (
     <Box
@@ -61,7 +104,8 @@ const AverageGapChart = ({ select }) => {
         height: "100%",
       }}
     >
-      <Bar options={options} data={datasetValue} />
+      {!datasetValue && <CircularProgress />}
+      {datasetValue && <Bar options={options} data={datasetValue} />}
     </Box>
   );
 };

@@ -175,6 +175,138 @@ export const skillsTable = [
       },
     ],
   },
+  {
+    jobTitle: "Software Engineer",
+    skills: [
+      {
+        skillName: "Analytical Thinking 5",
+        description:
+          "Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa",
+
+        origin: "Linkedin",
+        currentProf: 4,
+      },
+      {
+        skillName: "Project Management 5",
+        description:
+          "Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa",
+
+        origin: "Resume",
+        currentProf: 3,
+      },
+      {
+        skillName: "Campaign Structuring 5",
+        description: "Lorem ipsum dolor sit amet",
+
+        origin: "Job Position",
+        currentProf: 2,
+      },
+      {
+        skillName: "Innovative Thinking 5",
+        description:
+          "Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa",
+
+        origin: "Linkedin",
+        currentProf: 1,
+      },
+      {
+        skillName: "Social Media Analysis 5",
+        description:
+          "Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa",
+
+        origin: "Job Position",
+        currentProf: 3,
+      },
+    ],
+  },
+  {
+    jobTitle: "Marketing Specialist",
+    skills: [
+      {
+        skillName: "Analytical Thinking 6",
+        description:
+          "Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa",
+
+        origin: "Linkedin",
+        currentProf: 4,
+      },
+      {
+        skillName: "Project Management 6",
+        description:
+          "Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa",
+
+        origin: "Resume",
+        currentProf: 3,
+      },
+      {
+        skillName: "Campaign Structuring 6",
+        description: "Lorem ipsum dolor sit amet",
+
+        origin: "Job Position",
+        currentProf: 2,
+      },
+      {
+        skillName: "Innovative Thinking 6",
+        description:
+          "Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa",
+
+        origin: "Linkedin",
+        currentProf: 1,
+      },
+      {
+        skillName: "Social Media Analysis 6",
+        description:
+          "Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa",
+
+        origin: "Job Position",
+        currentProf: 3,
+      },
+    ],
+  },
+  {
+    jobTitle: "Sales Manager",
+    skills: [
+      {
+        skillName: "Analytical Thinking 7",
+        description:
+          "Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa",
+
+        origin: "Linkedin",
+        currentProf: 4,
+      },
+      {
+        skillName: "Project Management 7",
+        description:
+          "Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa",
+
+        origin: "Resume",
+        currentProf: 3,
+      },
+      {
+        skillName: "Campaign Structuring 7",
+        description: "Lorem ipsum dolor sit amet",
+
+        origin: "Job Position",
+        currentProf: 2,
+      },
+      {
+        skillName: "Innovative Thinking 7",
+        description:
+          "Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa",
+
+        origin: "Linkedin",
+        currentProf: 1,
+      },
+      {
+        skillName: "Social Media Analysis 7",
+        description:
+          "Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa",
+
+        origin: "Job Position",
+        currentProf: 3,
+      },
+    ],
+  },
 ];
 
 export const suggestedSkills = [

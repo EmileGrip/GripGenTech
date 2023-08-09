@@ -1,7 +1,7 @@
 import {
   Box,
   Button,
-  LinearProgress,
+  CircularProgress,
   Stack,
   TextField,
   Typography,
@@ -11,12 +11,19 @@ import { useFormik } from "formik";
 import SuggestedJobs from "./SuggestedJobs";
 import { useState } from "react";
 import { addRoleFormValidationSchema } from "./validations/validationSchema";
+import { useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import axiosInstance from "../../../helper/axiosInstance";
+import { fetchData } from "../../../redux/slices/admin/organigram/organigramActions";
 
 const formControlWrapperStyle = {
-  minHeight: "130px",
+  minHeight: "135px",
 };
 
-const AddRoleForm = ({ data }) => {
+const AddRoleForm = ({ data, suggestedJobs, closeModal }) => {
+  const { token } = useSelector((state) => state.auth);
+  const { detectedPosition } = useSelector((state) => state.organigram);
+  const dispatch = useDispatch();
   const [value, setValue] = useState("");
 
   const initialValues = {
@@ -29,19 +36,58 @@ const AddRoleForm = ({ data }) => {
     selectValue({}, value);
   };
 
+  // Fetch data from API
+  const sendData = useCallback(
+    async (values) => {
+      const isRoleNameEmpty =
+        values.roleName.trim().length === 0 ? true : false;
+      const isDepartmentEmpty =
+        values.roleName.trim().length === 0 ? true : false;
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      };
+
+      try {
+        const response = await axiosInstance.post(
+          `role`,
+          {
+            title: isRoleNameEmpty ? null : values.roleName,
+            department: isDepartmentEmpty ? null : values.department,
+            parent_role_id:
+              detectedPosition === "bottom" ? data.id : data.parent_role,
+            selected_role_id: data.id,
+            position: detectedPosition,
+          },
+          config
+        );
+        console.log(response.data);
+        // onSuccess(true);
+        // onClose();
+        // onFetch();
+      } catch (error) {
+        // onSuccess(false);
+        console.log(error.response.data);
+      } finally {
+        // setLoading(false);
+        dispatch(fetchData(token));
+        closeModal();
+      }
+    },
+    [token]
+  );
+
   const formik = useFormik({
     initialValues,
-    validationSchema: addRoleFormValidationSchema,
+    // validationSchema: addRoleFormValidationSchema,
     onSubmit: (values, { setSubmitting }) => {
-      if (values.roleName === null || values.roleName.trim() === "") {
-        alert("Please, select your role name");
-        setSubmitting(false);
-        return;
-      }
       setTimeout(() => {
         // submit to the server
-        alert(JSON.stringify(values, null, 2));
-
+        // alert(JSON.stringify(values, null, 2));
+        sendData(values);
         setSubmitting(false);
       }, 1000);
     },
@@ -60,7 +106,6 @@ const AddRoleForm = ({ data }) => {
               variant="h3"
               component="label"
               htmlFor="roleName"
-              mb={1.5}
               sx={{
                 textTransform: "capitalize",
                 fontWeight: 400,
@@ -79,6 +124,7 @@ const AddRoleForm = ({ data }) => {
               helperText={formik.touched.roleName ? formik.errors.roleName : ""}
               error={formik.touched.roleName && Boolean(formik.errors.roleName)}
               fullWidth
+              sx={{ mt: "16px" }}
             />
           </Box>
 
@@ -87,7 +133,6 @@ const AddRoleForm = ({ data }) => {
               variant="h3"
               component="label"
               htmlFor="department"
-              mb={1.5}
               sx={{
                 textTransform: "capitalize",
                 fontWeight: 400,
@@ -110,6 +155,7 @@ const AddRoleForm = ({ data }) => {
                 formik.touched.department && Boolean(formik.errors.department)
               }
               fullWidth
+              sx={{ mt: "16px" }}
             />
           </Box>
         </Box>
@@ -119,7 +165,6 @@ const AddRoleForm = ({ data }) => {
             variant="h3"
             component="label"
             htmlFor="roleName"
-            mb={2.75}
             sx={{
               textTransform: "capitalize",
               fontWeight: 400,
@@ -128,8 +173,13 @@ const AddRoleForm = ({ data }) => {
           >
             suggested job
           </Typography>
-          <Grid2 container spacing={2} sx={{ flexGrow: 1 }} mb={"50px"}>
-            {data.map((job) => (
+          <Grid2
+            container
+            spacing={2}
+            sx={{ flexGrow: 1, mt: "16px" }}
+            mb={"50px"}
+          >
+            {suggestedJobs.map((job) => (
               <Grid2 key={job} xs={4}>
                 <SuggestedJobs onClick={suggestedHandler} selectedJob={value}>
                   {job}
@@ -138,8 +188,6 @@ const AddRoleForm = ({ data }) => {
             ))}
           </Grid2>
         </Box>
-
-        {formik.isSubmitting && <LinearProgress sx={{ mb: "25px" }} />}
 
         <Stack sx={{ flexDirection: "row", alignItems: "center", gap: "16px" }}>
           <Button
@@ -156,16 +204,7 @@ const AddRoleForm = ({ data }) => {
           >
             continue
           </Button>
-          <Typography
-            variant="body2"
-            sx={{
-              textTransform: "capitalize",
-              color: "#1E394C",
-              fontSize: "12px",
-            }}
-          >
-            next: assign role
-          </Typography>
+          {formik.isSubmitting && <CircularProgress />}
         </Stack>
       </Stack>
     </form>

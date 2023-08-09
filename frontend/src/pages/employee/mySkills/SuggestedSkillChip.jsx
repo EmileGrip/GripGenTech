@@ -17,15 +17,18 @@ const SuggestedSkillChip = (props) => {
     cursor: "pointer",
   };
 
-  const chipHandler = (e) => {
-    props.onClick(e.currentTarget.textContent);
-  };
   return (
-    <Box sx={style}>
+    <Box sx={style} title={props.title}>
       <Typography
-        sx={{ flex: 1, textAlign: "center" }}
+        sx={{
+          flex: 1,
+          textAlign: "center",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        }}
         variant="body1"
-        onClick={(e) => chipHandler(e)}
+        onClick={props.onClick}
       >
         {props.children}
       </Typography>

@@ -7,10 +7,13 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  CircularProgress,
+  Alert,
+  Snackbar,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import Grid2 from "@mui/material/Unstable_Grid2";
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import CustomModal from "../../../ui/CustomModal";
 import { learningExperienceData as data } from "../../../data/ExperienceData";
 import EducationCard from "../../../components/EducationCard";
@@ -19,68 +22,205 @@ import AddEducationForm from "./AddEducationForm";
 import { useOutletContext } from "react-router-dom";
 import useLocationChange from "../../../hooks/useLocationChange";
 import AddCourseForm from "./AddCourseForm";
+import axios from "axios";
+import { useSelector } from "react-redux";
+import axiosInstance from "../../../helper/axiosInstance";
 
 const LearningExperience = () => {
   const [title, setTitle] = useOutletContext();
   useLocationChange(setTitle);
 
-  const educationDefaultValues = {
+  // Success State
+  const [jobSuccess, setJobSuccess] = useState(null);
+
+  // Loading State
+  const [loading, setLoading] = useState(true);
+
+  // Snackbar handlers
+  const [openSnack, setOpenSnack] = useState(false);
+  const handleClickSnack = () => {
+    setOpenSnack(true);
+  };
+
+  const handleCloseSnack = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpenSnack(false);
+  };
+
+  const successHandler = (status) => {
+    setJobSuccess(status);
+    handleClickSnack();
+  };
+
+  // Fetching Data feature
+  const [educationFetchedData, setEducationFetchedData] = useState([]);
+  const [coursesFetchedData, setCoursesFetchedData] = useState([]);
+
+  const { token, userInfo } = useSelector((state) => state.auth);
+
+  const fetchData = useCallback(async (api) => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+      params: {
+        user_id: userInfo.id,
+      },
+    };
+
+    try {
+      const response = await axiosInstance.get(api, config);
+      console.log(response);
+      if (api === "education") {
+        setEducationFetchedData(response.data.payload);
+      } else if (api === "course") {
+        setCoursesFetchedData(response.data.payload);
+      }
+      console.log(response.data.payload);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData("education");
+    fetchData("course");
+  }, [fetchData]);
+
+  // Detect which mode is active (Add or Edit) states
+  const [open, setOpen] = useState(false);
+  const [btnType, setBtnType] = useState("");
+  const handleClose = () => setOpen(false);
+
+  // Add & Edit Education
+  const educationDefaultValuesForm = {
     degree: "",
     institution: "",
     level: "",
-    started: new Date(),
-    finished: new Date(),
+    started: null,
+    finished: null,
   };
-  const courseDefaultValues = {
+
+  const [educationDataFrom, setEducationDataForm] = useState(
+    educationDefaultValuesForm
+  );
+
+  const [openEdit, setOpenEdit] = useState(false);
+
+  const addBtnHandler = (btn) => {
+    setOpen(true);
+    setBtnType(btn);
+    if (btn === "Education") {
+      setEducationDataForm(educationDefaultValuesForm);
+    } else if (btn === "Course") {
+      setCourseDataForm(courseDefaultValuesForm);
+    }
+    setOpenEdit(false);
+  };
+
+  const editBtnHandler = (data, btn) => {
+    setOpen(true);
+    if (btn === "Education") {
+      setEducationDataForm(data);
+    } else if (btn === "Course") {
+      setCourseDataForm(data);
+    }
+    setBtnType(btn);
+    setOpenEdit(true);
+  };
+
+  // Add & Edit Course
+  const courseDefaultValuesForm = {
     degree: "",
     institution: "",
-    started: new Date(),
-    finished: new Date(),
+    started: null,
+    finished: null,
   };
 
-  const [open, setOpen] = useState(false);
-  const [educationData, setEducationData] = useState(educationDefaultValues);
-  const [courseData, setCourseData] = useState(courseDefaultValues);
-  const [btnType, setBtnType] = useState("");
+  const [courseDataForm, setCourseDataForm] = useState(courseDefaultValuesForm);
 
-  const addEducationBtnHandler = (btn) => {
-    setOpen(true);
-    setBtnType(btn);
-    setEducationData(educationDefaultValues);
-  };
-  const editEducationBtnHandler = (data, btn) => {
-    setOpen(true);
-    setEducationData(data);
-    setBtnType(btn);
-  };
-  const addCourseBtnHandler = (btn) => {
-    setOpen(true);
-    setBtnType(btn);
-    setCourseData(courseDefaultValues);
-  };
-  const editCourseBtnHandler = (data, btn) => {
-    setOpen(true);
-    setBtnType(btn);
-    setCourseData(data);
-  };
-  const handleClose = () => setOpen(false);
-
+  // Delete Feature
   const [openDialog, setOpenDialog] = useState(false);
-  const handleOpenDialog = (btn) => {
+  const [jobId, setJobId] = useState(null);
+
+  const handleOpenDialog = (btn, data) => {
     setOpenDialog(true);
     setBtnType(btn);
+    setJobId(data);
   };
+
   const handleCloseDialog = () => {
     setOpenDialog(false);
   };
 
+  const deleteJobHandler = useCallback(
+    async (api) => {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+        params: {
+          id: jobId,
+        },
+      };
+      setJobSuccess(false);
+      try {
+        const response = await axiosInstance.delete(api, config);
+        handleCloseDialog();
+        handleClickSnack();
+        fetchData(api);
+        setJobSuccess(true);
+        console.log(response.data);
+      } catch (error) {
+        setJobSuccess(false);
+        handleClickSnack();
+        console.log(error);
+      }
+    },
+    [jobId, fetchData]
+  );
+
   return (
     <>
+      <Snackbar
+        open={openSnack}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        autoHideDuration={3000}
+        onClose={handleCloseSnack}
+      >
+        <Alert
+          onClose={handleCloseSnack}
+          severity={jobSuccess ? "success" : "error"}
+          sx={{ width: "100%" }}
+        >
+          {jobSuccess ? "Success operation" : "Failed operation"}
+        </Alert>
+      </Snackbar>
+
       <CustomModal open={open} onClose={handleClose} title={`add ${btnType}`}>
         {btnType === "Education" ? (
-          <AddEducationForm onClose={handleClose} data={educationData} />
+          <AddEducationForm
+            onClose={handleClose}
+            data={educationDataFrom}
+            onSuccess={successHandler}
+            onFetch={() => fetchData("education")}
+            editMode={openEdit}
+          />
         ) : (
-          <AddCourseForm onClose={handleClose} data={courseData} />
+          <AddCourseForm
+            onClose={handleClose}
+            data={courseDataForm}
+            onSuccess={successHandler}
+            onFetch={() => fetchData("course")}
+            editMode={openEdit}
+          />
         )}
       </CustomModal>
 
@@ -102,7 +242,14 @@ const LearningExperience = () => {
           <Button onClick={handleCloseDialog} autoFocus>
             cancel
           </Button>
-          <Button onClick={handleCloseDialog} color="error">
+          <Button
+            onClick={() =>
+              btnType === "Degree"
+                ? deleteJobHandler("education")
+                : deleteJobHandler("course")
+            }
+            color="error"
+          >
             Delete
           </Button>
         </DialogActions>
@@ -127,28 +274,39 @@ const LearningExperience = () => {
             fontSize: "14px",
           }}
           endIcon={<AddIcon />}
-          onClick={() => addEducationBtnHandler("Education")}
+          onClick={() => addBtnHandler("Education")}
         >
           add education
         </Button>
       </Stack>
 
-      <Grid2
-        container
-        rowSpacing={2.5}
-        columnSpacing={3.375}
-        sx={{ mb: { xs: 3, md: 6.75 } }}
-      >
-        {data.education.map((card) => (
-          <Grid2 xs={12} lg={6} key={card.id}>
-            <EducationCard
-              onDelete={handleOpenDialog}
-              onEdit={editEducationBtnHandler}
-              {...card}
-            />
-          </Grid2>
-        ))}
-      </Grid2>
+      {loading && <CircularProgress />}
+      {!loading && (
+        <Grid2
+          container
+          rowSpacing={2.5}
+          columnSpacing={3.375}
+          sx={{ mb: { xs: 3, md: 6.75 } }}
+        >
+          {educationFetchedData.length !== 0 ? (
+            educationFetchedData?.map((card) => (
+              <Grid2 xs={12} lg={6} key={card.id}>
+                <EducationCard
+                  onDelete={handleOpenDialog}
+                  onEdit={editBtnHandler}
+                  data={card}
+                />
+              </Grid2>
+            ))
+          ) : (
+            <Grid2 xs={12}>
+              <Typography variant="h3" color="primary">
+                Add your Education
+              </Typography>
+            </Grid2>
+          )}
+        </Grid2>
+      )}
 
       <Stack
         flexDirection="row"
@@ -169,23 +327,34 @@ const LearningExperience = () => {
             fontSize: "14px",
           }}
           endIcon={<AddIcon />}
-          onClick={() => addCourseBtnHandler("Course")}
+          onClick={() => addBtnHandler("Course")}
         >
           add course
         </Button>
       </Stack>
 
-      <Grid2 container rowSpacing={2.5} columnSpacing={3.375}>
-        {data.courses.map((card) => (
-          <Grid2 xs={12} lg={6} key={card.id}>
-            <CourseCard
-              onDelete={handleOpenDialog}
-              onEdit={editCourseBtnHandler}
-              {...card}
-            />
-          </Grid2>
-        ))}
-      </Grid2>
+      {loading && <CircularProgress />}
+      {!loading && (
+        <Grid2 container rowSpacing={2.5} columnSpacing={3.375}>
+          {coursesFetchedData.length !== 0 ? (
+            coursesFetchedData?.map((card) => (
+              <Grid2 xs={12} lg={6} key={card.id}>
+                <CourseCard
+                  onDelete={handleOpenDialog}
+                  onEdit={editBtnHandler}
+                  data={card}
+                />
+              </Grid2>
+            ))
+          ) : (
+            <Grid2 xs={12}>
+              <Typography variant="h3" color="primary">
+                Add your Course
+              </Typography>
+            </Grid2>
+          )}
+        </Grid2>
+      )}
     </>
   );
 };

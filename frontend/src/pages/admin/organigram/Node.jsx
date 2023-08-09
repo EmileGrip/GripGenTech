@@ -2,7 +2,13 @@ import {
   Avatar,
   Box,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   IconButton,
+  Popover,
   Stack,
   Typography,
 } from "@mui/material";
@@ -20,11 +26,26 @@ import { employees as ModalEmployees } from "../../../data/chartTreeData";
 import AssignRoleForm from "./AssignRoleForm";
 import { employeeData as dialogData } from "../../../data/chartTreeData";
 import InfoModal from "./InfoModal";
+import { setDetectedPosition } from "../../../redux/slices/admin/organigram/organigramSlice";
+import { useDispatch, useSelector } from "react-redux";
+import EditRoleForm from "./EditRoleForm";
+import moreHoriz__icon from "../../../assets/moreHoriz__icon.svg";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { useCallback } from "react";
+import axiosInstance from "../../../helper/axiosInstance";
+import { fetchData } from "../../../redux/slices/admin/organigram/organigramActions";
+import { useEffect } from "react";
 
 const Node = ({ data, isConnectable }) => {
   const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
   const [isAssignRoleOpen, setIsAssignRoleOpen] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const dispatch = useDispatch();
+  const { token } = useSelector((state) => state.auth);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
 
   const handleAddRoleOpen = () => setIsAddRoleOpen(true);
   const handleAddRoleClose = () => setIsAddRoleOpen(false);
@@ -35,6 +56,54 @@ const Node = ({ data, isConnectable }) => {
   const handleInfoOpen = () => setIsInfoOpen(true);
   const handleInfoClose = () => setIsInfoOpen(false);
 
+  const handleAddNode = (position) => {
+    handleAddRoleOpen();
+    dispatch(setDetectedPosition(position));
+  };
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = !!anchorEl;
+
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  const deleteData = useCallback(async () => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+      params: {
+        id: data.id,
+      },
+    };
+    try {
+      const response = await axiosInstance.delete("role", config);
+      console.log(response.data.payload);
+    } catch (error) {
+      console.log(error.response.data);
+    } finally {
+      // setLoading(false);
+      dispatch(fetchData(token));
+    }
+  }, []);
+
+  const handleDeleteData = () => {
+    deleteData();
+    setOpenDialog(false);
+    setAnchorEl(null);
+  };
+
   return (
     <>
       <CustomModal
@@ -42,17 +111,25 @@ const Node = ({ data, isConnectable }) => {
         onClose={handleAddRoleClose}
         title="Add Role"
       >
-        <AddRoleForm data={ModalSuggestedJobs} />
+        <AddRoleForm
+          data={data}
+          suggestedJobs={ModalSuggestedJobs}
+          closeModal={handleAddRoleClose}
+        />
       </CustomModal>
       <CustomModal
         open={isAssignRoleOpen}
         onClose={handleAssignRoleClose}
-        title="Assign Role"
+        title={data.user ? "Edit Position" : "Assign Role"}
       >
-        <AssignRoleForm data={{}} employees={ModalEmployees} />
+        <AssignRoleForm data={data} closeModal={handleAssignRoleClose} />
       </CustomModal>
       <CustomModal open={isInfoOpen} onClose={handleInfoClose} title=" ">
-        <InfoModal data={dialogData} />
+        <InfoModal
+          data={data}
+          editRoleData={data}
+          closeModal={handleInfoClose}
+        />
       </CustomModal>
       <Handle
         type="target"
@@ -79,6 +156,7 @@ const Node = ({ data, isConnectable }) => {
             "&:hover": {
               background: "transparent",
             },
+            zIndex: 1,
           }}
         >
           <Avatar
@@ -87,10 +165,18 @@ const Node = ({ data, isConnectable }) => {
               height: "100px",
               cursor: "pointer",
               background: "#D9D9D9",
-              p: "23px",
+              p: !data?.user?.profile_picture ? "23px" : "0px",
             }}
-            src={emptyRoleIcon}
-            alt={"icon"}
+            src={
+              data?.user?.profile_picture
+                ? data?.user?.profile_picture
+                : emptyRoleIcon
+            }
+            alt={
+              data?.user?.profile_picture
+                ? "Profile picture"
+                : "Empty role picture"
+            }
           />
         </Button>
 
@@ -105,9 +191,82 @@ const Node = ({ data, isConnectable }) => {
               pt: "68px",
               pb: 2,
               mt: "50px",
+              position: "relative",
             }}
           >
-            <IconButton onClick={handleInfoOpen} sx={{ borderRadius: 0 }}>
+            <Stack sx={{ position: "absolute", top: 1, right: 1 }}>
+              <IconButton sx={{ alignSelf: "center" }} onClick={handleClick}>
+                <img src={moreHoriz__icon} alt="icon" />
+              </IconButton>
+
+              <Popover
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "center",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "left",
+                }}
+              >
+                <Stack
+                  sx={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    px: 2,
+                  }}
+                >
+                  <Typography variant="h6" color="primary.main">
+                    Delete Role
+                  </Typography>
+
+                  <IconButton
+                    onClick={handleOpenDialog}
+                    disabled={data.user ? true : false}
+                  >
+                    <DeleteIcon color="error" />
+                  </IconButton>
+                </Stack>
+              </Popover>
+            </Stack>
+
+            <Dialog
+              open={openDialog}
+              onClose={handleCloseDialog}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">
+                {`Confirm Role Delete`}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  {`Are you sure you want to delete this role?`}
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseDialog} autoFocus>
+                  cancel
+                </Button>
+                <Button onClick={handleDeleteData} color="error">
+                  Delete
+                </Button>
+              </DialogActions>
+            </Dialog>
+
+            <IconButton
+              onClick={handleInfoOpen}
+              sx={{ borderRadius: 0 }}
+              title={
+                !data?.user
+                  ? `empty name`
+                  : data?.user.first_name + " " + data?.user.last_name
+              }
+            >
               <Typography
                 variant="h4"
                 fontSize="18px"
@@ -117,12 +276,27 @@ const Node = ({ data, isConnectable }) => {
                   textAlign: "center",
                   mb: 0.5,
                   textTransform: "capitalize",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  px: 1,
                 }}
               >
-                empty role
+                {!data?.user
+                  ? `empty name`
+                  : data?.user.first_name + " " + data?.user.last_name}
               </Typography>
             </IconButton>
-            <IconButton sx={{ borderRadius: 0 }}>
+
+            <div
+              title={
+                !data.title ||
+                data.title.trim().length === 0 ||
+                data.title === "0"
+                  ? `empty role`
+                  : data.title
+              }
+            >
               <Typography
                 variant="h5"
                 color="primary"
@@ -131,16 +305,58 @@ const Node = ({ data, isConnectable }) => {
                   opacity: "0.7",
                   textAlign: "center",
                   mb: 0.5,
+                  textTransform: "capitalize",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  px: 1,
                 }}
               >
-                Click to add
+                {!data.title ||
+                data.title.trim().length === 0 ||
+                data.title === "0"
+                  ? `empty role`
+                  : data.title}
               </Typography>
-            </IconButton>
+            </div>
+
+            <div
+              title={
+                !data?.department ||
+                data?.department.trim().length === 0 ||
+                data.title === "0"
+                  ? `empty department`
+                  : data?.department
+              }
+            >
+              <Typography
+                variant="h5"
+                color="primary"
+                sx={{
+                  fontWeight: "400",
+                  opacity: "0.7",
+                  textAlign: "center",
+                  mb: 0.5,
+                  textTransform: "capitalize",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  px: 1,
+                }}
+              >
+                {!data?.department ||
+                data?.department.trim().length === 0 ||
+                data.title === "0"
+                  ? `empty department`
+                  : data?.department}
+              </Typography>
+            </div>
           </Stack>
-          {data.id === "node-1" ? (
+
+          {!data.isSingleIcon && (
             <>
               <IconButton
-                onClick={handleAddRoleOpen}
+                onClick={() => handleAddNode("left")}
                 sx={{
                   position: "absolute",
                   top: "50%",
@@ -150,8 +366,9 @@ const Node = ({ data, isConnectable }) => {
               >
                 <img src={addIcon} alt="add role" />
               </IconButton>
+
               <IconButton
-                onClick={handleAddRoleOpen}
+                onClick={() => handleAddNode("right")}
                 sx={{
                   position: "absolute",
                   top: "50%",
@@ -162,9 +379,11 @@ const Node = ({ data, isConnectable }) => {
                 <img src={addIcon} alt="add role" />
               </IconButton>
             </>
-          ) : (
+          )}
+
+          {!data.hasChildren && (
             <IconButton
-              onClick={handleAddRoleOpen}
+              onClick={() => handleAddNode("bottom")}
               sx={{
                 position: "absolute",
                 left: "50%",
@@ -181,7 +400,7 @@ const Node = ({ data, isConnectable }) => {
       <Handle
         type="source"
         position={Position.Bottom}
-        id="a"
+        id={data.id.toString()}
         isConnectable={isConnectable}
       />
     </>

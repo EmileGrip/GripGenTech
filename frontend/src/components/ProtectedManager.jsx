@@ -1,17 +1,31 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
+
 function ProtectedManager({ children }) {
-  const { loading, userInfo, error } = useSelector((state) => state.auth);
+  const { userInfo, isAuth } = useSelector((state) => state.auth);
+  const role = userInfo ? userInfo.system_role : null;
+  const location = useLocation();
+  const navigate = useNavigate();
+  const redirectPath = "/manager/employees"; // Redirect path for "manager"
 
-  console.log("userInfo:", userInfo);
-  if (!!!userInfo) {
-    return <Navigate to="/login" replace />;
+  useEffect(() => {
+    // Check the role and perform navigation if needed
+    if (isAuth && role === "manager" && location.pathname === "/manager") {
+      navigate(redirectPath, { replace: true });
+    }
+  }, [isAuth, role, location, navigate, redirectPath]);
+
+  if (role === "manager") {
+    return children;
+  } else if (role === "employee") {
+    return <Navigate to="/employee/skills/myskills" replace />;
+  } else if (role === "staff") {
+    return <Navigate to="/staff/companies/add-company" replace />;
   }
 
-  if (!userInfo.is_manager && !userInfo.is_staff) {
-    return <Navigate to="/employee" replace />;
-  }
+  if (!isAuth) return <Navigate to="/login" replace />;
   return children;
 }
+
 export default ProtectedManager;

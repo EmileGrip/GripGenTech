@@ -1,14 +1,27 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
-function ProtectedEmplpoyee({ children }) {
-  const { loading, userInfo, error } = useSelector((state) => state.auth);
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
-  if (!!!userInfo) return <Navigate to="/login" replace />;
+function ProtectedEmployee({ children }) {
+  const { userInfo, isAuth } = useSelector((state) => state.auth);
+  const role = userInfo ? userInfo.system_role : null;
+  const location = useLocation();
+  const navigate = useNavigate();
+  const redirectPath = "/employee/skills/myskills"; // Redirect path for "employee"
 
-  if (!userInfo.is_staff && userInfo.is_manager) {
-    return <Navigate to="/grip" replace />;
+  useEffect(() => {
+    // Check the role and perform navigation if needed
+    if (isAuth && role === "employee" && location.pathname === "/employee") {
+      navigate(redirectPath, { replace: true });
+    }
+  }, [isAuth, role, location, navigate, redirectPath]);
+
+  if (role === "staff") {
+    return <Navigate to="/staff/companies/add-company" replace />;
   }
+
+  if (!isAuth) return <Navigate to="/login" replace />;
   return children;
 }
-export default ProtectedEmplpoyee;
+
+export default ProtectedEmployee;

@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  CircularProgress,
   Container,
   Stack,
   Typography,
@@ -20,11 +21,23 @@ import AddSkillForm from "./AddSkillForm";
 import { skillsTableHeaders as headers } from "../../../data/skillsData";
 import SkillTableRow from "../../../components/SkillTableRow";
 import { skillsTable as dataTable } from "../../../data/skillsData";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { fetchSkillsData } from "../../../redux/slices/Employee/mySkills/mySkillsActions";
+import { fetchUserById } from "../../../redux/slices/admin/users/usersActions";
+import SkillsRecommendation from "./SkillsRecommendations";
 
 const Overview = () => {
   const theme = useTheme();
   const mdMatches = useMediaQuery(theme.breakpoints.up("md"));
   const lgMatches = useMediaQuery(theme.breakpoints.up("lg"));
+  const { userInfo, token } = useSelector((state) => state.auth);
+  const { user, loading } = useSelector((state) => state.users);
+  const { skills, skillsDataLoading, skillsRecommendation } = useSelector(
+    (state) => state.mySkills
+  );
+  const dispatch = useDispatch();
+  console.log(skillsRecommendation);
 
   const [open, setOpen] = useState(false);
   const handleOpen = () => {
@@ -32,16 +45,26 @@ const Overview = () => {
   };
   const handleClose = () => setOpen(false);
   const anchorClass = {
-    marginRight: "27px",
     color: "#66C1FF",
     ":active": "#66C1FF",
     fontSize: mdMatches ? "16px" : "12px",
   };
 
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchUserById(userInfo.id));
+      dispatch(fetchSkillsData(userInfo.id));
+    }
+  }, [token, dispatch]);
+
+  const modifiedSkills = skills
+    .slice()
+    ?.sort((a, b) => a?.title?.localeCompare(b?.title));
+
   return (
     <>
       <CustomModal open={open} onClose={handleClose} title="Add Skill">
-        <AddSkillForm data={ModalSuggestedSkills} />
+        <AddSkillForm data={skillsRecommendation} closeModal={handleClose} />
       </CustomModal>
       <Stack
         className="header__section"
@@ -55,9 +78,16 @@ const Overview = () => {
           <Typography variant="h3" mb={3} color={"primary.main"}>
             My Skills Overview
           </Typography>
-          <Typography variant="h2" color={"primary.main"}>
-            Senior UI Developer
-          </Typography>
+          {loading && <CircularProgress />}
+          {!loading && (
+            <Typography
+              variant="h2"
+              color={"primary.main"}
+              textTransform="capitalize"
+            >
+              {user?.role?.title ? user?.role?.title : "Current role unknown"}
+            </Typography>
+          )}
         </Box>
         <Stack
           sx={{
@@ -72,53 +102,66 @@ const Overview = () => {
               mb: { xs: 3, lg: 0 },
             }}
           >
-            <Link to={EMPLOYEE_MY_SKILLS_ROUTE} style={anchorClass}>
-              Reupload Resumé
-            </Link>
             <Link
               to={EMPLOYEE_MY_SKILLS_ROUTE}
-              style={{
-                ...anchorClass,
-                marginRight: mdMatches && !lgMatches ? 0 : "27px",
-              }}
+              style={{ ...anchorClass, marginRight: "27px" }}
             >
+              Reupload Resumé
+            </Link>
+            <Link to={EMPLOYEE_MY_SKILLS_ROUTE} style={anchorClass}>
               Reconnect Linkedin
             </Link>
           </Stack>
-
-          <Button
-            variant="contained"
-            color="secondary"
-            sx={{
-              px: { xs: 4 },
-              lineHeight: "1.5",
-              textTransform: "capitalize",
-              alignSelf: { xs: "flex-start", md: "flex-end", lg: "flex-start" },
-            }}
-            endIcon={<AddIcon />}
-            onClick={handleOpen}
-          >
-            Add Skill
-          </Button>
         </Stack>
       </Stack>
 
-      <Typography
-        variant={"h3"}
-        color="primary.main"
-        fontWeight={"400"}
-        gutterBottom
+      <Stack
+        sx={{
+          flexDirection: { xs: "column", sm: "row" },
+          justifyContent: { sm: "space-between" },
+          alignItems: { sm: "center" },
+          gap: { xs: 1, sm: 0 },
+        }}
       >
-        Skills based on your job, your Linkedin Profile and Resumé
-      </Typography>
+        <Typography variant={"h3"} color="primary.main" fontWeight={"400"}>
+          My Skills
+        </Typography>
+
+        <Button
+          variant="contained"
+          color="secondary"
+          sx={{
+            px: { xs: 4 },
+            lineHeight: "1.5",
+            textTransform: "capitalize",
+            alignSelf: "flex-start",
+          }}
+          endIcon={<AddIcon />}
+          onClick={handleOpen}
+        >
+          Add Skill
+        </Button>
+      </Stack>
 
       <Stack className="displayData__section" mt={5.5} sx={{ width: "100%" }}>
-        <SkillHeadersRow data={headers} />
-        <Box className="tableContent__section">
-          {dataTable.map((skill, index) => (
-            <SkillTableRow skill={skill} key={skill.skillName} index={index} />
-          ))}
-        </Box>
+        {skillsDataLoading && <CircularProgress />}
+        {!skillsDataLoading && (
+          <>
+            {modifiedSkills.length < 1 ? (
+              <Typography variant="h3" color="primary" mb={3.125}>
+                No skills found
+              </Typography>
+            ) : (
+              <Box className="tableContent__section">
+                <SkillHeadersRow data={headers} />
+                {modifiedSkills.map((skill) => (
+                  <SkillTableRow skill={skill} key={skill.id} />
+                ))}
+              </Box>
+            )}
+          </>
+        )}
+        <SkillsRecommendation />
         <SkillsWishlistList />
       </Stack>
     </>

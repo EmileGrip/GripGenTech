@@ -12,8 +12,8 @@ import { Bar } from "react-chartjs-2";
 import { faker } from "@faker-js/faker";
 import { useEffect } from "react";
 import { useState } from "react";
-import { topAndMissingSkills as chartdata } from "../../../data/analyticsData";
-import { Box } from "@mui/material";
+// import { topAndMissingSkills as chartdata } from "../../../data/analyticsData";
+import { Box, CircularProgress } from "@mui/material";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -44,15 +44,41 @@ const options = {
 
   maintainAspectRatio: false,
 };
-const TopMissingChart = ({ select }) => {
-  const [datasetValue, setDatasetValue] = useState(chartdata["top"]);
+const TopMissingChart = ({ select, topSkillsData, missingSkillsData }) => {
+  const [datasetValue, setDatasetValue] = useState(null);
+
+  const topSkills = {
+    labels: topSkillsData?.labels,
+    datasets: [
+      {
+        label: "Gap",
+        data: topSkillsData?.data,
+        borderColor: "rgb(170,220,254)",
+        backgroundColor: "rgba(170,220,254,0.5)",
+      },
+    ],
+  };
+
+  const missingSkills = {
+    labels: missingSkillsData?.labels,
+    datasets: [
+      {
+        label: "Gap",
+        data: missingSkillsData?.data,
+        borderColor: "rgb(255, 99, 132)",
+        backgroundColor: "rgba(255, 99, 132, 0.5)",
+      },
+    ],
+  };
+
   useEffect(() => {
     if (select === "top") {
-      setDatasetValue(chartdata["top"]);
+      setDatasetValue(topSkills);
     } else {
-      setDatasetValue(chartdata["missing"]);
+      setDatasetValue(missingSkills);
     }
-  }, [select]);
+  }, [select, topSkillsData, missingSkillsData]);
+
   return (
     <Box
       sx={{
@@ -63,7 +89,8 @@ const TopMissingChart = ({ select }) => {
         height: "100%",
       }}
     >
-      <Bar options={options} data={datasetValue} />
+      {!datasetValue && <CircularProgress />}
+      {datasetValue && <Bar options={options} data={datasetValue} />}
     </Box>
   );
 };

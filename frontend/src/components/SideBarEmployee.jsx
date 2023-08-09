@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import React from "react";
-import logo from "../assets/logo.png";
+import logo from "../assets/Logo/Logo - Export/Adepti - Horizontal Logo 1.png";
 import expIcon_active from "../assets/briefcase_active.svg";
 import expIcon_unactive from "../assets/briefcase_inactive.svg";
 import userIcon from "../assets/usertag_active.svg";

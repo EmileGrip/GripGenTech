@@ -10,41 +10,44 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import workLogo from "../assets/workExp_icon.png";
-import editaIcon from "../assets/edit_icon.svg";
-import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
-import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import moment from "moment/moment";
 
 const detailsTypographyStyle = {
   fontSize: { xs: "12px", md: "16px" },
 };
-const ExpCard = ({
-  jobTitle,
-  company,
-  field,
-  jobState,
-  date,
-  iconPath,
-  jobDescription,
-  onEdit,
-  onDelete,
-  hideOptions = false,
-}) => {
+const ExpCard = ({ data, onEdit, onDelete, hideOptions = false }) => {
   const editBtnHandler = () => {
+    const startDate = new Date(data.start_date);
+    const endDate = new Date(data.end_date);
     onEdit({
-      position: jobTitle,
-      company: company,
-      joinedDate: Date.now(),
-      leftDate: Date.now(),
-      description: jobDescription,
+      position: data.title,
+      company: data.company,
+      joinedDate: startDate,
+      leftDate: endDate,
+      description: data.description,
+      id: data.id,
+      current: data.is_current,
     });
   };
+
+  // Convert the start and end dates to moment objects
+  const start = moment(data.start_date);
+  const end = data.end_date ? moment(data.end_date) : moment();
+
+  // Calculate the difference in months
+  const diffInMonths = end.diff(start, "months");
+
+  // Calculate the difference in years
+  const diffInYears = end.diff(start, "years");
 
   const theme = useTheme();
   const lgMatches = useMediaQuery(theme.breakpoints.up("lg"));
   const mdMatches = useMediaQuery(theme.breakpoints.up("md"));
 
   const [showMore, setShowMore] = useState(false);
-  const listItems = jobDescription.split("-").map((line) => (
+  const listItems = data.description.split("-").map((line) => (
     <li
       className="list__item"
       style={{ fontSize: mdMatches ? "16px" : "12px" }}
@@ -68,7 +71,7 @@ const ExpCard = ({
       }}
     >
       {lgMatches && (
-        <img src={iconPath} alt="work logo" style={{ alignSelf: "center" }} />
+        <img src={workLogo} alt="work logo" style={{ alignSelf: "center" }} />
       )}
       <Stack
         sx={{
@@ -99,32 +102,16 @@ const ExpCard = ({
                 fontWeight: "400",
                 lineHeight: "1.5",
               }}
-              endIcon={<img src={editaIcon} alt="edit icon" />}
+              endIcon={<EditNoteIcon fontSize="small" />}
             >
               edit
             </Button>
-            {/* {lgMatches && (
-            <Button
-              onClick={onDelete}
-              variant="text"
-              sx={{
-                color: "#FE7777",
-                textTransform: "capitalize",
-                fontSize: "14px",
-                fontWeight: "400",
-                lineHeight: "1.5",
-                alignSelf: "flex-start",
-              }}
-              endIcon={<DeleteIcon />}
-            >
-              delete
-            </Button>
-          )} */}
+
             <IconButton
-              onClick={onDelete}
+              onClick={() => onDelete(data.id)}
               sx={{ color: "#FE7777", alignSelf: "flex-start" }}
             >
-              <DeleteIcon fontSize={lgMatches ? "medium" : "small"} />
+              <DeleteOutlinedIcon fontSize="small" />
             </IconButton>
           </Stack>
         )}
@@ -138,7 +125,7 @@ const ExpCard = ({
         >
           {!lgMatches && (
             <img
-              src={iconPath}
+              src={workLogo}
               alt="work logo"
               style={{ alignSelf: "center" }}
             />
@@ -151,7 +138,7 @@ const ExpCard = ({
               color={"#707070"}
               sx={{ textTransform: "capitalize", fontWeight: "400" }}
             >
-              {jobTitle}
+              {data.title}
             </Typography>
 
             <Stack
@@ -167,10 +154,11 @@ const ExpCard = ({
                   variant="span"
                   sx={detailsTypographyStyle}
                 >
-                  {company} {" - "}
+                  {data.company}
                 </Typography>
 
-                <Typography
+                {/* TODO */}
+                {/* <Typography
                   color="inherit"
                   variant="span"
                   sx={detailsTypographyStyle}
@@ -184,7 +172,7 @@ const ExpCard = ({
                   sx={detailsTypographyStyle}
                 >
                   {jobState}
-                </Typography>
+                </Typography> */}
               </Typography>
 
               <Typography
@@ -192,7 +180,21 @@ const ExpCard = ({
                 color="#AAAAAA"
                 sx={detailsTypographyStyle}
               >
-                {date}
+                {moment(data.start_date).format("MMM YYYY")} {" - "}
+                {data.is_current
+                  ? "Today"
+                  : moment(data.end_date).format("MMM YYYY")}{" "}
+                {diffInMonths === 0
+                  ? ". Less than a month"
+                  : diffInYears > 0
+                  ? `. ${diffInYears} ${
+                      diffInYears === 1 ? "year" : "years"
+                    } - ${diffInMonths % 12} ${
+                      diffInMonths % 12 === 1 ? "month" : "months"
+                    }`
+                  : `. ${diffInMonths} ${
+                      diffInMonths === 1 ? "month" : "months"
+                    }`}
               </Typography>
             </Stack>
           </Stack>
@@ -213,25 +215,27 @@ const ExpCard = ({
             : [listItems[0], listItems[1]].map((item) => item)}
         </ul>
 
-        <Button
-          disableRipple={true}
-          variant="text"
-          sx={{
-            color: "#66C1FF",
-            alignSelf: "flex-start",
-            textTransform: "capitalize",
-            fontWeight: "400",
-            lineHeight: "1.5",
-            "&: hover": {
-              backgroundColor: "transparent",
-            },
-            fontSize: { xs: "12px", md: "16px" },
-            mt: { xs: -1 },
-          }}
-          onClick={() => setShowMore(!showMore)}
-        >
-          {showMore ? `... show less` : "... show more"}
-        </Button>
+        {listItems.length > 2 && (
+          <Button
+            disableRipple={true}
+            variant="text"
+            sx={{
+              color: "#66C1FF",
+              alignSelf: "flex-start",
+              textTransform: "capitalize",
+              fontWeight: "400",
+              lineHeight: "1.5",
+              "&: hover": {
+                backgroundColor: "transparent",
+              },
+              fontSize: { xs: "12px", md: "16px" },
+              mt: { xs: -1 },
+            }}
+            onClick={() => setShowMore(!showMore)}
+          >
+            {showMore ? "... show less" : "... show more"}
+          </Button>
+        )}
       </Stack>
     </Stack>
   );

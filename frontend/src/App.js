@@ -2,10 +2,16 @@ import { responsiveTheme, theme } from "./theme";
 import { ThemeProvider } from "@mui/material/styles";
 import DevelopmentPage from "./pages/employee/development/DevelopmentPage";
 import { CssBaseline } from "@mui/material";
-import { Route, Router, Routes } from "react-router-dom";
+import {
+  Route,
+  Router,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import MySkills from "./pages/employee/mySkills/MySkills";
 import NoMatch from "./pages/NoMatch";
-import Login from "./pages/Login/Login";
+import Login from "./pages/authentication/Login/Login";
 import Employee from "./pages/employee/Employee";
 import {
   EMPLOYEE_LEARNING_EXPREIENCE_PATH,
@@ -35,6 +41,13 @@ import {
   EMPLOYEE_MY_SKILLS_PROFILE,
   EMPLOYEE_ORGANIGRAM_ROUTE,
   ADMIN_EMPLOYEES_LIST_ROUTE,
+  STAFF_PAGE_ROUTE,
+  MANAGER_EMPLOYEES_PROFILE,
+  ADMIN_EMPLOYEES_PROFILE,
+  EMPLOYEE_EMPLOYEES_PROFILE,
+  STAFF_COMPANIES_ADD_COMPANY_ROUTE,
+  STAFF_COMPANIES_OVERVIEW_ROUTE,
+  STAFF_ANALYTICS_ROUTE,
 } from "./routes/paths";
 import WorkExperience from "./pages/employee/workExperience/WorkExperience";
 import LearningExperience from "./pages/employee/learningExperience/LearningExperience";
@@ -47,7 +60,7 @@ import Analytics from "./components/analytics_section/Analytics";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Usage from "./components/analytics_section/Usage";
 import SkillsAnalysis from "./components/analytics_section/SkillsAnalysis";
-import OrgInitialSetup from "./pages/admin/companyProfile/OrgInitialSetup";
+import CompanyProfile from "./pages/admin/companyProfile/CompanyProfile";
 import Profile from "./components/profile-section/profile/Profile";
 import SkillProfile from "./pages/admin/skillProfile/SkillProfile";
 import ChartTree from "./pages/admin/organigram/ChartTree";
@@ -55,12 +68,30 @@ import Summary from "./pages/admin/organigram/summary/Summary";
 import { useState } from "react";
 import ProtectedManager from "./components/ProtectedManager";
 import ProtectedAdmin from "./components/ProtectedAdmin";
-import ProtectedEmplpoyee from "./components/ProtectedEmployee";
-import Signup from "./pages/signup/signup";
-import Recover from "./pages/recover/recover";
+import ProtectedEmployee from "./components/ProtectedEmployee";
+import Signup from "./pages/authentication/signup/signup";
+import Recover from "./pages/authentication/recover/recover";
+import StaffDashboard from "./pages/staff/StaffDashboard";
+import ProtectedStaff from "./components/ProtectedStaff";
+import { useSelector } from "react-redux";
+import { useEffect } from "react";
+import AddCompany from "./pages/staff/companies/AddCompany";
+import CompaniesOverview from "./pages/staff/companies/CompaniesOverview";
+import StaffAnalytics from "./pages/staff/analytics/StaffAnalytics";
+import StaffCompanyProfile from "./pages/staff/companies/StaffCompanyProfile";
 
 function App() {
   const [role, setRole] = useState(null);
+  const { token, userInfo } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Check if the user is logged out (you might have a more specific condition)
+    if (!token && location.pathname !== "/recover") {
+      navigate("/login"); // Redirect to the login page
+    }
+  }, [token, navigate]);
 
   return (
     <ThemeProvider theme={responsiveTheme}>
@@ -73,9 +104,9 @@ function App() {
             <Route
               path={EMPLOYEE_PAGE_ROUTE}
               element={
-                <ProtectedEmplpoyee>
+                <ProtectedEmployee>
                   <Employee />
-                </ProtectedEmplpoyee>
+                </ProtectedEmployee>
               }
             >
               <Route path={EMPLOYEE_MY_SKILLS_ROUTE} element={<MySkills />}>
@@ -87,10 +118,6 @@ function App() {
                 <Route
                   path={EMPLOYEE_MY_SKILLS_OVERVIEW_ROUTE}
                   element={<Overview />}
-                />
-                <Route
-                  path={EMPLOYEE_MY_SKILLS_PROFILE}
-                  element={<Profile />}
                 />
               </Route>
 
@@ -113,6 +140,12 @@ function App() {
                 path={EMPLOYEE_ORGANIGRAM_ROUTE}
                 element={<Organigram />}
               />
+              {userInfo?.system_role === "employee" && (
+                <Route
+                  path={`${EMPLOYEE_EMPLOYEES_PROFILE}/:id`}
+                  element={<Profile />}
+                />
+              )}
             </Route>
 
             <Route
@@ -124,6 +157,12 @@ function App() {
               }
             >
               <Route path={MANAGER_EMPLOYEES_ROUTE} element={<Employees />} />
+              {userInfo?.system_role === "manager" && (
+                <Route
+                  path={`${MANAGER_EMPLOYEES_PROFILE}/:id`}
+                  element={<Profile />}
+                />
+              )}
               <Route path={MANAGER_ORGANIGRAM_ROUTE} element={<Organigram />} />
               <Route path={MANAGER_ANALYTICS_ROUTE} element={<Analytics />}>
                 <Route index element={<SkillsAnalysis />} />
@@ -147,10 +186,16 @@ function App() {
               }
             >
               <Route path={AMDIN_EMPLOYEE_ROUTE} element={<Employees />} />
+              {userInfo?.system_role === "admin" && (
+                <Route
+                  path={`${ADMIN_EMPLOYEES_PROFILE}/:id`}
+                  element={<Profile />}
+                />
+              )}
 
               <Route
                 path={ADMIN_ORGANIZATION_COMPANY_PROFILE_ROUTE}
-                element={<OrgInitialSetup />}
+                element={<CompanyProfile />}
               />
 
               <Route
@@ -170,6 +215,35 @@ function App() {
                 />
                 <Route path={ADMIN_ANALYTICS_USAGE_ROUTE} element={<Usage />} />
               </Route>
+            </Route>
+
+            <Route
+              path={STAFF_PAGE_ROUTE}
+              element={
+                <ProtectedStaff>
+                  <StaffDashboard />
+                </ProtectedStaff>
+              }
+            >
+              <Route
+                path={STAFF_COMPANIES_ADD_COMPANY_ROUTE}
+                element={<AddCompany />}
+              />
+
+              <Route
+                path={STAFF_COMPANIES_OVERVIEW_ROUTE}
+                element={<CompaniesOverview />}
+              />
+
+              <Route
+                path={`${STAFF_COMPANIES_OVERVIEW_ROUTE}/:id`}
+                element={<StaffCompanyProfile />}
+              />
+
+              <Route
+                path={STAFF_ANALYTICS_ROUTE}
+                element={<StaffAnalytics />}
+              />
             </Route>
 
             <Route path="/login" element={<Login />} />

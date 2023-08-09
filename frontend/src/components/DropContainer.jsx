@@ -15,13 +15,13 @@ const containerStyle = {
 
 const DropContainer = ({ title, fileTypes, formik, name }) => {
   const [path, setPath] = useState(null);
-  console.log(path);
 
   const onDrop = useCallback(
     (acceptedFiles) => {
       if (acceptedFiles.length === 0) return;
-      formik.setFieldValue(name, acceptedFiles[0].path);
-      setPath(URL.createObjectURL(acceptedFiles[0]));
+      const file = acceptedFiles[0];
+      formik.setFieldValue(name, file);
+      setPath(URL.createObjectURL(file));
     },
     [name, formik]
   );

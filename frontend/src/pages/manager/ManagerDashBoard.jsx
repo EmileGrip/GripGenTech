@@ -4,7 +4,7 @@ import DefaultLayout from "../../ui/DefaultLayout";
 import { sidebarManagerData as sidebarData } from "../../data/sidebarData";
 
 const ManagerDashBoard = () => {
-  const [title, setTitle] = useState("Grip");
+  const [title, setTitle] = useState("Manager");
   return (
     <DefaultLayout sidebarData={sidebarData} title={title}>
       <Outlet context={[title, setTitle]} />

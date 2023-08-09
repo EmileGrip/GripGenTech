@@ -9,7 +9,6 @@ import {
   Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
-import { faker } from "@faker-js/faker";
 import { Box } from "@mui/material";
 
 ChartJS.register(
@@ -31,44 +30,31 @@ export const options = {
   maintainAspectRatio: false,
 };
 
-const labels = [
-  "Jan",
-  "Feb",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
+const TotalEmployeeChart = ({ accountCreation }) => {
+  const data = {
+    labels: accountCreation?.labels,
+    datasets: [
+      {
+        label: "Total Employees",
+        data: accountCreation?.data,
+        backgroundColor: "rgba(33,126,253,1)",
+        borderRadius: 30,
+      },
+    ],
+  };
 
-const data = {
-  labels,
-  datasets: [
-    {
-      label: "Total Employees",
-      data: labels.map(() => faker.datatype.number({ min: 0, max: 45000 })),
-      backgroundColor: "rgba(33,126,253,1)",
-      borderRadius: 30,
-    },
-  ],
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        position: "relative",
+        height: "100%",
+      }}
+    >
+      <Bar options={options} data={data} />
+    </Box>
+  );
 };
-
-const TotalEmployeeChart = () => (
-  <Box
-    sx={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      position: "relative",
-      height: "100%",
-    }}
-  >
-    <Bar options={options} data={data} />
-  </Box>
-);
 export default TotalEmployeeChart;

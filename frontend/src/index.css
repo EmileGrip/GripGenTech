@@ -63,3 +63,45 @@ a {
   color: #1e394c;
   font-weight: 600;
 }
+
+.react-flow__attribution {
+  display: none;
+}
+
+/* Login page */
+.login_page_special_width_in_firefox {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+@media (min-width: 1200px) {
+  .login_page_special_width_in_firefox {
+    width: 280px;
+    text-align: left;
+  }
+}
+
+@-moz-document url-prefix() {
+  .login_page_special_width_in_firefox {
+    width: 320px;
+  }
+}
+
+/* Recover page */
+.recover_page_special_width_in_firefox {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+@media (min-width: 1200px) {
+  .recover_page_special_width_in_firefox {
+    width: 245px;
+    text-align: left;
+  }
+}
+
+@-moz-document url-prefix() {
+  .recover_page_special_width_in_firefox {
+    width: 320px;
+  }
+}

@@ -2,88 +2,104 @@ import ReactFlow, {
   Controls,
   Background,
   addEdge,
-  applyEdgeChanges,
-  applyNodeChanges,
   ConnectionLineType,
+  useNodesState,
+  useEdgesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import Node from "./Node";
-import { treeData as data } from "../../../data/organigramData";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import dagre from "dagre";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { fetchData } from "../../../redux/slices/admin/organigram/organigramActions";
+import {
+  handleEdgesData,
+  handleNodesData,
+} from "../../../helper/handleOrganigramData";
 
-const initialNodes = [
-  {
-    id: "node-1",
-    type: "customNode",
-    position: { x: 260, y: 0 },
-    data: data.nodesData[0],
-  },
-  {
-    id: "node-2",
-    type: "customNode",
-    targetPosition: "top",
-    position: { x: 0, y: 300 },
-    data: data.nodesData[1],
-  },
-  {
-    id: "node-3",
-    type: "customNode",
-    targetPosition: "top",
-    position: { x: 260, y: 300 },
-    data: data.nodesData[2],
-  },
-  {
-    id: "node-4",
-    type: "customNode",
-    targetPosition: "top",
-    position: { x: 520, y: 300 },
-    data: data.nodesData[3],
-  },
-];
+const nodeWidth = 240;
+const nodeHeight = 250;
 
-const initialEdges = [
-  {
-    id: "edge-1",
-    source: "node-1",
-    target: "node-2",
-    sourceHandle: "a",
-    type: ConnectionLineType.SmoothStep,
-    animated: true,
-  },
-  {
-    id: "edge-2",
-    source: "node-1",
-    target: "node-3",
-    sourceHandle: "b",
-    type: ConnectionLineType.SmoothStep,
-    animated: true,
-  },
-  {
-    id: "edge-3",
-    source: "node-1",
-    target: "node-4",
-    sourceHandle: "c",
-    type: ConnectionLineType.SmoothStep,
-    animated: true,
-  },
-];
-const nodeTypes = { customNode: Node };
 const Flow = () => {
-  const [nodes, setNodes] = useState(initialNodes);
-  const [edges, setEdges] = useState(initialEdges);
+  const { token } = useSelector((state) => state.auth);
+  const { data } = useSelector((state) => state.organigram);
+  const dispatch = useDispatch();
 
-  const onNodesChange = useCallback(
-    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-    [setNodes]
-  );
-  const onEdgesChange = useCallback(
-    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-    [setEdges]
-  );
+  const [handledNodes, setHandledNodes] = useState([]);
+  const [handledEdges, setHandledEdges] = useState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchData(token));
+    }
+  }, [token, dispatch]);
+
+  useEffect(() => {
+    if (data.roles.length > 0 && data.edges.length > 0) {
+      const nodesData = handleNodesData(data.roles, data.edges);
+      const edgesData = handleEdgesData(data.edges);
+      setHandledNodes(nodesData);
+      setHandledEdges(edgesData);
+    }
+  }, [data]);
+
+  const getLayoutedElements = useCallback((nodes, edges, direction = "TB") => {
+    const dagreGraph = new dagre.graphlib.Graph();
+    dagreGraph.setDefaultEdgeLabel(() => ({}));
+    const isHorizontal = direction === "LR";
+    dagreGraph.setGraph({ rankdir: direction });
+
+    nodes.forEach((node) => {
+      dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+    });
+
+    edges.forEach((edge) => {
+      dagreGraph.setEdge(edge.source, edge.target);
+    });
+
+    dagre.layout(dagreGraph);
+
+    const layoutedNodes = nodes.map((node) => {
+      const nodeWithPosition = dagreGraph.node(node.id);
+      node.targetPosition = isHorizontal ? "left" : "top";
+      node.sourcePosition = isHorizontal ? "right" : "bottom";
+      node.position = {
+        x: nodeWithPosition.x - nodeWidth / 2,
+        y: nodeWithPosition.y - nodeHeight / 2,
+      };
+      return node;
+    });
+
+    return { nodes: layoutedNodes, edges };
+  }, []);
+
+  useEffect(() => {
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+      handledNodes,
+      handledEdges
+    );
+
+    setNodes(layoutedNodes);
+    setEdges(layoutedEdges);
+  }, [handledNodes, handledEdges, getLayoutedElements, setNodes, setEdges]);
+
   const onConnect = useCallback(
-    (connection) => setEdges((eds) => addEdge(connection, eds)),
+    (params) => {
+      setEdges((prevEdges) =>
+        addEdge(
+          { ...params, type: ConnectionLineType.Bezier, animated: true },
+          prevEdges
+        )
+      );
+    },
     [setEdges]
   );
+
+  const nodeTypes = useMemo(() => ({ custom: Node }), []);
+
   return (
     <div style={{ height: "100%" }}>
       <ReactFlow

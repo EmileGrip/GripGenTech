@@ -12,18 +12,21 @@ export const EMPLOYEE_WORK_EXPREIENCE_PATH =
 export const EMPLOYEE_LEARNING_EXPREIENCE_PATH =
   "/employee/experience/experience-learning";
 export const EMPLOYEE_ORGANIGRAM_ROUTE = "/employee/organigram";
+export const EMPLOYEE_EMPLOYEES_PROFILE = "/employee/organigram/profile";
 
-export const MANAGER_PAGE_ROUTE = "/grip";
-export const MANAGER_EMPLOYEES_ROUTE = "/grip/employees";
-export const MANAGER_ORGANIGRAM_ROUTE = "/grip/organigram";
-export const MANAGER_ANALYTICS_ROUTE = "/grip/analytics";
+export const MANAGER_PAGE_ROUTE = "/manager";
+export const MANAGER_EMPLOYEES_ROUTE = "/manager/employees";
+export const MANAGER_EMPLOYEES_PROFILE = "/manager/employees/profile";
+export const MANAGER_ORGANIGRAM_ROUTE = "/manager/organigram";
+export const MANAGER_ANALYTICS_ROUTE = "/manager/analytics";
 export const MANAGER_ANALYTICS_SKILLS_ANALYSIS_ROUTE =
-  "/grip/analytics/skills-analysis";
-export const MANAGER_ANALYTICS_USAGE_ROUTE = "/grip/analytics/usage";
+  "/manager/analytics/skills-analysis";
+export const MANAGER_ANALYTICS_USAGE_ROUTE = "/manager/analytics/usage";
 
 export const ADMIN_PAGE_ROUTE = "/admin";
 
 export const AMDIN_EMPLOYEE_ROUTE = "/admin/employees";
+export const ADMIN_EMPLOYEES_PROFILE = "/admin/employees/profile";
 export const ADMIN_EMPLOYEES_LIST_ROUTE =
   "/admin/organization/organigram/employeeslist";
 
@@ -37,7 +40,7 @@ export const ADMIN_ORGANIZATION_COMPANY_PROFILE_COMPANY_INFO_ROUTE =
 export const ADMIN_ORGANIZATION_ORGRANIGRAM_ROUTE =
   "/admin/organization/organigram";
 
-export const ADMIN_SKILL_PROFILE = "/admin/skill-profile/senior-UI-developer";
+export const ADMIN_SKILL_PROFILE = "/admin/skill-profile";
 
 export const ADMIN_ANALYTICS_ROUTE = "/admin/analytics";
 export const ADMIN_ANALYTICS_SKILLS_ANALYSIS_ROUTE =
@@ -45,4 +48,10 @@ export const ADMIN_ANALYTICS_SKILLS_ANALYSIS_ROUTE =
 export const ADMIN_ANALYTICS_USAGE_ROUTE = "/admin/analytics/usage";
 
 export const ORGANIGRAM_PATH = "/organigram";
+
+export const STAFF_PAGE_ROUTE = "/staff";
+export const STAFF_COMPANIES_ADD_COMPANY_ROUTE = "/staff/companies/add-company";
+export const STAFF_COMPANIES_OVERVIEW_ROUTE = "/staff/companies/overview";
+export const STAFF_ANALYTICS_ROUTE = "/staff/analytics";
+
 export const NOT_FOUND_PATH = "*";

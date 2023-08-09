@@ -2,6 +2,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  CircularProgress,
   IconButton,
   InputAdornment,
   Stack,
@@ -11,18 +12,29 @@ import {
 import Grid2 from "@mui/material/Unstable_Grid2";
 import { useFormik } from "formik";
 import SuggestedSkillChip from "../../employee/mySkills/SuggestedSkillChip";
-// import * as yup from "yup";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import validationsForm from "./validations/validationSchema";
+import { useDispatch, useSelector } from "react-redux";
+import axiosInstance from "../../../helper/axiosInstance";
+import { fetchCareerPathData } from "../../../redux/slices/Employee/development/developmentActions";
+import { setMessage } from "../../../redux/slices/Employee/development/developmentSlice";
 
 const formControlWrapperStyle = {
   minHeight: "140px",
   mb: 9.375,
 };
 
-const AddJobForm = ({ data }) => {
+const AddJobForm = ({ data, suggestedJobs, closeModal, onSuccess }) => {
   const [value, setValue] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const [options, setOptions] = useState("");
+  const { token } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const noJobsMatch = "No jobs match";
+
+  // Loading State
+  const [loading, setLoading] = useState(false);
 
   const suggestedHandler = (value) => {
     setValue(value);
@@ -35,33 +47,147 @@ const AddJobForm = ({ data }) => {
     },
     validationSchema: validationsForm,
     onSubmit: (values, { setSubmitting }) => {
-      // if (values.job === null || values.job.trim() === "") {
-      //   alert("Please Enter a valid value");
-      //   setSubmitting(false);
-      //   return;
-      // }
-      setTimeout(() => {
-        // submit to the server
-        alert(JSON.stringify(values, null, 2));
-
+      if (values.job === null || values.job === noJobsMatch) {
+        // Handle "No jobs match" validation
+        formik.setFieldError("job", "Please select a valid job");
         setSubmitting(false);
-      }, 1000);
+        return;
+      }
+
+      try {
+        // Submit to the server
+        sendData(token, values);
+        setSubmitting(false);
+      } catch (error) {
+        // Handle error
+        console.log(error);
+        setSubmitting(false);
+      }
     },
   });
 
-  const selectValue = (e, value) => {
-    formik.setFieldValue("job", value !== null ? value : null);
+  const searchJobs = useCallback(
+    async (token, value) => {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      };
+
+      try {
+        setLoading(true);
+        const response = await axiosInstance.post(
+          `search`,
+          {
+            key: "job_profile",
+            value: value,
+          },
+          config
+        );
+        console.log(response.data);
+        setOptions(response.data.payload);
+        // onSuccess(true);
+        // onClose();
+      } catch (error) {
+        // onSuccess(false);
+        console.log(error.response.data);
+      } finally {
+        setLoading(false);
+        // closeModal();
+      }
+    },
+    [token]
+  );
+
+  const sendData = useCallback(
+    async (token, values) => {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      };
+
+      try {
+        setLoading(true);
+        const response = await axiosInstance.post(
+          `career_path`,
+          {
+            job_profile_id: values.job,
+            parent_career_job_id: data.id,
+          },
+          config
+        );
+        console.log(response.data);
+        dispatch(setMessage(response.data.message));
+        setTimeout(() => {
+          onSuccess(true);
+        }, 1000);
+        // onClose();
+      } catch (error) {
+        dispatch(setMessage(error?.response.data.message));
+        setTimeout(() => {
+          onSuccess(false);
+        }, 1000);
+        console.log(error.response.data);
+      } finally {
+        setLoading(false);
+        dispatch(fetchCareerPathData(token));
+        closeModal();
+      }
+    },
+    [token, onSuccess]
+  );
+
+  useEffect(() => {
+    if (inputValue !== "") {
+      searchJobs(token, inputValue);
+    } else {
+      setOptions([]);
+    }
+  }, [searchJobs, token, inputValue]);
+
+  const selectValue = useCallback(
+    (e, optionName) => {
+      const selectedOption = options.find(
+        (option) => option.title === optionName
+      );
+      const selectedId = selectedOption ? selectedOption.id : null;
+      formik.setFieldValue("job", selectedId);
+    },
+    [formik, options]
+  );
+
+  const handleSearch = useCallback(
+    async (event) => {
+      event.preventDefault();
+      formik.handleSubmit(); // Submit the form
+
+      if (formik.values.job === noJobsMatch) {
+        return;
+      }
+
+      // Call the searchJobs function here
+      await searchJobs(token, formik.values.job);
+    },
+    [searchJobs, token, formik]
+  );
+
+  const handleInputChange = (event, newValue) => {
+    setInputValue(newValue);
   };
 
   return (
-    <form onSubmit={formik.handleSubmit}>
+    <form onSubmit={handleSearch}>
       <Stack sx={{ px: { xs: 2.5, lg: 0 } }}>
         <Box sx={formControlWrapperStyle}>
           <Typography
             variant="h3"
             component="label"
             htmlFor="search_job"
-            mb={2.5}
             sx={{
               textTransform: "capitalize",
               fontWeight: 400,
@@ -75,19 +201,26 @@ const AddJobForm = ({ data }) => {
             id="search_job"
             name="search_job"
             value={value}
-            options={data.map((option) => option)}
+            options={
+              options.length < 1
+                ? [noJobsMatch].map((option) => option)
+                : options.map((option) => option.title)
+            }
+            inputValue={inputValue}
+            onInputChange={handleInputChange}
             onBlur={formik.handleBlur}
-            onChange={selectValue}
+            onChange={(e, value) => selectValue(e, value)}
             label="Search input"
+            sx={{ mt: "16px" }}
             renderInput={(params) => (
               <TextField
                 error={formik.touched.job && Boolean(formik.errors.job)}
                 helperText={formik.touched.job ? formik.errors.job : ""}
                 name="search_job"
                 fullWidth
+                placeholder="Search Job"
                 {...params}
                 type="search"
-                // value={value}
                 InputProps={{
                   ...params.InputProps,
                   startAdornment: (
@@ -95,6 +228,14 @@ const AddJobForm = ({ data }) => {
                       <IconButton>
                         <SearchIcon />
                       </IconButton>
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        {params.InputProps.endAdornment}
+                        {loading && <CircularProgress size={20} />}
+                      </div>
                     </InputAdornment>
                   ),
                 }}
@@ -108,7 +249,6 @@ const AddJobForm = ({ data }) => {
             variant="h3"
             component="label"
             htmlFor="search_job"
-            mb={2.75}
             sx={{
               textTransform: "capitalize",
               fontWeight: 400,
@@ -117,8 +257,13 @@ const AddJobForm = ({ data }) => {
           >
             suggested jobs
           </Typography>
-          <Grid2 container spacing={2} sx={{ flexGrow: 1 }} mb={"50px"}>
-            {data.map((job) => (
+          <Grid2
+            container
+            spacing={2}
+            sx={{ flexGrow: 1, mt: "16px" }}
+            mb={"50px"}
+          >
+            {suggestedJobs.map((job) => (
               <Grid2 key={job} xs={4}>
                 <SuggestedSkillChip onClick={suggestedHandler}>
                   {job}
@@ -128,7 +273,7 @@ const AddJobForm = ({ data }) => {
           </Grid2>
         </Box>
 
-        <Box>
+        <Stack sx={{ flexDirection: "row", alignItems: "center", gap: "16px" }}>
           <Button
             type="submit"
             disabled={formik.isSubmitting}
@@ -143,7 +288,8 @@ const AddJobForm = ({ data }) => {
           >
             add job
           </Button>
-        </Box>
+          {formik.isSubmitting && <CircularProgress />}
+        </Stack>
       </Stack>
     </form>
   );

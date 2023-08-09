@@ -1,15 +1,17 @@
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const Breadcrumbs = () => {
   const location = useLocation();
 
-  let currentLink = "";
-
   const crumbs = location.pathname
     .split("/")
     .filter((crumb) => crumb !== "")
-    .map((crumb) => {
-      currentLink += `/${crumb}`;
+    .map((crumb, index, array) => {
+      const isLastCrumb = index === array.length - 1;
+
+      if (isLastCrumb && !isNaN(Number(crumb))) {
+        return null;
+      }
 
       return (
         <div className="crumb" key={crumb}>

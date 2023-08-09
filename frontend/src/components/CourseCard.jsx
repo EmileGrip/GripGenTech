@@ -7,27 +7,24 @@ import {
   useTheme,
 } from "@mui/material";
 import editaIcon from "../assets/edit_icon.svg";
-import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import EditNoteIcon from "@mui/icons-material/EditNote";
 
-const CourseCard = ({
-  degree,
-  institution,
-  date,
-  onEdit,
-  onDelete,
-  hideOptions = false,
-}) => {
+const CourseCard = ({ data, onEdit, onDelete, hideOptions = false }) => {
   const theme = useTheme();
   const lgMatches = useMediaQuery(theme.breakpoints.up("lg"));
   const mdMatches = useMediaQuery(theme.breakpoints.up("md"));
 
   const editBtnHandler = () => {
+    const startDate = new Date(data.start_date);
+    const endDate = new Date(data.end_date);
     onEdit(
       {
-        degree,
-        institution,
-        started: Date.now(),
-        finished: Date.now(),
+        degree: data.degree,
+        institution: data.institution,
+        started: startDate,
+        finished: endDate,
+        id: data.id,
       },
       "Course"
     );
@@ -45,6 +42,7 @@ const CourseCard = ({
         borderRadius: "10px",
         px: { xs: 2.5, lg: 4 },
         py: { xs: 1.25, lg: 2.5 },
+        height: "100%",
       }}
     >
       <Stack
@@ -62,7 +60,7 @@ const CourseCard = ({
           color={"#707070"}
           sx={{ textTransform: "capitalize", fontWeight: "400" }}
         >
-          {degree}
+          {data.degree}
         </Typography>
         {!hideOptions && (
           <Stack
@@ -83,15 +81,15 @@ const CourseCard = ({
                 fontWeight: "400",
                 lineHeight: "1.5",
               }}
-              endIcon={<img src={editaIcon} alt="edit icon" />}
+              endIcon={<EditNoteIcon fontSize="small" />}
             >
               edit
             </Button>
             <IconButton
-              onClick={() => onDelete("Course")}
+              onClick={() => onDelete("Course", data.id)}
               sx={{ color: "#FE7777" }}
             >
-              <DeleteIcon fontSize={lgMatches ? "medium" : "small"} />
+              <DeleteOutlinedIcon fontSize="small" />
             </IconButton>
           </Stack>
         )}
@@ -99,7 +97,7 @@ const CourseCard = ({
 
       <Stack flexDirection="row">
         <Typography variant="body1" sx={detailsTypographyStyle} color="#808080">
-          {institution}
+          {data.institution}
         </Typography>
         <Typography
           variant="body1"
@@ -107,7 +105,7 @@ const CourseCard = ({
           color="#AAAAAA"
           ml={3}
         >
-          {date}
+          {data.start_date} - {data.end_date}
         </Typography>
       </Stack>
     </Stack>

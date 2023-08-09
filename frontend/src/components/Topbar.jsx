@@ -3,9 +3,12 @@ import {
   Badge,
   Button,
   Chip,
+  CircularProgress,
   Divider,
   IconButton,
   InputAdornment,
+  Menu,
+  MenuItem,
   TextField,
   Typography,
 } from "@mui/material";
@@ -20,6 +23,7 @@ import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import avatarImg from "../assets/employee_0.jpg";
 import menuIcon from "../assets/menu.svg";
+import EditIcon from "@mui/icons-material/Edit";
 import search from "../assets/search.svg";
 import toolbar_right from "../assets/toolbar_right.svg";
 import download_icon from "../assets/download_icon.svg";
@@ -31,6 +35,12 @@ import signs_icon from "../assets/signs_icon.svg";
 import arrowCounter from "../assets/arrowCounterClockwise_icon.svg";
 import arrowClock from "../assets/arrowClockwise_icon.svg";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { fetchUserById } from "../redux/slices/admin/users/usersActions";
+import { useNavigate } from "react-router-dom";
+import { setOpenMain, setOpenSub } from "../redux/slices/sideBarSlice";
+
 const stylesButtons = {
   border: "1px solid #e9e9e9",
   borderRadius: "50%",
@@ -45,6 +55,7 @@ const stylesButtons = {
     lg: "52px",
   },
 };
+
 const optionsWrapperStyle = {
   background: "#FAFAFA",
   border: "2px solid #EEEEEE",
@@ -52,11 +63,39 @@ const optionsWrapperStyle = {
   py: "18px",
   px: "13px",
 };
+
 const Topbar = ({ title, onMenu }) => {
-  const isOrganigram = title === "organigram" ? true : false;
+  const isOrganigram = false;
   const theme = useTheme();
   const lgMatches = useMediaQuery(theme.breakpoints.up("lg"));
   const [showOptions, setShowOptions] = useState(false);
+  const { token, userInfo } = useSelector((state) => state.auth);
+  const { user, loading } = useSelector((state) => state.users);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleEditInformation = () => {
+    navigate("/employee/skills/myskills");
+    dispatch(setOpenMain("main__0"));
+    dispatch(setOpenSub("sub__0"));
+    handleMenuClose();
+  };
+
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchUserById(userInfo.id));
+    }
+  }, [token, dispatch]);
 
   return (
     <Stack
@@ -90,7 +129,6 @@ const Topbar = ({ title, onMenu }) => {
       {/* menu laptop */}
       <Stack
         className="menuBar"
-        flexDirection={"row"}
         alignItems={"center"}
         sx={{
           flexDirection: "row",
@@ -116,7 +154,7 @@ const Topbar = ({ title, onMenu }) => {
         {/* Default Right side menu bar laptop */}
         {!isOrganigram && (
           <Stack sx={{ flexDirection: "row", alignItems: "center" }}>
-            <IconButton sx={stylesButtons}>
+            {/* <IconButton sx={stylesButtons}>
               <Badge color="alert" overlap="circular" variant="dot">
                 <img src={messageIcon} alt="icon" />
               </Badge>
@@ -125,9 +163,11 @@ const Topbar = ({ title, onMenu }) => {
               <Badge color="alert" overlap="circular" variant="dot">
                 <img src={bellIcon} alt="icon" />
               </Badge>
-            </IconButton>
-            {lgMatches ? (
+            </IconButton> */}
+
+            {/* {lgMatches ? (
               <Stack
+                onClick={handleMenuOpen}
                 flexDirection={"row"}
                 alignItems={"center"}
                 sx={{
@@ -135,41 +175,100 @@ const Topbar = ({ title, onMenu }) => {
                   pr: 3,
                   border: "1px solid #E9E9E9",
                   borderRadius: "30px",
-                  cursor: "pointer",
+                  // cursor: "pointer",
                 }}
               >
                 <Avatar
-                  alt="Maximiliam Bellingham"
-                  src={avatarImg}
+                  src={user?.profile_picture?.url}
+                  alt={`${user?.first_name} ${user?.last_name}`}
                   sx={{ mr: 2.25, width: "39px", height: "39px" }}
                 />
-                <Typography color={"primary.main"} sx={{ mr: 3 }}>
-                  Maximiliam Bellingham
-                </Typography>
-                <ExpandMoreIcon color={"primary"} />
+                {loading ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <Typography
+                    color={"primary.main"}
+                    sx={{ textTransform: "capitalize", mr: 3 }}
+                  >
+                    {`${user?.first_name} ${user?.last_name}`}
+                  </Typography>
+                )}
+                <IconButton onClick={handleMenuOpen}>
+                  <ExpandMoreIcon
+                    sx={{ color: "primary", cursor: "pointer" }}
+                  />
+                </IconButton>
               </Stack>
             ) : (
               <IconButton>
                 <Avatar
-                  alt="Maximiliam Bellingham"
-                  src={avatarImg}
+                  src={user?.profile_picture?.url}
+                  alt={`${user?.first_name} ${user?.last_name}`}
                   sx={{ width: "39px", height: "39px" }}
                 />
               </IconButton>
-            )}
+            )} */}
+
+            <Stack
+              onClick={handleMenuOpen}
+              flexDirection={"row"}
+              alignItems={"center"}
+              sx={{
+                padding: "8px",
+                pr: 3,
+                border: "1px solid #E9E9E9",
+                borderRadius: "30px",
+                // cursor: "pointer",
+              }}
+            >
+              <Avatar
+                src={user?.profile_picture?.url}
+                alt={`${user?.first_name} ${user?.last_name}`}
+                sx={{ mr: 2.25, width: "39px", height: "39px" }}
+              />
+              {loading ? (
+                <CircularProgress size={20} />
+              ) : (
+                <Typography
+                  color={"primary.main"}
+                  sx={{ textTransform: "capitalize", mr: 3 }}
+                >
+                  {`${user?.first_name} ${user?.last_name}`}
+                </Typography>
+              )}
+              <IconButton onClick={handleMenuOpen}>
+                <ExpandMoreIcon sx={{ color: "primary", cursor: "pointer" }} />
+              </IconButton>
+            </Stack>
           </Stack>
         )}
 
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+          PaperProps={{
+            style: {
+              width: "200px",
+            },
+          }}
+        >
+          <MenuItem onClick={handleEditInformation}>
+            <EditIcon sx={{ marginRight: 1, width: "20px", height: "20px" }} />
+            <Typography>Profile</Typography>
+          </MenuItem>
+        </Menu>
+
         {/* Organigram Right side menu bar laptop*/}
-        {isOrganigram && (
-          // <Stack
-          //   sx={{
-          //     flexDirection: "column",
-          //     alignSelf: "center",
-          //     gap: { lg: "20px" },
-          //   }}
-          //   className="organigram__toolbar"
-          // >
+        {/* {isOrganigram && (
           <Stack
             className="first__row"
             sx={{
@@ -213,81 +312,7 @@ const Topbar = ({ title, onMenu }) => {
               finish
             </Button>
           </Stack>
-
-          /* <Stack
-              className="second__row"
-              sx={{ flexDirection: { xs: "row" } }}
-            >
-              <Stack sx={{ flexDirection: { xs: "row" }, gap: "8px", mr: 1 }}>
-                <IconButton sx={{ alignSelf: "center" }}>
-                  <img
-                    style={{ height: "20px", width: "20px" }}
-                    src={arrowCounter}
-                    alt="icon"
-                  />
-                </IconButton>
-                <IconButton sx={{ alignSelf: "center" }}>
-                  <img
-                    style={{ height: "20px", width: "20px" }}
-                    src={arrowClock}
-                    alt="icon"
-                  />
-                </IconButton>
-              </Stack>
-              <Divider sx={{ mr: 1 }} orientation="vertical" flexItem />
-              <Stack sx={{ flexDirection: { xs: "row" }, gap: "8px", mr: 1 }}>
-                <IconButton>
-                  <img
-                    style={{ cursor: "pointer", height: "20px", width: "20px" }}
-                    src={download_icon}
-                    alt="download icon"
-                  />
-                </IconButton>
-                <IconButton>
-                  <img
-                    style={{ cursor: "pointer", height: "20px", width: "20px" }}
-                    src={mailto_icon}
-                    alt="mailto icon"
-                  />
-                </IconButton>
-              </Stack>
-              <Divider sx={{ mr: 1 }} orientation="vertical" flexItem />
-              <Stack sx={{ flexDirection: { xs: "row" }, gap: "8px", mr: 1 }}>
-                <IconButton>
-                  <img
-                    style={{ cursor: "pointer", height: "20px", width: "20px" }}
-                    src={share_icon}
-                    alt="share icon"
-                  />
-                </IconButton>
-                <IconButton>
-                  <img
-                    style={{ cursor: "pointer", height: "20px", width: "20px" }}
-                    src={print_icon}
-                    alt="print icon"
-                  />
-                </IconButton>
-              </Stack>
-              <Divider sx={{ mr: 1 }} orientation="vertical" flexItem />
-              <Stack sx={{ flexDirection: { xs: "row" }, gap: "8px", mr: 1 }}>
-                <IconButton>
-                  <img
-                    style={{ cursor: "pointer", height: "20px", width: "20px" }}
-                    src={share_icon_2}
-                    alt="share icon"
-                  />
-                </IconButton>
-                <IconButton>
-                  <img
-                    style={{ cursor: "pointer", height: "20px", width: "20px" }}
-                    src={signs_icon}
-                    alt="signs icon"
-                  />
-                </IconButton>
-              </Stack>
-            </Stack> */
-          // </Stack>
-        )}
+        )} */}
       </Stack>
 
       {/* Topbar organigram mobile */}

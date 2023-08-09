@@ -18,9 +18,9 @@ const theme = createTheme({
       main: "#E2425C",
     },
     action: {
-      acitve: "#E5F3FC",
-      hover: "#E5F3FC",
-      selected: "#E5F3FC",
+      acitve: "#B4F4D2",
+      hover: "#B4F4D280",
+      selected: "#B4F4D2",
     },
     background: {
       default: "#fcfcfc",
@@ -31,25 +31,25 @@ const theme = createTheme({
     fontSize: 16,
     h1: {
       fontFamily: ["Poppins", "sans-serif"].join(","),
-      fontSize: 40,
+      fontSize: 36,
       fontWeight: 600,
       lineHeight: 1.5,
     },
     h2: {
       fontFamily: ["Poppins", "sans-serif"].join(","),
-      fontSize: 32,
+      fontSize: 28,
       fontWeight: 600,
       lineHeight: 1.5,
     },
     h3: {
       fontFamily: ["Poppins", "sans-serif"].join(","),
-      fontSize: 24,
+      fontSize: 20,
       fontWeight: 600,
       lineHeight: 1.5,
     },
     h4: {
       fontFamily: ["Poppins", "sans-serif"].join(","),
-      fontSize: 20,
+      fontSize: 18,
       lineHeight: 1.5,
     },
     h5: {
