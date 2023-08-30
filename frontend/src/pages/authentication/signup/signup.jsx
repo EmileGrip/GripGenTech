@@ -1,82 +1,162 @@
 import {
-  Box,
   Container,
-  Stack,
-  Typography,
+  Divider,
+  InputAdornment,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import SignupForm from "./signupForm/signupForm";
-import login_logo from "../../../assets/Logo/Logo - Export/Adepti - Horizontal Logo 1.png";
-import bg_login from "../../../assets/bg_login.png";
+import React from "react";
+import OuterFrame from "../../../components/authentication/OuterFrame";
+import HeaderWrapper from "../../../components/authentication/HeaderWrapper";
+import MainTitle from "../../../components/authentication/MainTitle";
+import TextFieldWrapper from "../../../components/authentication/TextFieldWrapper";
+import TextFieldLabel from "../../../components/authentication/TextFieldLabel";
+import CustomTextField from "../../../components/authentication/CustomTextField";
+import AuthRedBtn from "../../../components/RedButton";
 
-const Signup = () => {
+const SignUp = () => {
   const theme = useTheme();
-  const mdMatches = useMediaQuery(theme.breakpoints.up("md"));
-
+  const mdMatch = useMediaQuery(theme.breakpoints.up("md"));
   return (
     <Container
       maxWidth={false}
       sx={{
-        px: "0 !important",
+        px: { xs: "20px" },
+        py: { xs: "12px" },
+        // minHeight: "100vh",
+        // height: "auto",
+        // height: "100%",
         display: "flex",
-        minHeight: "100vh",
-        pt: "16px",
+        justifyContent: "center",
+        alignItems: "center",
       }}
     >
-      <Stack
-        sx={{
-          alignItems: { lg: "flex-end" },
-          justifyContent: "center",
-          width: { xs: "100%", lg: "45%" },
-          maxWidth: { lg: "480px" },
-          height: "100%",
-          pr: { lg: 5 },
-          position: "relative",
-        }}
-      >
-        <Box
-          sx={{
-            width: { lg: "307px" },
-            textAlign: { xs: "center", lg: "left" },
-            mb: 5,
-          }}
-        >
-          <img src={login_logo} alt="logo" width={150} height={42} />
-        </Box>
-        <SignupForm />
-        <Box
-          sx={{
-            width: "100%",
-            textAlign: "center",
-            position: "relative",
-            // pl: { xs: 2, lg: 0 },
-          }}
-        >
-          <Typography
-            variant="body1"
-            sx={{
-              color: "secondary.main",
-              opacity: "0.5",
-            }}
-          >
-            Adepti® All Rights Reserved
-          </Typography>
-        </Box>
-      </Stack>
+      <OuterFrame className="outerFrame">
+        <HeaderWrapper>
+          <MainTitle component="h1">sign up now</MainTitle>
+        </HeaderWrapper>
 
-      {mdMatches && (
-        <Box
-          sx={{
-            flex: 1,
-            backgroundImage: `url(${bg_login})`,
-            backgroundRepeat: "no-repeat",
-            backgroundSize: "cover",
-          }}
-        />
-      )}
+        <form>
+          <TextFieldWrapper>
+            <TextFieldLabel component="label" htmlFor="first_name">
+              first name
+            </TextFieldLabel>
+            <CustomTextField
+              id="first_name"
+              name="firstName"
+              type="text"
+              variant="outlined"
+              placeholder="Enter your first name"
+              size={!mdMatch ? "small" : "medium"}
+              fullWidth
+            />
+          </TextFieldWrapper>
+
+          <TextFieldWrapper>
+            <TextFieldLabel component="label" htmlFor="last_name">
+              last name
+            </TextFieldLabel>
+            <CustomTextField
+              id="last_name"
+              name="lastName"
+              type="text"
+              variant="outlined"
+              placeholder="Enter your last name"
+              size={!mdMatch ? "small" : "medium"}
+              fullWidth
+            />
+          </TextFieldWrapper>
+
+          <TextFieldWrapper>
+            <TextFieldLabel component="label" htmlFor="email">
+              email-address
+            </TextFieldLabel>
+            <CustomTextField
+              id="email"
+              name="email"
+              type="email"
+              variant="outlined"
+              placeholder="Enter your Email Address"
+              size={!mdMatch ? "small" : "medium"}
+              fullWidth
+            />
+          </TextFieldWrapper>
+
+          <TextFieldWrapper>
+            <TextFieldLabel component="label" htmlFor="phoneNumber">
+              phone Number
+            </TextFieldLabel>
+            <CustomTextField
+              id="phoneNumber"
+              name="phoneNumber"
+              type="text"
+              variant="outlined"
+              placeholder="Enter your Phone Number"
+              size={!mdMatch ? "small" : "medium"}
+              fullWidth
+              sx={{ background: "#d9d9d9" }}
+              InputProps={{
+                startAdornment: (
+                  <>
+                    <InputAdornment
+                      sx={{
+                        "& > p": {
+                          fontSize: {
+                            xs: "1rem",
+                            sm: "1.125rem",
+                            md: "1.25rem",
+                          },
+                        },
+                      }}
+                      position="start"
+                    >
+                      +855
+                    </InputAdornment>
+                    <Divider
+                      orientation="vertical"
+                      variant="middle"
+                      flexItem
+                      sx={{ mr: 1, borderRightWidth: 2 }}
+                    />
+                  </>
+                ),
+              }}
+            />
+          </TextFieldWrapper>
+
+          <TextFieldWrapper>
+            <TextFieldLabel component="label" htmlFor="password">
+              password
+            </TextFieldLabel>
+            <CustomTextField
+              id="password"
+              name="password"
+              type="password"
+              variant="outlined"
+              placeholder="Enter your Password"
+              size={!mdMatch ? "small" : "medium"}
+              fullWidth
+            />
+          </TextFieldWrapper>
+
+          <TextFieldWrapper sx={{ mb: { xs: 4, sm: 5 } }}>
+            <TextFieldLabel component="label" htmlFor="confirmPassword">
+              confirm password
+            </TextFieldLabel>
+            <CustomTextField
+              id="confirmPassword"
+              name="confirmPassword"
+              variant="outlined"
+              placeholder="Confirm Your Password"
+              size={!mdMatch ? "small" : "medium"}
+              fullWidth
+            />
+          </TextFieldWrapper>
+          <AuthRedBtn>sign up</AuthRedBtn>
+        </form>
+      </OuterFrame>
     </Container>
   );
 };
 
-export default Signup;
+export default SignUp;
