@@ -20,6 +20,14 @@ const ChartTree = () => {
       >
         <BulkUploadForm />
       </CustomModal>
+
+      <Box pb={1}>
+        <Typography variant="body2" color="secondary.main">
+          Build your organizational structure. Add departments, roles and
+          people.
+        </Typography>
+      </Box>
+
       <Stack sx={{ flexDirection: "row", justifyContent: "space-between" }}>
         <Button onClick={handleBulkUploadOpen} sx={{ borderRadius: 1 }}>
           <Typography sx={{ textTransform: "capitalize", color: "#66C1FF" }}>

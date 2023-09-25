@@ -2,7 +2,7 @@ from rest_framework import serializers, exceptions
 from schema.models import JobProfile,GripUser,Company,JobTitle
 from datetime import datetime
 from django.forms.models import model_to_dict
-
+from schema.utils import get_node_id
 class JobProfileSerializer(serializers.Serializer):
     
     #define the fields related to the model Experience
@@ -101,7 +101,7 @@ class JobProfileSerializer(serializers.Serializer):
         if not job_title:
             job_title = JobTitle(label=title).save()
         #create job_profile_data
-        job_profile = JobProfile.objects.create(title=title,company_id=company,job_id=str(job_title.id))
+        job_profile = JobProfile.objects.create(title=title,company_id=company,job_id=get_node_id(job_title))
         self.response = {
             "success":True,
             "message":"Experience created successfully",

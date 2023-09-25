@@ -165,13 +165,22 @@ const AddEducationForm = ({
                   sx={{ textTransform: "capitalize", whiteSpace: "nowrap" }}
                 >
                   Degree
+                  <span style={{ color: "red" }}>*</span>
                 </Typography>
               )}
               <TextField
                 id="degree"
                 name="degree"
                 placeholder="Degree"
-                label={!lgMatches ? "Degree" : ""}
+                label={
+                  !lgMatches ? (
+                    <span>
+                      Degree<span style={{ color: "red" }}>*</span>
+                    </span>
+                  ) : (
+                    ""
+                  )
+                }
                 size="medium"
                 type="text"
                 value={formik.values.degree}
@@ -198,12 +207,21 @@ const AddEducationForm = ({
                   sx={{ textTransform: "capitalize", whiteSpace: "nowrap" }}
                 >
                   Started
+                  <span style={{ color: "red" }}>*</span>
                 </Typography>
               )}
               <Stack sx={{ width: { xs: "100%", lg: "auto" } }}>
                 <DatePicker
                   size="medium"
-                  label={!lgMatches ? "Started" : ""}
+                  label={
+                    !lgMatches ? (
+                      <span>
+                        Started<span style={{ color: "red" }}>*</span>
+                      </span>
+                    ) : (
+                      ""
+                    )
+                  }
                   value={formik.values.started}
                   onChange={(value) => {
                     formik.setFieldValue("started", value);
@@ -252,13 +270,22 @@ const AddEducationForm = ({
                   sx={{ textTransform: "capitalize", whiteSpace: "nowrap" }}
                 >
                   Institution
+                  <span style={{ color: "red" }}>*</span>
                 </Typography>
               )}
               <TextField
                 id="institution"
                 name="institution"
                 placeholder="Institution"
-                label={!lgMatches ? "Institution" : ""}
+                label={
+                  !lgMatches ? (
+                    <span>
+                      Institution<span style={{ color: "red" }}>*</span>
+                    </span>
+                  ) : (
+                    ""
+                  )
+                }
                 size="medium"
                 type="text"
                 value={formik.values.institution}
@@ -290,12 +317,21 @@ const AddEducationForm = ({
                   sx={{ textTransform: "capitalize", whiteSpace: "nowrap" }}
                 >
                   Finished
+                  <span style={{ color: "red" }}>*</span>
                 </Typography>
               )}
               <Stack sx={{ width: { xs: "100%", lg: "auto" } }}>
                 <DatePicker
                   size="medium"
-                  label={!lgMatches ? "Finished" : ""}
+                  label={
+                    !lgMatches ? (
+                      <span>
+                        Finished<span style={{ color: "red" }}>*</span>
+                      </span>
+                    ) : (
+                      ""
+                    )
+                  }
                   value={formik.values.finished}
                   onChange={(value) => {
                     formik.setFieldValue("finished", value);
@@ -344,13 +380,22 @@ const AddEducationForm = ({
                   sx={{ textTransform: "capitalize", whiteSpace: "nowrap" }}
                 >
                   Level
+                  <span style={{ color: "red" }}>*</span>
                 </Typography>
               )}
               <TextField
                 id="level"
                 name="level"
                 placeholder="Level"
-                label={!lgMatches ? "Level" : ""}
+                label={
+                  !lgMatches ? (
+                    <span>
+                      Level<span style={{ color: "red" }}>*</span>
+                    </span>
+                  ) : (
+                    ""
+                  )
+                }
                 size="medium"
                 type="text"
                 value={formik.values.level}

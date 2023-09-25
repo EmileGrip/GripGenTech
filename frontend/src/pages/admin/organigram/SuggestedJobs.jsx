@@ -6,8 +6,6 @@ const SuggestedJobs = (props) => {
     justifyContent: "center",
     alignItems: "center",
     borderRadius: "10px",
-    fontSize: "16px",
-    fontWeight: "400",
     paddingTop: "8px",
     paddingBottom: "8px",
     paddingRight: "20px",
@@ -25,7 +23,7 @@ const SuggestedJobs = (props) => {
     <Box sx={style}>
       <Typography
         sx={{ flex: 1, textAlign: "center" }}
-        variant="body1"
+        variant="h5"
         onClick={(e) => chipHandler(e)}
       >
         {props.children}

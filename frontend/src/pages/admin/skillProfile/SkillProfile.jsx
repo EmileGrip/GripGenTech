@@ -22,7 +22,10 @@ import TableRow from "./TableRow";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchJobProfiles } from "../../../redux/slices/admin/jobProfile/jobProfileSlice";
 import { fetchSkillProfile } from "../../../redux/slices/admin/skillProfile/skillProfileActions";
-import { setSelectedJob } from "../../../redux/slices/admin/skillProfile/skillProfileSlice";
+import {
+  setSelectedJob,
+  setSelectedTitle,
+} from "../../../redux/slices/admin/skillProfile/skillProfileSlice";
 import SkillProfileRecommendations from "./SkillProfileRecommendations";
 
 const SkillProfile = () => {
@@ -39,9 +42,10 @@ const SkillProfile = () => {
     selectedTitle,
     skillProfileRecommendations,
   } = useSelector((state) => state.skillProfile);
-  // const [selectedJob, setSelectedJob] = useState(null);
   const [searchfield, setSearchfield] = useState("");
   const [filteredJobs, setFilteredJobs] = useState([]);
+
+  console.log("selectedTitle", selectedTitle);
 
   useEffect(() => {
     if (token) {
@@ -50,32 +54,65 @@ const SkillProfile = () => {
   }, [token, dispatch]);
 
   useEffect(() => {
-    if (token && selectedJob && selectedJob.id) {
-      dispatch(fetchSkillProfile(selectedJob.id));
+    if (token && (selectedTitle?.id || selectedJob?.id)) {
+      console.log("selectedJob", selectedJob);
+      console.log("selectedTitle", selectedTitle);
+
+      if (!!selectedTitle?.id) {
+        // function to iterate over jobProfile array to find same object similar to selectedTitle by name
+        const findJob = (jobProfile, selectedTitle) => {
+          return jobProfile.find(
+            (job) => job.title.toLowerCase() === selectedTitle.toLowerCase()
+          );
+        };
+        const job = findJob(jobProfile, selectedTitle?.title);
+        console.log("job", job);
+        dispatch(fetchSkillProfile(job?.id));
+        return;
+      }
+
+      dispatch(fetchSkillProfile(selectedJob?.id));
     }
   }, [token, selectedJob, dispatch]);
 
+  // useEffect to render jobProfile data regardless of searchfield
   useEffect(() => {
     if (jobProfile.length > 0) {
+      setFilteredJobs(jobProfile);
+      if (
+        !selectedTitle &&
+        (!selectedJob || Object.keys(selectedJob).length === 0)
+      ) {
+        dispatch(setSelectedJob(jobProfile[0]));
+      }
+    }
+  }, [jobProfile]);
+
+  useEffect(() => {
+    if (jobProfile.length > 0 && searchfield.trim().length > 0) {
       if (!selectedTitle) {
+        console.log("searchfield", searchfield);
         setFilteredJobs(
-          jobProfile.filter((job) => {
-            return job.title.toLowerCase().includes(searchfield.toLowerCase());
-          })
+          jobProfile.filter((job) =>
+            job.title.toLowerCase().includes(searchfield.toLowerCase())
+          )
         );
+        // TODO setFilteredJobs to jobProfile
       } else {
         setFilteredJobs(
-          jobProfile.filter((job) => {
-            return job.title.toLowerCase().includes(selectedTitle);
-          })
+          jobProfile.filter((job) =>
+            job.title.toLowerCase().includes(selectedTitle.title.toLowerCase())
+          )
         );
       }
 
-      if (!selectedJob || Object.keys(selectedJob).length === 0) {
-        dispatch(setSelectedJob(filteredJobs[0]));
-      }
+      // console.log("selectedJob", selectedJob);
+      // if (!selectedJob || Object.keys(selectedJob).length === 0) {
+      //   dispatch(setSelectedJob(filteredJobs[0]));
+      // }
     }
   }, [jobProfile, searchfield, selectedJob]);
+  console.log("skillProfile", skillProfile);
 
   const onSearchChange = (event) => {
     setSearchfield(event.target.value);
@@ -87,6 +124,7 @@ const SkillProfile = () => {
 
   const handleCloseMenu = (option) => {
     setAnchorEl(null);
+    dispatch(setSelectedTitle(null));
     dispatch(setSelectedJob(option === null || option === "" ? null : option));
   };
 
@@ -106,10 +144,19 @@ const SkillProfile = () => {
           jobProfileId={selectedJob?.id}
         />
       </CustomModal>
+
       {loading ? (
         <CircularProgress />
       ) : (
         <>
+          <Box pb={1}>
+            <Typography variant="body2" color="secondary.main">
+              Determine the skill profile per job. Add recommended skills or
+              search skills from the database and determine the proficiency
+              level.
+            </Typography>
+          </Box>
+
           <Stack
             sx={{
               flexDirection: { xs: "column", lg: "row" },
@@ -122,14 +169,18 @@ const SkillProfile = () => {
                 <Typography
                   variant="h2"
                   color={"primary.main"}
-                  fontSize={{ xs: "24px" }}
                   textTransform="capitalize"
                 >
-                  {selectedJob?.title}
+                  {selectedJob?.title
+                    ? selectedJob?.title
+                    : selectedTitle?.title}
+                  {/* {filteredJobs[0]?.title} */}
                 </Typography>
+
                 <IconButton id="demo-button" onClick={handleClick}>
                   <KeyboardArrowDownIcon />
                 </IconButton>
+
                 <Popover
                   anchorEl={anchorEl}
                   open={Boolean(anchorEl)}
@@ -150,6 +201,7 @@ const SkillProfile = () => {
                       onChange={onSearchChange}
                     />
                   </MenuItem>
+                  {console.log("filteredJobs", filteredJobs)}
                   {filteredJobs.length > 0 ? (
                     filteredJobs.map((job) => (
                       <MenuItem
@@ -212,7 +264,11 @@ const SkillProfile = () => {
           </Stack>
         </>
       )}
-      <SkillProfileRecommendations jobProfileId={selectedJob?.id} />
+      <SkillProfileRecommendations
+        jobProfileId={
+          selectedJob?.id ? selectedJob?.id : selectedTitle?.job_profile_id
+        }
+      />
     </>
   );
 };

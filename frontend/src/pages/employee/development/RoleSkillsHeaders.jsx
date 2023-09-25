@@ -12,6 +12,7 @@ const RoleSkillsHeaders = () => {
   const headers = ["Skill Name", "Current Proficiency Level", "Status"];
   const smallScreenHeaders = headers.filter((header) => header !== "Status");
   const currentKeys = lgMatches ? headers : smallScreenHeaders;
+
   return (
     <Grid
       className="tableHeader__section"
@@ -32,7 +33,7 @@ const RoleSkillsHeaders = () => {
             sx={{
               color: "primary.main",
               textAlign: checkLastChild(index, headers) ? "right" : "",
-              fontWeight: checkLastChild(index, headers) ? 400 : "",
+              // fontWeight: checkLastChild(index, headers) ? 400 : "",
             }}
             variant="h5"
           >

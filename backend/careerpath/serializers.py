@@ -168,14 +168,15 @@ class PathSerializer(serializers.Serializer):
 
         if child_mum>=3:
             raise exceptions.ValidationError('You can not have more than 3 stages in career job')
-        if stage_num>=3:
+        if stage_num>3:
             raise exceptions.ValidationError('You can not have more than 3 stages in career job')
         #check if there are any career job with the same job profile
         if CareerJob.objects.filter(job_profile_id_id=job_profile_id,user_id_id=user_id).exists():
             #get this career job 
             career_job = CareerJob.objects.get(job_profile_id_id=job_profile_id,user_id_id=user_id)
             #append parent career job to this career job previous jobs
-            CareerLink.objects.create(source=parent_career_job,target=career_job,user_id=self.context['request'].user)
+            if CareerLink.objects.filter(source=parent_career_job,target=career_job).exists() is False:
+                CareerLink.objects.create(source=parent_career_job,target=career_job,user_id=self.context['request'].user)
             #prepare response 
             self.response={
                 "success":True,
@@ -236,38 +237,42 @@ class PathSerializer(serializers.Serializer):
     def check_node_stages(self,parent_id):
         all_nodes = CareerJob.objects.filter(user_id_id=self.context['request'].user.id).values()
         all_links = CareerLink.objects.filter(user_id_id=self.context['request'].user.id)
+        if len(all_links)==0:
+            return 1,0
         all_links= [{"source_id":link.source.id,"target_id":link.target.id} for link in all_links]
         source_ids = set([x['source_id'] for x in all_links])
         target_ids = set([x['target_id'] for x in all_links])
         starting_nodes = source_ids.difference(target_ids)
         parent_node_stage = None
+        # Initialize the stack with the starting nodes and a path length of 1
+        stack = [(node, 1) for node in starting_nodes]
+        # Initialize the dictionary of minimum path lengths with infinity for all nodes
+        min_path_lengths = {node: float('inf') for node in source_ids.union(target_ids)}
+        # The path length to the starting nodes is 1
+        for node in starting_nodes:
+            min_path_lengths[node] = 1
 
-        def trace_path(id,starting_nodes, data):
-        
-            #get all occurance of starting nodes in data
-            occurance = []
-            for node in starting_nodes:
-                
-                for x in data:
-                    if x['source_id'] == node :
-                        if x['target_id'] == id:
-                            return 1
-                        else:
-                            occurance.append(x['target_id'])
-            occurance_score = [trace_path(id,[occ], data) for occ in occurance]
-            if len(occurance_score) == 0:
-                return 1
-            return min(occurance_score)+1
+        while stack:
+            # Pop a node from the stack
+            node, path_length = stack.pop()
+            # Find the neighbors of the node
+            neighbors = [x['target_id'] for x in all_links if x['source_id'] == node]
+            for neighbor in neighbors:
+                # If the path to the neighbor through the current node is shorter than the previously known shortest path, update it
+                if path_length + 1 < min_path_lengths[neighbor]:
+                    min_path_lengths[neighbor] = path_length + 1
+                    # Push the neighbor onto the stack with the updated path length
+                    stack.append((neighbor, path_length + 1))
+
+        # Update the stage of each node and find the stage of the parent node
         
         for node_id in range(len(all_nodes)):
-            all_nodes[node_id]['stage'] = trace_path(all_nodes[node_id]['id'],starting_nodes, all_links)
+            all_nodes[node_id]['stage'] = min_path_lengths[all_nodes[node_id]['id']]
             if all_nodes[node_id]['id'] == parent_id:
                 parent_node_stage = all_nodes[node_id]['stage']
 
-        #get number of nodes with stage number = parent_node_stage +1
-        parent_childerns_num = 0
-        for node in all_nodes:
-            if node['stage'] == parent_node_stage+1:
-                parent_childerns_num += 1
-        return parent_node_stage,parent_childerns_num
+        # Count the number of nodes with stage number = parent_node_stage + 1
+        parent_children_num = sum(1 for node in all_nodes if node['stage'] == parent_node_stage + 1)
+
+        return parent_node_stage, parent_children_num
       

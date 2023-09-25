@@ -50,12 +50,13 @@ class SearchSerializer(serializers.Serializer):
             }
 
         if search_key == "user":
-
             self.search_user(value)
         elif search_key == "skill":
             self.search_skill(value)
         elif search_key == "role":
             self.search_role(value)
+        elif search_key == "department":
+            self.search_department(value)
         else:
             self.search_jobprofile(value)
         
@@ -155,7 +156,19 @@ class SearchSerializer(serializers.Serializer):
                 "payload": Job_profiles[:10]
             }
 
-
+    def search_department(self,name):
+        #check permissions 
+        current_user =  self.context['request'].user
+        if current_user.system_role != 'manager':
+            raise exceptions.ValidationError('You are not authorized to perform this action')
+        #get users with firstname and lastname
+        departments = Role.objects.filter(department__contains=name).values_list('department',flat=True).distinct()
+        #add results to reponse 
+        self.response = {
+                "success":True,
+                "message":"Department data fetched successfully",
+                "payload": departments[:10]
+            }
 
     def get_node_id(self,node):
         #split element_id 

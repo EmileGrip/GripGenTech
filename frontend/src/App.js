@@ -48,6 +48,32 @@ import {
   STAFF_COMPANIES_ADD_COMPANY_ROUTE,
   STAFF_COMPANIES_OVERVIEW_ROUTE,
   STAFF_ANALYTICS_ROUTE,
+  EMPLOYEE_PROFILE_PATH,
+  EMPLOYEE_JOBS_ROUTE,
+  EMPLOYEE_PROJECTS_ROUTE,
+  MANAGER_JOBS_ROUTE,
+  MANAGER_PROJECTS_ROUTE,
+  ADMIN_JOBS_ROUTE,
+  ADMIN_PROJECTS_ROUTE,
+  EMPLOYEE_NEW_JOB_ROUTE,
+  MANAGER_NEW_JOB_ROUTE,
+  ADMIN_NEW_JOB_ROUTE,
+  EMPLOYEE_JOB_DETAILS_ROUTE,
+  MANAGER_JOB_DETAILS_ROUTE,
+  ADMIN_JOB_DETAILS_ROUTE,
+  EMPLOYEE_NEW_PROJECT_ROUTE,
+  MANAGER_NEW_PROJECT_ROUTE,
+  MANAGER_INTERNAL_MOBILITY_ROUTE,
+  EMPLOYEE_INTERNAL_MOBILITY_ROUTE,
+  ADMIN_INTERNAL_MOBILITY_ROUTE,
+  ADMIN_NEW_PROJECT_ROUTE,
+  EMPLOYEE_PROJECT_OVERVIEW_ROUTE,
+  MANAGER_PROJECT_OVERVIEW_ROUTE,
+  ADMIN_PROJECT_OVERVIEW_ROUTE,
+  EMPLOYEE_PROJECT_DETAILS_ROUTE,
+  MANAGER_PROJECT_DETAILS_ROUTE,
+  ADMIN_PROJECT_DETAILS_ROUTE,
+  ROLES_REQUIRED_ROUTE,
 } from "./routes/paths";
 import WorkExperience from "./pages/employee/workExperience/WorkExperience";
 import LearningExperience from "./pages/employee/learningExperience/LearningExperience";
@@ -79,6 +105,17 @@ import AddCompany from "./pages/staff/companies/AddCompany";
 import CompaniesOverview from "./pages/staff/companies/CompaniesOverview";
 import StaffAnalytics from "./pages/staff/analytics/StaffAnalytics";
 import StaffCompanyProfile from "./pages/staff/companies/StaffCompanyProfile";
+import ProfilePage from "./pages/employee/mySkills/ProfilePage";
+import InternalMobility from "./components/internal_mobility_section/InternalMobility";
+import Jobs from "./components/internal_mobility_section/jobs/Jobs";
+import Projects from "./components/internal_mobility_section/projects/Projects";
+import AddJobForm from "./components/internal_mobility_section/jobs/AddJobForm";
+import JobDetails from "./components/internal_mobility_section/jobs/JobDetails";
+import AddProjectForm from "./components/internal_mobility_section/projects/AddProjectForm";
+import ProjectOverview from "./components/internal_mobility_section/projects/ProjectOverview";
+import ProjectDetails from "./components/internal_mobility_section/projects/ProjectDetails";
+import RolesRequired from "./components/internal_mobility_section/projects/RolesRequired";
+import SkillProfilePage from "./pages/admin/skillProfile/SkillProfilePage";
 
 function App() {
   const [role, setRole] = useState(null);
@@ -109,16 +146,10 @@ function App() {
                 </ProtectedEmployee>
               }
             >
+              <Route path={EMPLOYEE_PROFILE_PATH} element={<ProfilePage />} />
+
               <Route path={EMPLOYEE_MY_SKILLS_ROUTE} element={<MySkills />}>
-                <Route index element={<InitialSetup />} />
-                <Route
-                  path={EMPLOYEE_MY_SKILLS_INITIAL_ROUTE}
-                  element={<InitialSetup />}
-                />
-                <Route
-                  path={EMPLOYEE_MY_SKILLS_OVERVIEW_ROUTE}
-                  element={<Overview />}
-                />
+                <Route index element={<Overview />} />
               </Route>
 
               <Route
@@ -140,6 +171,45 @@ function App() {
                 path={EMPLOYEE_ORGANIGRAM_ROUTE}
                 element={<Organigram />}
               />
+
+              <Route
+                path={EMPLOYEE_INTERNAL_MOBILITY_ROUTE}
+                element={<InternalMobility />}
+              >
+                <Route index element={<Jobs />} />
+
+                <Route path={EMPLOYEE_JOBS_ROUTE} element={<Jobs />} />
+
+                <Route path={EMPLOYEE_NEW_JOB_ROUTE} element={<AddJobForm />} />
+
+                <Route
+                  path={`${EMPLOYEE_JOB_DETAILS_ROUTE}/:id`}
+                  element={<JobDetails />}
+                />
+
+                <Route path={EMPLOYEE_PROJECTS_ROUTE} element={<Projects />} />
+
+                <Route
+                  path={EMPLOYEE_NEW_PROJECT_ROUTE}
+                  element={<AddProjectForm />}
+                />
+
+                <Route
+                  path={EMPLOYEE_PROJECT_OVERVIEW_ROUTE}
+                  element={<ProjectOverview />}
+                />
+
+                <Route
+                  path={`${EMPLOYEE_PROJECT_DETAILS_ROUTE}/:id`}
+                  element={<JobDetails projects={true} />}
+                />
+
+                <Route
+                  path={`${EMPLOYEE_PROJECT_DETAILS_ROUTE}/:id${ROLES_REQUIRED_ROUTE}`}
+                  element={<RolesRequired />}
+                />
+              </Route>
+
               {userInfo?.system_role === "employee" && (
                 <Route
                   path={`${EMPLOYEE_EMPLOYEES_PROFILE}/:id`}
@@ -163,7 +233,47 @@ function App() {
                   element={<Profile />}
                 />
               )}
+
               <Route path={MANAGER_ORGANIGRAM_ROUTE} element={<Organigram />} />
+
+              <Route
+                path={MANAGER_INTERNAL_MOBILITY_ROUTE}
+                element={<InternalMobility />}
+              >
+                <Route index element={<Jobs />} />
+
+                <Route path={MANAGER_JOBS_ROUTE} element={<Jobs />} />
+
+                <Route path={MANAGER_NEW_JOB_ROUTE} element={<AddJobForm />} />
+
+                <Route
+                  path={`${MANAGER_JOB_DETAILS_ROUTE}/:id`}
+                  element={<JobDetails />}
+                />
+
+                <Route path={MANAGER_PROJECTS_ROUTE} element={<Projects />} />
+
+                <Route
+                  path={MANAGER_NEW_PROJECT_ROUTE}
+                  element={<AddProjectForm />}
+                />
+
+                <Route
+                  path={MANAGER_PROJECT_OVERVIEW_ROUTE}
+                  element={<ProjectOverview />}
+                />
+
+                <Route
+                  path={`${MANAGER_PROJECT_DETAILS_ROUTE}/:id`}
+                  element={<ProjectDetails />}
+                />
+
+                <Route
+                  path={`${MANAGER_PROJECT_DETAILS_ROUTE}/:id${ROLES_REQUIRED_ROUTE}`}
+                  element={<RolesRequired />}
+                />
+              </Route>
+
               <Route path={MANAGER_ANALYTICS_ROUTE} element={<Analytics />}>
                 <Route index element={<SkillsAnalysis />} />
                 <Route
@@ -205,7 +315,9 @@ function App() {
 
               <Route path={ADMIN_EMPLOYEES_LIST_ROUTE} element={<Summary />} />
 
-              <Route path={ADMIN_SKILL_PROFILE} element={<SkillProfile />} />
+              <Route path={ADMIN_SKILL_PROFILE} element={<SkillProfilePage />}>
+                <Route index element={<SkillProfile />} />
+              </Route>
 
               <Route path={ADMIN_ANALYTICS_ROUTE} element={<Analytics />}>
                 <Route index element={<SkillsAnalysis />} />
@@ -214,6 +326,44 @@ function App() {
                   element={<SkillsAnalysis />}
                 />
                 <Route path={ADMIN_ANALYTICS_USAGE_ROUTE} element={<Usage />} />
+              </Route>
+
+              <Route
+                path={ADMIN_INTERNAL_MOBILITY_ROUTE}
+                element={<InternalMobility />}
+              >
+                <Route index element={<Jobs />} />
+
+                <Route path={ADMIN_JOBS_ROUTE} element={<Jobs />} />
+
+                <Route path={ADMIN_NEW_JOB_ROUTE} element={<AddJobForm />} />
+
+                <Route
+                  path={`${ADMIN_JOB_DETAILS_ROUTE}/:id`}
+                  element={<JobDetails />}
+                />
+
+                <Route path={ADMIN_PROJECTS_ROUTE} element={<Projects />} />
+
+                <Route
+                  path={ADMIN_NEW_PROJECT_ROUTE}
+                  element={<AddProjectForm />}
+                />
+
+                <Route
+                  path={ADMIN_PROJECT_OVERVIEW_ROUTE}
+                  element={<ProjectOverview />}
+                />
+
+                <Route
+                  path={`${ADMIN_PROJECT_DETAILS_ROUTE}/:id`}
+                  element={<ProjectDetails />}
+                />
+
+                <Route
+                  path={`${ADMIN_PROJECT_DETAILS_ROUTE}/:id${ROLES_REQUIRED_ROUTE}`}
+                  element={<RolesRequired />}
+                />
               </Route>
             </Route>
 

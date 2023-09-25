@@ -19,6 +19,7 @@ import { useCallback, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../../helper/axiosInstance";
 import {
@@ -204,8 +205,8 @@ const TableRow = ({ skill }) => {
               Delete Skill
             </Typography>
 
-            <IconButton onClick={handleDeleteData}>
-              <DeleteIcon color="error" />
+            <IconButton onClick={handleDeleteData} sx={{ color: "#FE7777" }}>
+              <DeleteOutlinedIcon fontSize="small" />
             </IconButton>
           </Stack>
         </Popover>
@@ -301,7 +302,7 @@ const TableRow = ({ skill }) => {
               gap: { xl: "34px" },
             }}
           >
-            <Tooltip
+            {/* <Tooltip
               title={
                 <>
                   <div style={{ textAlign: "center" }}>Proficiency needed</div>
@@ -314,7 +315,12 @@ const TableRow = ({ skill }) => {
               <span style={{ marginTop: "7px" }}>
                 <RatingBar initialValue={skill.level} />
               </span>
-            </Tooltip>
+            </Tooltip> */}
+
+            <span style={{ marginTop: "7px" }}>
+              <RatingBar initialValue={skill.level} />
+            </span>
+
             {lgMatches && (
               <Typography
                 variant="body2"

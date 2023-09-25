@@ -26,6 +26,7 @@ import { DatePicker } from "@mui/x-date-pickers";
 import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../../helper/axiosInstance";
 import { fetchData } from "../../../redux/slices/admin/organigram/organigramActions";
+import { fetchUsers } from "../../../redux/slices/admin/users/usersActions";
 
 const stackStyles = {
   flexDirection: "row",
@@ -194,7 +195,9 @@ const AssignRoleForm = ({ data, closeModal }) => {
           config
         );
         console.log(response.data);
-        editData(token, response.data.payload.id);
+        if (data) {
+          editData(token, response.data.payload.id);
+        }
         // onSuccess(true);
         // onClose();
         // onFetch();
@@ -203,7 +206,11 @@ const AssignRoleForm = ({ data, closeModal }) => {
         console.log(error.response.data);
       } finally {
         setLoading(false);
-        dispatch(fetchData(token));
+        if (data) {
+          dispatch(fetchData(token));
+        } else {
+          dispatch(fetchUsers(token));
+        }
         closeModal();
       }
     },
@@ -245,62 +252,64 @@ const AssignRoleForm = ({ data, closeModal }) => {
 
   return (
     <Box sx={{ px: { xs: 2.5 } }}>
-      <Stack
-        sx={{
-          flexDirection: "row",
-          justifyContent: { xs: "space-between", md: "initial" },
-          gap: { md: 25.25 },
-          mb: { xs: 9.375, md: 9.375 },
-        }}
-      >
-        <Button
-          onClick={() => toggleTab("exist_employee")}
-          mb={2.5}
-          sx={{ borderRadius: 1 }}
+      {data && (
+        <Stack
+          sx={{
+            flexDirection: "row",
+            justifyContent: { xs: "space-between", md: "initial" },
+            gap: { md: 25.25 },
+            mb: { xs: 9.375, md: 9.375 },
+          }}
         >
-          <Typography
-            variant="h3"
-            sx={{
-              textTransform: "capitalize",
-              fontSize: { xs: "14px", md: "16px" },
-              fontWeight: 600,
-              color:
-                currentTab === "exist_employee"
-                  ? "#1E394C"
-                  : "rgba(30, 57, 76, 0.5)",
-              borderBottom:
-                currentTab === "exist_employee" && "2px solid #1E394C",
-            }}
+          <Button
+            onClick={() => toggleTab("exist_employee")}
+            mb={2.5}
+            sx={{ borderRadius: 1 }}
           >
-            existing employee
-          </Typography>
-        </Button>
+            <Typography
+              variant="h3"
+              sx={{
+                textTransform: "capitalize",
+                fontSize: { xs: "14px", md: "16px" },
+                fontWeight: 600,
+                color:
+                  currentTab === "exist_employee"
+                    ? "#1E394C"
+                    : "rgba(30, 57, 76, 0.5)",
+                borderBottom:
+                  currentTab === "exist_employee" && "2px solid #1E394C",
+              }}
+            >
+              existing employee
+            </Typography>
+          </Button>
 
-        <Button
-          onClick={() => toggleTab("new_employee")}
-          mb={2.5}
-          sx={{ borderRadius: 1 }}
-        >
-          <Typography
-            variant="h3"
-            sx={{
-              textTransform: "capitalize",
-              fontSize: { xs: "14px", md: "16px" },
-              fontWeight: 600,
-              color:
-                currentTab === "new_employee"
-                  ? "#1E394C"
-                  : "rgba(30, 57, 76, 0.5)",
-              borderBottom:
-                currentTab === "new_employee" && "2px solid #1E394C",
-            }}
+          <Button
+            onClick={() => toggleTab("new_employee")}
+            mb={2.5}
+            sx={{ borderRadius: 1 }}
           >
-            create new employee
-          </Typography>
-        </Button>
-      </Stack>
+            <Typography
+              variant="h3"
+              sx={{
+                textTransform: "capitalize",
+                fontSize: { xs: "14px", md: "16px" },
+                fontWeight: 600,
+                color:
+                  currentTab === "new_employee"
+                    ? "#1E394C"
+                    : "rgba(30, 57, 76, 0.5)",
+                borderBottom:
+                  currentTab === "new_employee" && "2px solid #1E394C",
+              }}
+            >
+              create new employee
+            </Typography>
+          </Button>
+        </Stack>
+      )}
 
-      {currentTab === "exist_employee" ? (
+      {currentTab === "exist_employee" && data ? (
         <form onSubmit={existingEmployeeForm.handleSubmit}>
           <Box mb={4}>
             <Typography
@@ -437,6 +446,7 @@ const AssignRoleForm = ({ data, closeModal }) => {
                         }}
                       >
                         first name
+                        <span style={{ color: "red" }}>*</span>
                       </Typography>
                     )}
                     <TextField
@@ -445,7 +455,15 @@ const AssignRoleForm = ({ data, closeModal }) => {
                       type="text"
                       size="medium"
                       placeholder="First Name"
-                      label={!lgMatches ? "First Name" : ""}
+                      label={
+                        !lgMatches ? (
+                          <span>
+                            First Name<span style={{ color: "red" }}>*</span>
+                          </span>
+                        ) : (
+                          ""
+                        )
+                      }
                       value={creatingNewEmployeeForm.values.firstName}
                       onChange={creatingNewEmployeeForm.handleChange}
                       onBlur={creatingNewEmployeeForm.handleBlur}
@@ -478,6 +496,7 @@ const AssignRoleForm = ({ data, closeModal }) => {
                         }}
                       >
                         email
+                        <span style={{ color: "red" }}>*</span>
                       </Typography>
                     )}
                     <TextField
@@ -486,7 +505,15 @@ const AssignRoleForm = ({ data, closeModal }) => {
                       type="text"
                       size="medium"
                       placeholder="Email"
-                      label={!lgMatches ? "Email" : ""}
+                      label={
+                        !lgMatches ? (
+                          <span>
+                            Email<span style={{ color: "red" }}>*</span>
+                          </span>
+                        ) : (
+                          ""
+                        )
+                      }
                       value={creatingNewEmployeeForm.values.email}
                       onChange={creatingNewEmployeeForm.handleChange}
                       onBlur={creatingNewEmployeeForm.handleBlur}
@@ -519,6 +546,7 @@ const AssignRoleForm = ({ data, closeModal }) => {
                         }}
                       >
                         last name
+                        <span style={{ color: "red" }}>*</span>
                       </Typography>
                     )}
                     <TextField
@@ -527,7 +555,15 @@ const AssignRoleForm = ({ data, closeModal }) => {
                       type="text"
                       size="medium"
                       placeholder="Last Name"
-                      label={!lgMatches ? "Last Name" : ""}
+                      label={
+                        !lgMatches ? (
+                          <span>
+                            Last Name<span style={{ color: "red" }}>*</span>
+                          </span>
+                        ) : (
+                          ""
+                        )
+                      }
                       value={creatingNewEmployeeForm.values.lastName}
                       onChange={creatingNewEmployeeForm.handleChange}
                       onBlur={creatingNewEmployeeForm.handleBlur}
@@ -738,6 +774,7 @@ const AssignRoleForm = ({ data, closeModal }) => {
               }}
             >
               role
+              <span style={{ color: "red" }}>*</span>
             </Typography>
 
             <FormGroup

@@ -70,6 +70,11 @@ const SkillsAnalysis = () => {
     setSkill(modifiedData[skillPresenceKeys[0]]);
   }, [modifiedData]);
 
+  const [activeTab, setActiveTab] = useState("graph__1");
+  const ActiveTabHandler = (e) => {
+    setActiveTab(e.target.id);
+  };
+
   const [activeGapBtn, setActiveGapBtn] = useState("select__job");
   const AverageGapLevelBtnsHandler = (e) => {
     setActiveGapBtn(e.target.id);
@@ -122,6 +127,47 @@ const SkillsAnalysis = () => {
       setLoading(false);
     }
   }, [token]);
+
+  // Calculate dynamic height for each graph
+  const [graphHeight, setGraphHeight] = useState("400px");
+
+  useEffect(() => {
+    if (data && activeGapBtn === "select__job") {
+      setGraphHeight(`${data?.analysis?.job_avg_gaps?.labels?.length * 50}px`);
+    } else if (data && activeGapBtn === "select__skill") {
+      setGraphHeight(
+        `${data?.analysis?.skill_avg_gaps?.labels?.length * 50}px`
+      );
+    } else if (data && activeGapBtn === "select__employee") {
+      setGraphHeight(
+        `${data?.analysis?.employee_avg_gaps?.labels?.length * 50}px`
+      );
+    } else if (
+      data &&
+      (activeSkillGapBtn === "select__absolute" ||
+        activeSkillGapBtn === "select__percentage")
+    ) {
+      setGraphHeight(`${data?.analysis?.skill_gaps?.labels?.length * 50}px`);
+    } else if (
+      data &&
+      (activeEmployeeGapBtn === "select__absolute" ||
+        activeEmployeeGapBtn === "select__percentage")
+    ) {
+      setGraphHeight(`${data?.analysis?.employee_gaps?.labels?.length * 50}px`);
+    } else if (data && activeTopMissBtn === "top") {
+      setGraphHeight(`${data?.analysis?.top_skills?.labels?.length * 50}px`);
+    } else if (data && activeTopMissBtn === "missing") {
+      setGraphHeight(
+        `${data?.analysis?.missing_skills?.labels?.length * 50}px`
+      );
+    }
+  }, [
+    data,
+    activeGapBtn,
+    activeSkillGapBtn,
+    activeEmployeeGapBtn,
+    activeTopMissBtn,
+  ]);
 
   return (
     <>
@@ -282,6 +328,91 @@ const SkillsAnalysis = () => {
         </Grid2>
       </Grid2> */}
 
+      <Stack sx={{ flexDirection: { sm: "row" }, gap: "10px", mb: 3 }}>
+        <Stack sx={{ flexDirection: "row", gap: 1 }}>
+          <Button
+            onClick={(e) => ActiveTabHandler(e)}
+            id="graph__1"
+            sx={{
+              textTransform: "none",
+              borderRadius: "5px",
+              p: 1,
+              backgroundColor:
+                activeTab === "graph__1" ? "#E1FAED" : "transparent",
+              color: activeTab === "graph__1" ? "primary" : "#788894",
+            }}
+          >
+            Average gap
+          </Button>
+
+          <Button
+            onClick={(e) => ActiveTabHandler(e)}
+            id="graph__2"
+            sx={{
+              textTransform: "none",
+              borderRadius: "5px",
+              p: 1,
+              backgroundColor:
+                activeTab === "graph__2" ? "#E1FAED" : "transparent",
+              color: activeTab === "graph__2" ? "primary" : "#788894",
+            }}
+          >
+            Job gap
+          </Button>
+        </Stack>
+
+        <Stack sx={{ flexDirection: "row", gap: 1 }}>
+          <Button
+            onClick={(e) => ActiveTabHandler(e)}
+            id="graph__3"
+            sx={{
+              textTransform: "none",
+              borderRadius: "5px",
+              p: 1,
+              backgroundColor:
+                activeTab === "graph__3" ? "#E1FAED" : "transparent",
+              color: activeTab === "graph__3" ? "primary" : "#788894",
+            }}
+          >
+            Employee gap
+          </Button>
+
+          <Button
+            onClick={(e) => ActiveTabHandler(e)}
+            id="graph__4"
+            sx={{
+              textTransform: "none",
+              borderRadius: "5px",
+              p: 1,
+              backgroundColor:
+                activeTab === "graph__4" ? "#E1FAED" : "transparent",
+              color: activeTab === "graph__4" ? "primary" : "#788894",
+            }}
+          >
+            Skill presence
+          </Button>
+        </Stack>
+
+        <Stack sx={{ flexDirection: "row" }}>
+          <Button
+            onClick={(e) => ActiveTabHandler(e)}
+            id="graph__5"
+            sx={{
+              textTransform: "none",
+              borderRadius: "5px",
+              p: 1,
+              backgroundColor:
+                activeTab === "graph__5" ? "#E1FAED" : "transparent",
+              color: activeTab === "graph__5" ? "primary" : "#788894",
+            }}
+          >
+            Top and missing skills
+          </Button>
+        </Stack>
+      </Stack>
+
+      <Divider sx={{ mb: 3 }} />
+
       <Stack
         className="main__wrapper"
         sx={{
@@ -291,276 +422,379 @@ const SkillsAnalysis = () => {
           justifyContent: { xs: "auto", lg: "space-between" },
         }}
       >
-        <Stack
-          className="AverageGapLevel__wrapper"
-          sx={{
-            height: "400px",
-            width: { xs: "90vw", lg: "48%" },
-          }}
-        >
-          <ChartWrapper>
-            <Stack
-              sx={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                borderBottom: "1px solid  #B3B3B3",
-                pb: 2,
-                mb: 2,
-              }}
-            >
-              <Typography
-                variant="h4"
-                component="h2"
-                color="primary"
-                fontWeight="600"
-              >
-                Average Gap Level
-              </Typography>
+        {activeTab === "graph__1" && (
+          <Stack
+            className="AverageGapLevel__wrapper"
+            sx={{
+              width: { xs: "90vw", lg: "100%" },
+            }}
+          >
+            {activeGapBtn === "select__job" && (
+              <Box pb={3}>
+                <Typography variant="body2" color="secondary.main">
+                  Subtracting the sum of the required skills levels from the sum
+                  of the employee's skills levels, taking into account only the
+                  skills coming from the specific job description, divided by
+                  the number of skills in this specific job description and the
+                  number of employees with the specific job title.
+                </Typography>
+              </Box>
+            )}
 
-              <Stack sx={{ flexDirection: "row", gap: "10px" }}>
-                <Button
-                  onClick={(e) => AverageGapLevelBtnsHandler(e)}
-                  id="select__job"
-                  sx={{
-                    textTransform: "capitalize",
-                    borderRadius: "5px",
-                    p: 1,
-                    backgroundColor:
-                      activeGapBtn === "select__job"
-                        ? "#E5F3FC"
-                        : "transparent",
-                    color:
-                      activeGapBtn === "select__job" ? "primary" : "#788894",
-                  }}
+            {activeGapBtn === "select__skill" && (
+              <Box pb={3}>
+                <Typography variant="body2" color="secondary.main">
+                  Subtracting the sum of the required skill levels from the sum
+                  of the employee's skill levels, divided by the total number of
+                  times the skill appears in a job description.
+                </Typography>
+              </Box>
+            )}
+
+            {activeGapBtn === "select__employee" && (
+              <Box pb={3}>
+                <Typography variant="body2" color="secondary.main">
+                  Subtracting the sum of the required skills levels for a
+                  specific job from the sum of the specific employee skills
+                  levels, taking into account only the skills coming from the
+                  specific job description, divided by the number of skills in
+                  this specific job description.
+                </Typography>
+              </Box>
+            )}
+
+            <ChartWrapper>
+              <Stack
+                sx={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 1,
+                  borderBottom: "1px solid  #B3B3B3",
+                  pb: 2,
+                  mb: 2,
+                }}
+              >
+                <Typography
+                  variant="h4"
+                  component="h2"
+                  color="primary"
+                  fontWeight="600"
                 >
-                  by job
-                </Button>
-                <Button
-                  onClick={(e) => AverageGapLevelBtnsHandler(e)}
-                  id="select__skill"
-                  sx={{
-                    textTransform: "capitalize",
-                    borderRadius: "5px",
-                    p: 1,
-                    backgroundColor:
-                      activeGapBtn === "select__skill"
-                        ? "#E5F3FC"
-                        : "transparent",
-                    color:
-                      activeGapBtn === "select__skill" ? "primary" : "#788894",
-                  }}
-                >
-                  by skill
-                </Button>
-                <Button
-                  onClick={(e) => AverageGapLevelBtnsHandler(e)}
-                  id="select__employee"
-                  sx={{
-                    textTransform: "capitalize",
-                    borderRadius: "5px",
-                    p: 1,
-                    backgroundColor:
-                      activeGapBtn === "select__employee"
-                        ? "#E5F3FC"
-                        : "transparent",
-                    color:
-                      activeGapBtn === "select__employee"
-                        ? "primary"
-                        : "#788894",
-                  }}
-                >
-                  by employee
-                </Button>
+                  Average gap
+                </Typography>
+
+                <Stack sx={{ flexDirection: "row", gap: "10px" }}>
+                  <Button
+                    onClick={(e) => AverageGapLevelBtnsHandler(e)}
+                    id="select__job"
+                    sx={{
+                      textTransform: "capitalize",
+                      borderRadius: "5px",
+                      p: 1,
+                      backgroundColor:
+                        activeGapBtn === "select__job"
+                          ? "#E1FAED"
+                          : "transparent",
+                      color:
+                        activeGapBtn === "select__job" ? "primary" : "#788894",
+                    }}
+                  >
+                    by job
+                  </Button>
+                  <Button
+                    onClick={(e) => AverageGapLevelBtnsHandler(e)}
+                    id="select__skill"
+                    sx={{
+                      textTransform: "capitalize",
+                      borderRadius: "5px",
+                      p: 1,
+                      backgroundColor:
+                        activeGapBtn === "select__skill"
+                          ? "#E1FAED"
+                          : "transparent",
+                      color:
+                        activeGapBtn === "select__skill"
+                          ? "primary"
+                          : "#788894",
+                    }}
+                  >
+                    by skill
+                  </Button>
+                  <Button
+                    onClick={(e) => AverageGapLevelBtnsHandler(e)}
+                    id="select__employee"
+                    sx={{
+                      textTransform: "capitalize",
+                      borderRadius: "5px",
+                      p: 1,
+                      backgroundColor:
+                        activeGapBtn === "select__employee"
+                          ? "#E1FAED"
+                          : "transparent",
+                      color:
+                        activeGapBtn === "select__employee"
+                          ? "primary"
+                          : "#788894",
+                    }}
+                  >
+                    by employee
+                  </Button>
+                </Stack>
               </Stack>
-            </Stack>
-            <AverageGapChart
-              select={activeGapBtn}
-              jobAvgGapData={data?.analysis?.job_avg_gaps}
-              skillAvgGapData={data?.analysis?.skill_avg_gaps}
-              employeeAvgGapData={data?.analysis?.employee_avg_gaps}
-            />
-          </ChartWrapper>
-        </Stack>
 
-        <Stack
-          className="skillGaps__wrapper"
-          sx={{
-            height: "400px",
-            width: { xs: "90vw", lg: "48%" },
-          }}
-        >
-          <ChartWrapper>
-            <Stack
-              sx={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                borderBottom: "1px solid  #B3B3B3",
-                pb: 2,
-                mb: 2,
-              }}
-            >
-              <Typography
-                variant="h4"
-                component="h2"
-                color="primary"
-                fontWeight="600"
+              <Box
+                sx={{
+                  height: "50vh",
+                  maxHeight: "50vh",
+                  overflowY: "auto",
+                  pr: 2,
+                }}
               >
-                Skill Gaps
-              </Typography>
+                <Box sx={{ height: graphHeight }}>
+                  <AverageGapChart
+                    select={activeGapBtn}
+                    jobAvgGapData={data?.analysis?.job_avg_gaps}
+                    skillAvgGapData={data?.analysis?.skill_avg_gaps}
+                    employeeAvgGapData={data?.analysis?.employee_avg_gaps}
+                  />
+                </Box>
+              </Box>
+            </ChartWrapper>
+          </Stack>
+        )}
 
-              <Stack sx={{ flexDirection: "row", gap: "10px" }}>
-                <Button
-                  onClick={(e) => AverageSkillGapLevelBtnsHandler(e)}
-                  id="select__absolute"
-                  sx={{
-                    textTransform: "capitalize",
-                    borderRadius: "5px",
-                    p: 1,
-                    backgroundColor:
-                      activeSkillGapBtn === "select__absolute"
-                        ? "#E5F3FC"
-                        : "transparent",
-                    color:
-                      activeSkillGapBtn === "select__absolute"
-                        ? "primary"
-                        : "#788894",
-                  }}
+        {activeTab === "graph__2" && (
+          <Stack
+            className="skillGaps__wrapper"
+            sx={{
+              // height: "400px",
+              width: { xs: "90vw", lg: "100%" },
+            }}
+          >
+            <Box pb={3}>
+              <Typography variant="body2" color="secondary.main">
+                Sum of required skill levels and the sum of the skill levels of
+                employees with this specific job, taking into account the
+                highest score between them.
+              </Typography>
+            </Box>
+
+            <ChartWrapper>
+              <Stack
+                sx={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  borderBottom: "1px solid  #B3B3B3",
+                  pb: 2,
+                  mb: 2,
+                }}
+              >
+                <Typography
+                  variant="h4"
+                  component="h2"
+                  color="primary"
+                  fontWeight="600"
                 >
-                  absolute
-                </Button>
-                <Button
-                  onClick={(e) => AverageSkillGapLevelBtnsHandler(e)}
-                  id="select__percentage"
-                  sx={{
-                    textTransform: "capitalize",
-                    borderRadius: "5px",
-                    p: 1,
-                    backgroundColor:
-                      activeSkillGapBtn === "select__percentage"
-                        ? "#E5F3FC"
-                        : "transparent",
-                    color:
-                      activeSkillGapBtn === "select__percentage"
-                        ? "primary"
-                        : "#788894",
-                  }}
-                >
-                  percentage
-                </Button>
+                  Job gap
+                </Typography>
+
+                <Stack sx={{ flexDirection: "row", gap: "10px" }}>
+                  <Button
+                    onClick={(e) => AverageSkillGapLevelBtnsHandler(e)}
+                    id="select__absolute"
+                    sx={{
+                      textTransform: "capitalize",
+                      borderRadius: "5px",
+                      p: 1,
+                      backgroundColor:
+                        activeSkillGapBtn === "select__absolute"
+                          ? "#E1FAED"
+                          : "transparent",
+                      color:
+                        activeSkillGapBtn === "select__absolute"
+                          ? "primary"
+                          : "#788894",
+                    }}
+                  >
+                    absolute
+                  </Button>
+                  <Button
+                    onClick={(e) => AverageSkillGapLevelBtnsHandler(e)}
+                    id="select__percentage"
+                    sx={{
+                      textTransform: "capitalize",
+                      borderRadius: "5px",
+                      p: 1,
+                      backgroundColor:
+                        activeSkillGapBtn === "select__percentage"
+                          ? "#E1FAED"
+                          : "transparent",
+                      color:
+                        activeSkillGapBtn === "select__percentage"
+                          ? "primary"
+                          : "#788894",
+                    }}
+                  >
+                    percentage
+                  </Button>
+                </Stack>
               </Stack>
-            </Stack>
-            <SkillGapsChartArea
-              select={activeSkillGapBtn}
-              data={data?.analysis?.skill_gaps}
-            />
-          </ChartWrapper>
-        </Stack>
 
-        <Stack
-          className="employeeGaps__wrapper"
-          sx={{
-            height: "400px",
-            width: { xs: "90vw", lg: "48%" },
-          }}
-        >
-          <ChartWrapper>
-            <Stack
-              sx={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                borderBottom: "1px solid  #B3B3B3",
-                pb: 2,
-                mb: 2,
-              }}
-            >
-              <Typography
-                variant="h4"
-                component="h2"
-                color="primary"
-                fontWeight="600"
+              <Box
+                sx={{
+                  height: "50vh",
+                  maxHeight: "50vh",
+                  overflowY: "auto",
+                  pr: 2,
+                }}
               >
-                Employee Gaps
-              </Typography>
+                <Box sx={{ height: graphHeight }}>
+                  <SkillGapsChartArea
+                    select={activeSkillGapBtn}
+                    data={data?.analysis?.skill_gaps}
+                  />
+                </Box>
+              </Box>
+            </ChartWrapper>
+          </Stack>
+        )}
 
-              <Stack sx={{ flexDirection: "row", gap: "10px" }}>
-                <Button
-                  onClick={(e) => AverageEmployeeGapLevelBtnsHandler(e)}
-                  id="select__absolute"
-                  sx={{
-                    textTransform: "capitalize",
-                    borderRadius: "5px",
-                    p: 1,
-                    backgroundColor:
-                      activeEmployeeGapBtn === "select__absolute"
-                        ? "#E5F3FC"
-                        : "transparent",
-                    color:
-                      activeEmployeeGapBtn === "select__absolute"
-                        ? "primary"
-                        : "#788894",
-                  }}
+        {activeTab === "graph__3" && (
+          <Stack
+            className="employeeGaps__wrapper"
+            sx={{
+              // height: "400px",
+              width: { xs: "90vw", lg: "100%" },
+            }}
+          >
+            <Box pb={3}>
+              <Typography variant="body2" color="secondary.main">
+                Sum of required skill levels and the sum of the skill levels of
+                the employee that are in the job description, taking into
+                account the highest score between them. An overscore on a skill
+                is not counted.
+              </Typography>
+            </Box>
+
+            <ChartWrapper>
+              <Stack
+                sx={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  borderBottom: "1px solid  #B3B3B3",
+                  pb: 2,
+                  mb: 2,
+                }}
+              >
+                <Typography
+                  variant="h4"
+                  component="h2"
+                  color="primary"
+                  fontWeight="600"
                 >
-                  absolute
-                </Button>
-                <Button
-                  onClick={(e) => AverageEmployeeGapLevelBtnsHandler(e)}
-                  id="select__percentage"
-                  sx={{
-                    textTransform: "capitalize",
-                    borderRadius: "5px",
-                    p: 1,
-                    backgroundColor:
-                      activeEmployeeGapBtn === "select__percentage"
-                        ? "#E5F3FC"
-                        : "transparent",
-                    color:
-                      activeEmployeeGapBtn === "select__percentage"
-                        ? "primary"
-                        : "#788894",
-                  }}
-                >
-                  percentage
-                </Button>
+                  Employee gap
+                </Typography>
+
+                <Stack sx={{ flexDirection: "row", gap: "10px" }}>
+                  <Button
+                    onClick={(e) => AverageEmployeeGapLevelBtnsHandler(e)}
+                    id="select__absolute"
+                    sx={{
+                      textTransform: "capitalize",
+                      borderRadius: "5px",
+                      p: 1,
+                      backgroundColor:
+                        activeEmployeeGapBtn === "select__absolute"
+                          ? "#E1FAED"
+                          : "transparent",
+                      color:
+                        activeEmployeeGapBtn === "select__absolute"
+                          ? "primary"
+                          : "#788894",
+                    }}
+                  >
+                    absolute
+                  </Button>
+                  <Button
+                    onClick={(e) => AverageEmployeeGapLevelBtnsHandler(e)}
+                    id="select__percentage"
+                    sx={{
+                      textTransform: "capitalize",
+                      borderRadius: "5px",
+                      p: 1,
+                      backgroundColor:
+                        activeEmployeeGapBtn === "select__percentage"
+                          ? "#E1FAED"
+                          : "transparent",
+                      color:
+                        activeEmployeeGapBtn === "select__percentage"
+                          ? "primary"
+                          : "#788894",
+                    }}
+                  >
+                    percentage
+                  </Button>
+                </Stack>
               </Stack>
-            </Stack>
-            <EmployeeGapsChartArea
-              select={activeEmployeeGapBtn}
-              data={data?.analysis?.employee_gaps}
-            />
-          </ChartWrapper>
-        </Stack>
 
-        <Stack
-          className="skillPresence__wrapper"
-          sx={{
-            height: "400px",
-            width: { xs: "90vw", lg: "48%" },
-          }}
-        >
-          <ChartWrapper>
-            <Stack
-              sx={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                borderBottom: "1px solid  #B3B3B3",
-                pb: 2,
-                mb: 2,
-              }}
-            >
-              <Typography
-                variant="h4"
-                component="h2"
-                color="primary"
-                fontWeight="600"
+              <Box
+                sx={{
+                  height: "50vh",
+                  maxHeight: "50vh",
+                  overflowY: "auto",
+                  pr: 2,
+                }}
               >
-                Skill Presence
-              </Typography>
+                <Box sx={{ height: graphHeight }}>
+                  <EmployeeGapsChartArea
+                    select={activeEmployeeGapBtn}
+                    data={data?.analysis?.employee_gaps}
+                  />
+                </Box>
+              </Box>
+            </ChartWrapper>
+          </Stack>
+        )}
 
-              {/* <Box sx={{ minWidth: 120 }}>
+        {activeTab === "graph__4" && (
+          <Stack
+            className="skillPresence__wrapper"
+            sx={{
+              // height: "400px",
+              width: { xs: "90vw", lg: "100%" },
+            }}
+          >
+            <Box pb={3}>
+              <Typography variant="body2" color="secondary.main">
+                Number of times a skill is present at the specific proficiency
+                level.
+              </Typography>
+            </Box>
+
+            <ChartWrapper>
+              <Stack
+                sx={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  borderBottom: "1px solid  #B3B3B3",
+                  pb: 2,
+                  mb: 2,
+                }}
+              >
+                <Typography
+                  variant="h4"
+                  component="h2"
+                  color="primary"
+                  fontWeight="600"
+                >
+                  Skill presence
+                </Typography>
+
+                {/* <Box sx={{ minWidth: 120 }}>
                 <FormControl fullWidth>
                   <Select
                     value={skill}
@@ -582,97 +816,118 @@ const SkillsAnalysis = () => {
                   </Select>
                 </FormControl>
               </Box> */}
-              <Box sx={{ minWidth: 120 }}>
-                <TextField
-                  id="outlined-select-currency-native"
-                  select
-                  inputProps={{ "aria-label": "Without label" }}
-                  SelectProps={{
-                    native: true,
-                  }}
-                  onChange={selectSkillHandleChange}
-                >
-                  {skillPresenceKeys.map((key, index) => (
-                    <option key={index} value={key}>
-                      {key}
-                    </option>
-                  ))}
-                </TextField>
-              </Box>
-            </Stack>
-            <SkillPresenceChart data={skill} />
-          </ChartWrapper>
-        </Stack>
+                <Box sx={{ minWidth: 120 }}>
+                  <TextField
+                    id="outlined-select-currency-native"
+                    select
+                    inputProps={{ "aria-label": "Without label" }}
+                    SelectProps={{
+                      native: true,
+                    }}
+                    onChange={selectSkillHandleChange}
+                  >
+                    {skillPresenceKeys.map((key, index) => (
+                      <option key={index} value={key}>
+                        {key}
+                      </option>
+                    ))}
+                  </TextField>
+                </Box>
+              </Stack>
+              <SkillPresenceChart data={skill} />
+            </ChartWrapper>
+          </Stack>
+        )}
 
-        <Stack
-          className="AverageGapLevel__wrapper"
-          sx={{
-            height: "400px",
-            width: { xs: "90vw", lg: "48%" },
-          }}
-        >
-          <ChartWrapper>
-            <Stack
-              sx={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                borderBottom: "1px solid  #B3B3B3",
-                pb: 2,
-                mb: 2,
-              }}
-            >
-              <Typography
-                variant="h4"
-                component="h2"
-                color="primary"
-                fontWeight="600"
-              >
-                Top and missing skills
+        {activeTab === "graph__5" && (
+          <Stack
+            className="AverageGapLevel__wrapper"
+            sx={{
+              // height: "400px",
+              width: { xs: "90vw", lg: "100%" },
+            }}
+          >
+            <Box pb={3}>
+              <Typography variant="body2" color="secondary.main">
+                Skill gaps sorted in descending and ascending order.
               </Typography>
+            </Box>
 
-              <Box>
-                <Button
-                  onClick={(e) => topMissBtnsHandler(e)}
-                  id="top"
-                  sx={{
-                    textTransform: "capitalize",
-                    borderRadius: "5px",
-                    p: 1,
-                    mr: "36px",
-                    backgroundColor:
-                      activeTopMissBtn === "top" ? "#E5F3FC" : "transparent",
-                    color: activeTopMissBtn === "top" ? "primary" : "#788894",
-                  }}
+            <ChartWrapper>
+              <Stack
+                sx={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  borderBottom: "1px solid  #B3B3B3",
+                  pb: 2,
+                  mb: 2,
+                }}
+              >
+                <Typography
+                  variant="h4"
+                  component="h2"
+                  color="primary"
+                  fontWeight="600"
                 >
-                  Top
-                </Button>
-                <Button
-                  onClick={(e) => topMissBtnsHandler(e)}
-                  id="missing"
-                  sx={{
-                    textTransform: "capitalize",
-                    borderRadius: "5px",
-                    p: 1,
-                    backgroundColor:
-                      activeTopMissBtn === "missing"
-                        ? "#E5F3FC"
-                        : "transparent",
-                    color:
-                      activeTopMissBtn === "missing" ? "primary" : "#788894",
-                  }}
-                >
-                  Missing
-                </Button>
+                  Top and missing skills
+                </Typography>
+
+                <Box>
+                  <Button
+                    onClick={(e) => topMissBtnsHandler(e)}
+                    id="top"
+                    sx={{
+                      textTransform: "capitalize",
+                      borderRadius: "5px",
+                      p: 1,
+                      mr: "36px",
+                      backgroundColor:
+                        activeTopMissBtn === "top" ? "#E1FAED" : "transparent",
+                      color: activeTopMissBtn === "top" ? "primary" : "#788894",
+                    }}
+                  >
+                    Top
+                  </Button>
+                  <Button
+                    onClick={(e) => topMissBtnsHandler(e)}
+                    id="missing"
+                    sx={{
+                      textTransform: "capitalize",
+                      borderRadius: "5px",
+                      p: 1,
+                      backgroundColor:
+                        activeTopMissBtn === "missing"
+                          ? "#E1FAED"
+                          : "transparent",
+                      color:
+                        activeTopMissBtn === "missing" ? "primary" : "#788894",
+                    }}
+                  >
+                    Missing
+                  </Button>
+                </Box>
+              </Stack>
+
+              <Box
+                sx={{
+                  height: "50vh",
+                  maxHeight: "50vh",
+                  overflowY: "auto",
+                  pr: 2,
+                }}
+              >
+                <Box sx={{ height: graphHeight }}>
+                  <TopMissingChart
+                    select={activeTopMissBtn}
+                    topSkillsData={data?.analysis?.top_skills}
+                    missingSkillsData={data?.analysis?.missing_skills}
+                  />
+                </Box>
               </Box>
-            </Stack>
-            <TopMissingChart
-              select={activeTopMissBtn}
-              topSkillsData={data?.analysis?.top_skills}
-              missingSkillsData={data?.analysis?.missing_skills}
-            />
-          </ChartWrapper>
-        </Stack>
+            </ChartWrapper>
+          </Stack>
+        )}
       </Stack>
     </>
   );

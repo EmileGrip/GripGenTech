@@ -19,13 +19,13 @@ import { Handle, Position } from "reactflow";
 import CustomModal from "../../../ui/CustomModal";
 import RoleNodeOverview from "./RoleNodeOverview";
 import { useState } from "react";
-import { suggestedJobs } from "../../../data/skillsData";
 import AddJobForm from "./AddJobForm";
 import addIcon from "../../../assets/addIcon.svg";
 import { useDispatch, useSelector } from "react-redux";
 import moreHoriz__icon from "../../../assets/moreHoriz__icon.svg";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import axiosInstance from "../../../helper/axiosInstance";
 import { fetchCareerPathData } from "../../../redux/slices/Employee/development/developmentActions";
 import { setMessage } from "../../../redux/slices/Employee/development/developmentSlice";
@@ -118,7 +118,6 @@ const RoleNode = ({ data, isConnectable, isProfile, onSuccess }) => {
       >
         <AddJobForm
           data={data}
-          suggestedJobs={suggestedJobs}
           closeModal={handleAddData}
           onSuccess={onSuccess}
         />
@@ -142,7 +141,7 @@ const RoleNode = ({ data, isConnectable, isProfile, onSuccess }) => {
           py: { xs: "12px", lg: "8px" },
           px: { xs: 1, lg: 2.5 },
           color: "#353C44",
-          backgroundColor: "#E5F3FC",
+          backgroundColor: "#E1FAED",
           cursor: "pointer",
           textAlign: "center",
         }}
@@ -215,7 +214,10 @@ const RoleNode = ({ data, isConnectable, isProfile, onSuccess }) => {
                     onClick={handleOpenDialog}
                     disabled={isSingleNode || data?.hasChildren ? true : false}
                   >
-                    <DeleteIcon color="error" />
+                    <DeleteOutlinedIcon
+                      fontSize="small"
+                      sx={{ color: "#FE7777" }}
+                    />
                   </IconButton>
                 </Stack>
               </Popover>

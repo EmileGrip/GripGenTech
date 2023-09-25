@@ -7,7 +7,7 @@ function ProtectedEmployee({ children }) {
   const role = userInfo ? userInfo.system_role : null;
   const location = useLocation();
   const navigate = useNavigate();
-  const redirectPath = "/employee/skills/myskills"; // Redirect path for "employee"
+  const redirectPath = "/employee/profile"; // Redirect path for "employee"
 
   useEffect(() => {
     // Check the role and perform navigation if needed

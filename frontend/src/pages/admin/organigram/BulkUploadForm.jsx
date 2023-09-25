@@ -106,13 +106,11 @@ const BulkUploadForm = () => {
           <img style={{ width: "100%" }} src={tableImage} alt="table" />
 
           <Typography
-            variant="h3"
+            variant="h5"
             mb="36px"
             sx={{
               textTransform: "capitalize",
               width: { sm: "544px" },
-              fontSize: "16px",
-              fontWeight: 400,
               color: "secondary.main",
             }}
           >
@@ -158,13 +156,11 @@ const BulkUploadForm = () => {
 
               <Box>
                 <Typography
-                  variant="h3"
+                  variant="h5"
                   mb="36px"
                   sx={{
                     textTransform: "capitalize",
                     width: { sm: "544px" },
-                    fontSize: "16px",
-                    fontWeight: 400,
                     color: "secondary.main",
                   }}
                 >

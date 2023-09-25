@@ -71,7 +71,6 @@ const EmployeeProfile = ({ data }) => {
             variant="h3"
             color={"secondary"}
             sx={{
-              fontSize: "30px",
               fontWeight: "400",
               textTransform: "capitalize",
               whiteSpace: "nowrap",
@@ -81,7 +80,7 @@ const EmployeeProfile = ({ data }) => {
           >
             {data?.first_name + " " + data?.last_name}
           </Typography>
-          <Box sx={{ width: "100%" }} title={data.role.title}>
+          <Box sx={{ width: "100%" }} title={data?.role?.title}>
             <Typography
               variant="h4"
               color={"secondary"}
@@ -92,7 +91,7 @@ const EmployeeProfile = ({ data }) => {
                 textOverflow: "ellipsis",
               }}
             >
-              {data.role ? data.role.title : "No Title"}
+              {data?.role ? data?.role?.title : "No Title"}
             </Typography>
           </Box>
           <Typography
@@ -100,7 +99,7 @@ const EmployeeProfile = ({ data }) => {
             color={"secondary"}
             sx={{ opacity: "0.5", textTransform: "capitalize" }}
           >
-            {data.gender}
+            {data?.gender}
           </Typography>
         </Box>
 
@@ -122,7 +121,7 @@ const EmployeeProfile = ({ data }) => {
               Email
             </Typography>
             <Typography variant="body1" color={"secondary"} sx={{ flex: 2 }}>
-              {data.email ? data.email : "No Email"}
+              {data?.email ? data?.email : "No Email"}
             </Typography>
           </Stack>
 
@@ -135,7 +134,7 @@ const EmployeeProfile = ({ data }) => {
               phone
             </Typography>
             <Typography variant="body1" color={"secondary"} sx={{ flex: 2 }}>
-              {data.phone ? data.phone : "No Phone"}
+              {data?.phone ? data?.phone : "No Phone"}
             </Typography>
           </Stack>
 
@@ -148,7 +147,7 @@ const EmployeeProfile = ({ data }) => {
               location
             </Typography>
             <Typography variant="body1" color={"secondary"} sx={{ flex: 2 }}>
-              {data.location ? data.location : "No Location"}
+              {data?.location ? data?.location : "No Location"}
             </Typography>
           </Stack>
         </Box>
@@ -171,7 +170,7 @@ const EmployeeProfile = ({ data }) => {
               leader
             </Typography>
             <Typography variant="body1" color={"secondary"} sx={{ flex: 2 }}>
-              {data.leader ? data.leader : "No Leader"}
+              {data?.leader ? data?.leader : "No Leader"}
             </Typography>
           </Stack>
 
@@ -184,7 +183,7 @@ const EmployeeProfile = ({ data }) => {
               Joined
             </Typography>
             <Typography variant="body1" color={"secondary"} sx={{ flex: 2 }}>
-              {data.date_joined ? outputDateString : "No Time"}
+              {data?.date_joined ? outputDateString : "No Time"}
             </Typography>
           </Stack>
           <Stack flexDirection="row" justifyContent={"space-between"}>
@@ -196,7 +195,7 @@ const EmployeeProfile = ({ data }) => {
               id
             </Typography>
             <Typography variant="body1" color={"secondary"} sx={{ flex: 2 }}>
-              {data.id}
+              {data?.id}
             </Typography>
           </Stack>
         </Box>

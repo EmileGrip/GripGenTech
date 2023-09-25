@@ -4,7 +4,7 @@ from schema.models import GripUser,Company,GripFile,Person,Role,JobProfile
 from django.forms.models import model_to_dict
 from random import choices
 from string import ascii_uppercase, digits
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage,send_mail
 from django.conf import settings
 import logging
 from django.core.files.storage import default_storage
@@ -232,17 +232,20 @@ class UserSerializer(serializers.Serializer):
         
         try:
             #send email to user with password
-            email = EmailMessage('Login details for Adepti',
-                                    """We would like to invite you to access Adepti. Please find below your login details for the platform. You can click on the link provided to access the login page, where you can create a new password using your email address.
-                                    Login details:
-                                    Login link: https://adepti.gen-tech.io/login
-                                    Email: {}
-                                    Password: {}
-                                    We hope you enjoy using Adepti!
-                                    Your colleagues from HR
-                                    """.format(email,password),
-                                    to=[email],from_email=settings.EMAIL_HOST_USER)
-            email.send()
+            send_mail(
+                'Login details for Adepti',
+                """We would like to invite you to access Adepti. Please find below your login details for the platform. You can click on the link provided to access the login page, where you can create a new password using your email address.
+                Login details:
+                Login link: https://adepti.gen-tech.io/login
+                Email: {}
+                Password: {}
+                We hope you enjoy using Adepti!
+                Your colleagues from HR
+                """.format(email,password),
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                fail_silently=False,
+            )
             self.response = {
             "success":True,
             "message":"User created successfully",

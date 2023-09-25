@@ -14,6 +14,7 @@ import {
 import moreHoriz__icon from "../../../../assets/moreHoriz__icon.svg";
 import { useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import { Link } from "react-router-dom";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { ADMIN_SKILL_PROFILE } from "../../../../routes/paths.js";
@@ -52,6 +53,7 @@ const typographyStyle2 = {
 };
 
 const TableRowSummary = ({ employee }) => {
+  console.log("employee", employee);
   const theme = useTheme();
   const lgMatches = useMediaQuery(theme.breakpoints.up("lg"));
   const [isRowOpen, setIsRowOpen] = useState(false);
@@ -87,7 +89,7 @@ const TableRowSummary = ({ employee }) => {
 
     dispatch(setOpenMain("main__2"));
     dispatch(setOpenSub("sub__0"));
-    dispatch(setSelectedTitle(employee?.role?.title));
+    dispatch(setSelectedTitle(employee?.role));
   };
 
   return (
@@ -132,8 +134,11 @@ const TableRowSummary = ({ employee }) => {
                     Delete Employee
                   </Typography>
 
-                  <IconButton onClick={handleDeleteUser}>
-                    <DeleteIcon color="error" />
+                  <IconButton
+                    onClick={handleDeleteUser}
+                    sx={{ color: "#FE7777" }}
+                  >
+                    <DeleteOutlinedIcon fontSize="small" />
                   </IconButton>
                 </Stack>
               </Popover>

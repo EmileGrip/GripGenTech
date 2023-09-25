@@ -83,7 +83,6 @@ const Node = ({ data, isConnectable }) => {
           >
             <Typography
               variant="h4"
-              fontSize="18px"
               fontWeight="700"
               color="primary"
               sx={{

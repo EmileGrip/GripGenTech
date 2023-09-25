@@ -22,6 +22,7 @@ import moreHoriz__icon from "../assets/moreHoriz__icon.svg";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import { useCallback } from "react";
 import axiosInstance from "../helper/axiosInstance";
 import { useDispatch, useSelector } from "react-redux";
@@ -217,8 +218,8 @@ const SkillTableRow = ({ skill, isProfile = false }) => {
                 Delete Skill
               </Typography>
 
-              <IconButton onClick={handleDeleteData}>
-                <DeleteIcon color="error" />
+              <IconButton onClick={handleDeleteData} sx={{ color: "#FE7777" }}>
+                <DeleteOutlinedIcon fontSize="small" />
               </IconButton>
             </Stack>
           </Popover>
@@ -313,9 +314,7 @@ const SkillTableRow = ({ skill, isProfile = false }) => {
                   <div style={{ textAlign: "center" }}>Proficiency needed</div>
                   <RatingBar
                     initialValue={
-                      skill.required_level === 0
-                        ? 0
-                        : skill.required_level - skill.level
+                      skill.required_level === 0 ? 0 : skill.required_level
                     }
                   />
                 </>
@@ -397,9 +396,7 @@ const SkillTableRow = ({ skill, isProfile = false }) => {
                 <span>
                   <RatingBar
                     initialValue={
-                      skill.required_level === 0
-                        ? 0
-                        : skill.required_level - skill.level
+                      skill.required_level === 0 ? 0 : skill.required_level
                     }
                   />
                 </span>

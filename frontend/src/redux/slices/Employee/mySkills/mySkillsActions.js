@@ -19,6 +19,7 @@ export const fetchSkillsData = createAsyncThunk(
     return response.data.payload;
   }
 );
+
 export const fetchSkillsRecommendationData = createAsyncThunk(
   "mySkills/fetchSkillsRecommendationData",
   async (user_id, { getState }) => {

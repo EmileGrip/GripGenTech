@@ -31,17 +31,10 @@ const Login = () => {
         }}
       >
         <Box className="login_page_special_width_in_firefox">
-          <img src={login_logo} alt="logo" width={150} height={42} />
+          <img src={login_logo} alt="logo" width={150} />
         </Box>
         <LoginForm />
-        <Box
-          sx={{
-            width: "100%",
-            textAlign: "center",
-            position: "relative",
-            // pl: { xs: 2, lg: 0 },
-          }}
-        >
+        <Box className="login_page_copyright_in_firefox">
           <Typography
             variant="body1"
             sx={{

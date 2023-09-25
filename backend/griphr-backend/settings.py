@@ -27,11 +27,18 @@ env_vars = {
     "EMAIL_HOST" : os.environ.get('EMAIL_HOST'),
     "EMAIL_PORT" : os.environ.get('EMAIL_PORT'),
     "EMAIL_HOST_USER" : os.environ.get('EMAIL_HOST_USER'),
+    "DEFAULT_FROM_EMAIL" : os.environ.get('DEFAULT_FROM_EMAIL'),
     "EMAIL_HOST_PASSWORD" : os.environ.get('EMAIL_HOST_PASSWORD'),
     "GRIP_HOST":os.environ.get('GRIP_HOST'),
     "AWS_ACCESS_KEY_ID":os.environ.get('AWS_ACCESS_KEY_ID'),
     "AWS_SECRET_ACCESS_KEY":os.environ.get('AWS_SECRET_ACCESS_KEY'),
     "AWS_STORAGE_BUCKET_NAME":os.environ.get('AWS_STORAGE_BUCKET_NAME'),
+    "AFFINDA_TOKEN":os.environ.get('AFFINDA_TOKEN'),
+    "AFFINDA_ORGANISATION":os.environ.get('AFFINDA_ORGANISATION'),
+    "AFFINDA_WORKSPACE":os.environ.get('AFFINDA_WORKSPACE'),
+    "AFFINDA_COLLECTION":os.environ.get('AFFINDA_COLLECTION'),
+    "OPENAI_API_KEY":os.environ.get('OPENAI_API_KEY'),
+    "SECRET_KEY":os.environ.get('SECRET_KEY'),
 }
 #iterate through all environment variables and check if they are set
 not_set = []
@@ -44,7 +51,7 @@ if len(not_set) > 0:
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'a86af676-b476-42a4-9946-0d0ec3715613'
+SECRET_KEY = env_vars["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -71,7 +78,11 @@ INSTALLED_APPS = [
     'files',
     'skill_wish',
     'recommendations',
+    'job_vacancy',
+    'vacancy_role',
+    'vacancy_skill',
     # Add your apps here to enable them
+    'vectordb',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -192,8 +203,10 @@ EMAIL_HOST = env_vars["EMAIL_HOST"]
 EMAIL_HOST_USER = env_vars["EMAIL_HOST_USER"]
 EMAIL_HOST_PASSWORD = env_vars["EMAIL_HOST_PASSWORD"]
 EMAIL_PORT = env_vars["EMAIL_PORT"]
-EMAIL_USE_SSL = True
-DEFAULT_FROM_EMAIL = 'GripHR'
+#EMAIL_USE_SSL = True
+EMAIL_USE_TLS = True 
+DEFAULT_FROM_EMAIL = env_vars["DEFAULT_FROM_EMAIL"]
+
 
 # s3 configuration
 if  os.environ.get('AWS_S3_ENDPOINT_URL', None) is not None:
@@ -205,6 +218,10 @@ AWS_SECRET_ACCESS_KEY=env_vars["AWS_SECRET_ACCESS_KEY"]
 AWS_STORAGE_BUCKET_NAME=env_vars["AWS_STORAGE_BUCKET_NAME"]
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
+AFFINDA_TOKEN = env_vars["AFFINDA_TOKEN"]
+AFFINDA_ORGANISATION = env_vars["AFFINDA_ORGANISATION"]
+AFFINDA_WORKSPACE = env_vars["AFFINDA_WORKSPACE"]
+AFFINDA_COLLECTION = env_vars["AFFINDA_COLLECTION"]
 
 CACHES = {
     "default": {
@@ -212,3 +229,15 @@ CACHES = {
         "LOCATION": "unique-snowflake",
     }
 }
+
+DJANGO_VECTOR_DB =  {
+    "DEFAULT_EMBEDDING_CLASS": "vectordb.embedding_functions.OpenAIEmbeddings",
+    "DEFAULT_EMBEDDING_MODEL": "text-embedding-ada-002",  # "all-MiniLM-L6-v2",
+    "DEFAULT_EMBEDDING_SPACE": "cosine",
+    "DEFAULT_EMBEDDING_DIMENSION": 1536,  # Default is 384 for "all-MiniLM-L6-v2"
+    "DEFAULT_MAX_N_RESULTS": 10,  # Number of results to return from search maximum is default is 10
+    "DEFAULT_MIN_SCORE": 0.0,  # Minimum score to return from search default is 0.0
+    "DEFAULT_MAX_BRUTEFORCE_N": 10_000,  # Maximum number of items to search using brute force default is 10_000. If the number of items is greater than this number, the search will be done using the HNSW index.
+}
+
+OPENAI_API_KEY = env_vars["OPENAI_API_KEY"]

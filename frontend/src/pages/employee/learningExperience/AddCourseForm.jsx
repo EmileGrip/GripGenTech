@@ -161,13 +161,22 @@ const AddCourseForm = ({
                   sx={{ mr: 1, whiteSpace: "nowrap" }}
                 >
                   Course name
+                  <span style={{ color: "red" }}>*</span>
                 </Typography>
               )}
               <TextField
                 id="degree"
                 name="degree"
                 placeholder="Course name"
-                label={!lgMatches ? "Course name" : ""}
+                label={
+                  !lgMatches ? (
+                    <span>
+                      Course name<span style={{ color: "red" }}>*</span>
+                    </span>
+                  ) : (
+                    ""
+                  )
+                }
                 size="medium"
                 type="text"
                 value={formik.values.degree}
@@ -194,12 +203,21 @@ const AddCourseForm = ({
                   sx={{ mr: 1, whiteSpace: "nowrap" }}
                 >
                   Started
+                  <span style={{ color: "red" }}>*</span>
                 </Typography>
               )}
               <Stack sx={{ width: { xs: "100%", lg: "auto" } }}>
                 <DatePicker
                   size="medium"
-                  label={!lgMatches ? "Started" : ""}
+                  label={
+                    !lgMatches ? (
+                      <span>
+                        Started<span style={{ color: "red" }}>*</span>
+                      </span>
+                    ) : (
+                      ""
+                    )
+                  }
                   value={formik.values.started}
                   onChange={(value) => {
                     formik.setFieldValue("started", value);
@@ -248,13 +266,22 @@ const AddCourseForm = ({
                   sx={{ mr: 1, whiteSpace: "nowrap" }}
                 >
                   Institution
+                  <span style={{ color: "red" }}>*</span>
                 </Typography>
               )}
               <TextField
                 id="institution"
                 name="institution"
                 placeholder="Institution"
-                label={!lgMatches ? "Institution" : ""}
+                label={
+                  !lgMatches ? (
+                    <span>
+                      Institution<span style={{ color: "red" }}>*</span>
+                    </span>
+                  ) : (
+                    ""
+                  )
+                }
                 size="medium"
                 type="text"
                 value={formik.values.institution}
@@ -286,13 +313,22 @@ const AddCourseForm = ({
                   sx={{ mr: 1, whiteSpace: "nowrap" }}
                 >
                   Finished
+                  <span style={{ color: "red" }}>*</span>
                 </Typography>
               )}
               <Stack sx={{ width: { xs: "100%", lg: "auto" } }}>
                 <DatePicker
                   size="medium"
                   placeholder="Finished"
-                  label={!lgMatches ? "Finished" : ""}
+                  label={
+                    !lgMatches ? (
+                      <span>
+                        Finished<span style={{ color: "red" }}>*</span>
+                      </span>
+                    ) : (
+                      ""
+                    )
+                  }
                   value={formik.values.finished}
                   onChange={(value) => {
                     formik.setFieldValue("finished", value);

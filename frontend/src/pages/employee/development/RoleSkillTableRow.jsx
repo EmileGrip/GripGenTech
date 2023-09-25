@@ -100,7 +100,7 @@ const RoleSkillTableRow = ({ skill }) => {
             title={
               <>
                 <div style={{ textAlign: "center" }}>Proficiency needed</div>
-                <RatingBar initialValue={skill.required_level - skill.level} />
+                <RatingBar initialValue={skill.required_level} />
               </>
             }
             placement="top-start"
@@ -173,7 +173,7 @@ const RoleSkillTableRow = ({ skill }) => {
               sx={{ ...gridStyles, mt: "3px", pl: { sm: 1 } }}
             >
               <span>
-                <RatingBar initialValue={skill.required_level - skill.level} />
+                <RatingBar initialValue={skill.required_level} />
               </span>
             </Grid>
 

@@ -1,10 +1,10 @@
 from rest_framework import serializers, exceptions
-from schema.models import JobProfile,GripUser,Company,Role,JobTitle,CareerJob,SkillProficiency,SkillRequirement,GripFile
+from schema.models import GripUser,Company,GripFile,Experience,Education,Course
 from datetime import datetime
 from django.forms.models import model_to_dict
 import os
 from django.core.files.storage import default_storage
-
+from files.resume_parser import ResumeParser
 class GetSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=True)
     def get_response(self):
@@ -88,6 +88,8 @@ class PostSerializer(serializers.Serializer):
             user = GripUser.objects.get(id=self.context['request'].user.id)            
             user.resume = file
             user.save()
+            self.insert_parsed_resume_data(file_url)
+
         if use_as == 'logo':
             company = Company.objects.get(id = self.context['request'].user.company_id.id)
             company.logo = file
@@ -105,6 +107,33 @@ class PostSerializer(serializers.Serializer):
     def get_response(self):
         return self.response
     
+    def insert_parsed_resume_data(self,url):
+        parser = ResumeParser()
+        parsed_data = parser.parse_resume(url)
+        #insert experience 
+        for exp in parsed_data['experience']:
+            exp = Experience.objects.create(
+                title=exp['title'],
+                description=exp['description'] if len(exp['description']) < 500 else str(exp['description'])[:500],
+                company=exp['company'],
+                user_id=self.context['request'].user,
+                company_id = self.context['request'].user.company_id,
+                start_date = exp['start_date'],
+                end_date = exp['end_date'],
+                is_current = exp['is_current']
+            )
+        #insert education
+        for edu in parsed_data['education']:
+            edu = Education.objects.create(
+                institution=edu['institution'],
+                degree=edu['degree'],
+                level=edu['level'],
+                start_date=edu['start_date'],
+                end_date=edu['end_date'],
+                user_id=self.context['request'].user,
+                company_id = self.context['request'].user.company_id
+            )
+
 class DeleteSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=True)
     def get_response(self):

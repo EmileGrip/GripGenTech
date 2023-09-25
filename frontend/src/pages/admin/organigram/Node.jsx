@@ -33,6 +33,7 @@ import moreHoriz__icon from "../../../assets/moreHoriz__icon.svg";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import { useCallback } from "react";
 import axiosInstance from "../../../helper/axiosInstance";
 import { fetchData } from "../../../redux/slices/admin/organigram/organigramActions";
@@ -228,7 +229,10 @@ const Node = ({ data, isConnectable }) => {
                     onClick={handleOpenDialog}
                     disabled={data.user ? true : false}
                   >
-                    <DeleteIcon color="error" />
+                    <DeleteOutlinedIcon
+                      fontSize="small"
+                      sx={{ color: "#FE7777" }}
+                    />
                   </IconButton>
                 </Stack>
               </Popover>
@@ -269,7 +273,6 @@ const Node = ({ data, isConnectable }) => {
             >
               <Typography
                 variant="h4"
-                fontSize="18px"
                 fontWeight="700"
                 color="primary"
                 sx={{

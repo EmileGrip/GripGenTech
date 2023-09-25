@@ -22,8 +22,17 @@ import {
   STAFF_COMPANIES_ADD_COMPANY_ROUTE,
   STAFF_COMPANIES_OVERVIEW_ROUTE,
   STAFF_ANALYTICS_ROUTE,
+  EMPLOYEE_PROFILE_PATH,
+  EMPLOYEE_JOBS_ROUTE,
+  EMPLOYEE_PROJECTS_ROUTE,
+  MANAGER_JOBS_ROUTE,
+  MANAGER_PROJECTS_ROUTE,
+  ADMIN_JOBS_ROUTE,
+  ADMIN_PROJECTS_ROUTE,
 } from "../routes/paths";
 
+import profile_active from "../assets/profile_active.svg";
+import profile_inactive from "../assets/profile_inactive.svg";
 import skills_active from "../assets/skills_active.svg";
 import skills_inactive from "../assets/skills_inactive.svg";
 import briefcase_active from "../assets/briefcase_active.svg";
@@ -34,10 +43,19 @@ import analytics_active from "../assets/analytics_icon_on.svg";
 import analytics_inactive from "../assets/analytics_icon_off.svg";
 import skillProfile_active from "../assets/skillProfile_active.svg";
 import skillProfile_inactive from "../assets/skillProfile_inactive.svg";
-
-import edit_icon from "../assets/edit_icon.svg";
+import internalMobility_active from "../assets/internalMobility_active.svg";
+import internalMobility_inactive from "../assets/internalMobility_inactive.svg";
 
 export const sidebarEmployeeData = [
+  {
+    categoryName: "My Profile",
+    catergoryPath: EMPLOYEE_PROFILE_PATH,
+    iconsPath: {
+      active: profile_active,
+      inactive: profile_inactive,
+    },
+    subCategory: [],
+  },
   {
     categoryName: "Skills",
     catergoryPath: EMPLOYEE_MY_SKILLS_ROUTE,
@@ -60,6 +78,18 @@ export const sidebarEmployeeData = [
     subCategory: [
       { name: "Work Experience", path: EMPLOYEE_WORK_EXPREIENCE_PATH },
       { name: "Learning Experience", path: EMPLOYEE_LEARNING_EXPREIENCE_PATH },
+    ],
+  },
+  {
+    categoryName: "Internal mobility",
+    catergoryPath: EMPLOYEE_JOBS_ROUTE,
+    iconsPath: {
+      active: internalMobility_active,
+      inactive: internalMobility_inactive,
+    },
+    subCategory: [
+      { name: "Jobs", path: EMPLOYEE_JOBS_ROUTE },
+      { name: "Projects", path: EMPLOYEE_PROJECTS_ROUTE },
     ],
   },
   {
@@ -91,6 +121,18 @@ export const sidebarManagerData = [
       inactive: usertag_inactive,
     },
     subCategory: [],
+  },
+  {
+    categoryName: "Internal mobility",
+    catergoryPath: MANAGER_JOBS_ROUTE,
+    iconsPath: {
+      active: internalMobility_active,
+      inactive: internalMobility_inactive,
+    },
+    subCategory: [
+      { name: "Jobs", path: MANAGER_JOBS_ROUTE },
+      { name: "Projects", path: MANAGER_PROJECTS_ROUTE },
+    ],
   },
   {
     categoryName: "Analytics",
@@ -142,6 +184,18 @@ export const sidebarAdminData = [
       inactive: skillProfile_inactive,
     },
     subCategory: [],
+  },
+  {
+    categoryName: "Internal mobility",
+    catergoryPath: ADMIN_JOBS_ROUTE,
+    iconsPath: {
+      active: internalMobility_active,
+      inactive: internalMobility_inactive,
+    },
+    subCategory: [
+      { name: "Jobs", path: ADMIN_JOBS_ROUTE },
+      { name: "Projects", path: ADMIN_PROJECTS_ROUTE },
+    ],
   },
   {
     categoryName: "Analytics",

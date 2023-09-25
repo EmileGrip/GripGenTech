@@ -3,6 +3,7 @@ import {
   fetchCareerPathData,
   fetchCareerPathDataByUserId,
   fetchCareerPathOverviewDataById,
+  fetchJobsRecommendationData,
 } from "./developmentActions";
 
 const developmentSlice = createSlice({
@@ -12,6 +13,7 @@ const developmentSlice = createSlice({
     loading: false,
     profileDataLoading: false,
     overviewDataLoading: false,
+    jobsRecommendationLoading: false,
     openSnack: false,
     message: "",
     data: {
@@ -23,6 +25,7 @@ const developmentSlice = createSlice({
       edges: [],
     },
     overviewData: null,
+    jobsRecommendation: [],
   },
   reducers: {
     setSuccess: (state, action) => {
@@ -79,6 +82,18 @@ const developmentSlice = createSlice({
       .addCase(fetchCareerPathOverviewDataById.rejected, (state) => {
         state.overviewDataLoading = false;
       });
+
+    builder.addCase(fetchJobsRecommendationData.pending, (state) => {
+      state.jobsRecommendationLoading = true;
+      state.jobsRecommendation = [];
+    });
+    builder.addCase(fetchJobsRecommendationData.fulfilled, (state, action) => {
+      state.jobsRecommendationLoading = false;
+      state.jobsRecommendation = action.payload;
+    });
+    builder.addCase(fetchJobsRecommendationData.rejected, (state, action) => {
+      state.jobsRecommendationLoading = false;
+    });
   },
 });
 

@@ -115,8 +115,9 @@ const PhotoDropContainer = ({ name, logo }) => {
               style={{
                 width: "189px",
                 height: "189px",
+                border: "1px solid #EEEEEE",
                 borderRadius: "50%",
-                objectFit: "cover",
+                objectFit: "contain",
               }}
             />
           ) : (

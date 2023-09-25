@@ -3,10 +3,10 @@ from schema.models import JobProfile,GripUser,Company,Role,JobTitle,CareerJob,Sk
 from datetime import datetime
 from django.forms.models import model_to_dict
 from neomodel import db
-
+from role.fuzzy_matching import get_best_matched_occupation
 
 class GetSerializer(serializers.Serializer):
-    type = serializers.ChoiceField(choices=['user_skills', 'job_skills','careerpath'],required=True)
+    type = serializers.ChoiceField(choices=['user_skills', 'job_skills','careerpath','occupation'],required=True)
     value = serializers.CharField(required=True)
     def get_node_id(self,node):
         #split element_id 
@@ -22,7 +22,8 @@ class GetSerializer(serializers.Serializer):
             recoommendations = self.get_job_skills_reccomendations(value)
         if r_type == 'careerpath':
             recoommendations = self.get_careerpath_reccomendations(value)
-
+        if r_type == 'occupation':
+            recoommendations = self.get_occupation_reccomendations(value)
         self.response = {
             "success":True,
             "message":"Recommendations fetched successfully.",
@@ -119,23 +120,41 @@ class GetSerializer(serializers.Serializer):
         job_title_query,_ = db.cypher_query(f"""
             MATCH (n:Person)-[r]-(s:Skill)-[r2]-(o:Occupation)
             WHERE ID(n) = {self.context['request'].user.person_id}
-            WITH o, COUNT(DISTINCT s) AS overlapCount
+            WITH o, COUNT(DISTINCT s) AS overlapCount, COLLECT(o.preferredLabel) AS preferredLabels
             ORDER BY overlapCount DESC
             LIMIT 10
-            WITH COLLECT(o.preferredLabel) AS preferredLabels
-            MATCH (n:JobTitle)-[r]-(o:Occupation)
-            WHERE o.preferredLabel IN preferredLabels
-            RETURN n
-
+            MATCH (s:Skill)-[r]-(o:Occupation) WHERE o.preferredLabel IN preferredLabels
+            WITH o,overlapCount, COUNT(DISTINCT s) AS totalSkills,preferredLabels
+            MATCH (n:JobTitle)-[r]-(o:Occupation) WHERE o.preferredLabel IN preferredLabels
+            WITH n,o, preferredLabels,overlapCount, totalSkills
+            RETURN n.label, overlapCount, totalSkills
             """,None,resolve_objects=True)
         
         if len(job_title_query) == 0:
             return []
-        job_titles = job_title_query[0]
+        
         #get job profile that has the same title
-        titles_list = [job.preferredLabel for job in job_titles]
+        titles_list = [ job_title[0] for job_title in job_title_query]
         job_profiles = JobProfile.objects.filter(title__in=titles_list,company_id=self.context['request'].user.company_id).values('id','title')
-        return job_profiles
+        #get all career jobs for this user 
+        career_jobs = CareerJob.objects.filter(user_id_id=self.context['request'].user.id).values_list('job_profile_id',flat=True)
+        #return list
+        ret_list = []
+        for i in range(len(job_profiles)):
+            for j in range(len(job_title_query)):
+                if job_profiles[i]['title'] == job_title_query[j][0] and job_profiles[i]['id'] not in career_jobs:
+                    job_profiles[i]['percentage'] = job_title_query[j][1]*100//job_title_query[j][2]
+                    ret_list.append(job_profiles[i])
+        return ret_list
         #get occupation connected skills
 
-       
+    def get_occupation_reccomendations(self,title):
+        result = []
+        occupations = get_best_matched_occupation(title,20)
+        for occupation in occupations:
+            result.append({
+                "id":self.get_node_id(occupation),
+                "title":occupation.preferredLabel,
+                "description":occupation.description
+            })
+        return result

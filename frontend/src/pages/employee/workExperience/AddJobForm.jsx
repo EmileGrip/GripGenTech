@@ -183,13 +183,22 @@ const AddJobForm = ({
                   fontWeight={500}
                 >
                   Position
+                  <span style={{ color: "red" }}>*</span>
                 </Typography>
               )}
               <TextField
                 id="position"
                 name="position"
                 placeholder="Position"
-                label={!lgMatches ? "Position" : ""}
+                label={
+                  !lgMatches ? (
+                    <span>
+                      Position<span style={{ color: "red" }}>*</span>
+                    </span>
+                  ) : (
+                    ""
+                  )
+                }
                 size="medium"
                 type="text"
                 value={formik.values.position}
@@ -220,12 +229,21 @@ const AddJobForm = ({
                   sx={{ textTransform: "capitalize", whiteSpace: "nowrap" }}
                 >
                   start date
+                  <span style={{ color: "red" }}>*</span>
                 </Typography>
               )}
               <Stack sx={{ width: { xs: "100%", lg: "auto" } }}>
                 <DatePicker
                   size="medium"
-                  label={!lgMatches ? "Start Date" : ""}
+                  label={
+                    !lgMatches ? (
+                      <span>
+                        Start Date<span style={{ color: "red" }}>*</span>
+                      </span>
+                    ) : (
+                      ""
+                    )
+                  }
                   value={formik.values.joinedDate}
                   onChange={(value) => {
                     formik.setFieldValue("joinedDate", value);
@@ -274,13 +292,22 @@ const AddJobForm = ({
                   fontWeight={500}
                 >
                   Company
+                  <span style={{ color: "red" }}>*</span>
                 </Typography>
               )}
               <TextField
                 id="company"
                 name="company"
                 placeholder="Company"
-                label={!lgMatches ? "Company" : ""}
+                label={
+                  !lgMatches ? (
+                    <span>
+                      Company<span style={{ color: "red" }}>*</span>
+                    </span>
+                  ) : (
+                    ""
+                  )
+                }
                 size="medium"
                 type="text"
                 value={formik.values.company}
@@ -309,12 +336,21 @@ const AddJobForm = ({
                   sx={{ textTransform: "capitalize", whiteSpace: "nowrap" }}
                 >
                   end date
+                  <span style={{ color: "red" }}>*</span>
                 </Typography>
               )}
               <Stack sx={{ width: { xs: "100%", lg: "auto" } }}>
                 <DatePicker
                   size="medium"
-                  label={!lgMatches ? "Start Date" : ""}
+                  label={
+                    !lgMatches ? (
+                      <span>
+                        End Date<span style={{ color: "red" }}>*</span>
+                      </span>
+                    ) : (
+                      ""
+                    )
+                  }
                   value={formik.values.leftDate}
                   onChange={(value) => {
                     formik.setFieldValue("leftDate", value);

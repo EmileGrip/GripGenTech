@@ -7,9 +7,10 @@ const Breadcrumbs = () => {
     .split("/")
     .filter((crumb) => crumb !== "")
     .map((crumb, index, array) => {
-      const isLastCrumb = index === array.length - 1;
+      const isLastOrBeforeLastCrumb =
+        index === array.length - 1 || array.length - 2;
 
-      if (isLastCrumb && !isNaN(Number(crumb))) {
+      if (isLastOrBeforeLastCrumb && !isNaN(Number(crumb))) {
         return null;
       }
 

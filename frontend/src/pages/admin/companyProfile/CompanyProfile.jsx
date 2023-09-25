@@ -263,6 +263,7 @@ const OrgInitialSetup = () => {
                 {lgMatches && (
                   <Box component="label" sx={labelStyle} htmlFor="name">
                     Company name
+                    <span style={{ color: "red" }}>*</span>
                   </Box>
                 )}
                 <TextField
@@ -271,7 +272,15 @@ const OrgInitialSetup = () => {
                   size="small"
                   type="text"
                   placeholder="What’s your company called"
-                  label={!lgMatches ? "Company name" : ""}
+                  label={
+                    !lgMatches ? (
+                      <span>
+                        Company name<span style={{ color: "red" }}>*</span>
+                      </span>
+                    ) : (
+                      ""
+                    )
+                  }
                   value={formik.values.name}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -290,6 +299,7 @@ const OrgInitialSetup = () => {
                 {lgMatches && (
                   <Box component="label" sx={labelStyle} htmlFor="industry">
                     Industry
+                    <span style={{ color: "red" }}>*</span>
                   </Box>
                 )}
 
@@ -298,7 +308,15 @@ const OrgInitialSetup = () => {
                   name="industry"
                   size="small"
                   select
-                  label={!lgMatches ? "Industry" : ""}
+                  label={
+                    !lgMatches ? (
+                      <span>
+                        Industry<span style={{ color: "red" }}>*</span>
+                      </span>
+                    ) : (
+                      ""
+                    )
+                  }
                   value={formik.values.industry}
                   onBlur={formik.handleBlur}
                   helperText={

@@ -18,6 +18,7 @@ export const fetchSkillProfile = createAsyncThunk(
       },
     };
     const response = await axiosInstance.get(`skill_profile`, config);
+    console.log("respone skills", response.data.payload);
     return response.data.payload;
   }
 );

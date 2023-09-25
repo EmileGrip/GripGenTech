@@ -21,7 +21,7 @@ function ProtectedAdmin({ children }) {
   } else if (role === "manager") {
     return <Navigate to="/manager/employees" replace />;
   } else if (role === "employee") {
-    return <Navigate to="/employee/skills/myskills" replace />;
+    return <Navigate to="/employee/profile" replace />;
   } else if (role === "staff") {
     return <Navigate to="/staff/companies/add-company" replace />;
   }

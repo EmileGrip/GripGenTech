@@ -108,9 +108,10 @@ const SignupForm = () => {
     <>
       <form onSubmit={formik.handleSubmit}>
         <Stack
+          className="mr_4_6"
           sx={{
             width: "100%",
-            px: { xs: 2 },
+            px: { xs: 2, lg: 0 },
             alignItems: { xs: "center", lg: "initial" },
           }}
         >

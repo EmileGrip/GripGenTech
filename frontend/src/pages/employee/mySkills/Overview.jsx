@@ -66,18 +66,26 @@ const Overview = () => {
       <CustomModal open={open} onClose={handleClose} title="Add Skill">
         <AddSkillForm data={skillsRecommendation} closeModal={handleClose} />
       </CustomModal>
+
       <Stack
         className="header__section"
         sx={{
           flexDirection: { xs: "column", md: "row" },
           justifyContent: { md: "space-between" },
-          mb: 4,
+          pb: 4,
         }}
       >
-        <Box sx={{ mb: { xs: 2 } }}>
-          <Typography variant="h3" mb={3} color={"primary.main"}>
+        <Box sx={{ pb: { xs: 2 } }}>
+          <Typography variant="h3" pb={2} color={"primary.main"}>
             My Skills Overview
           </Typography>
+
+          <Box pb={1}>
+            <Typography variant="body2" color="secondary.main">
+              Add skills to your profile.
+            </Typography>
+          </Box>
+
           {loading && <CircularProgress />}
           {!loading && (
             <Typography
@@ -89,7 +97,7 @@ const Overview = () => {
             </Typography>
           )}
         </Box>
-        <Stack
+        {/* <Stack
           sx={{
             flexDirection: { xs: "column", lg: "row" },
             alignSelf: "flex-start",
@@ -112,7 +120,7 @@ const Overview = () => {
               Reconnect Linkedin
             </Link>
           </Stack>
-        </Stack>
+        </Stack> */}
       </Stack>
 
       <Stack
@@ -121,6 +129,7 @@ const Overview = () => {
           justifyContent: { sm: "space-between" },
           alignItems: { sm: "center" },
           gap: { xs: 1, sm: 0 },
+          pb: 2,
         }}
       >
         <Typography variant={"h3"} color="primary.main" fontWeight={"400"}>
@@ -142,6 +151,14 @@ const Overview = () => {
           Add Skill
         </Button>
       </Stack>
+
+      <Box pb={1}>
+        <Typography variant="body2" color="secondary.main">
+          Add skills to your profile that represent your knowledge and
+          capabilities. Add recommended skills or search skills from the
+          database and determine the proficiency level.
+        </Typography>
+      </Box>
 
       <Stack className="displayData__section" mt={5.5} sx={{ width: "100%" }}>
         {skillsDataLoading && <CircularProgress />}

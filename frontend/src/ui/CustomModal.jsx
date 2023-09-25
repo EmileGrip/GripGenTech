@@ -80,7 +80,6 @@ const CustomModal = ({ open, onClose, title, children }) => {
               <Typography
                 variant="h2"
                 sx={{
-                  fontSize: "30px",
                   textTransform: "capitalize",
                   fontWeight: "400",
                   position: { xs: "relative", md: "static" },

@@ -1,315 +1,629 @@
 import {
-  AppBar,
-  Autocomplete,
   Avatar,
-  Box,
+  Badge,
   Button,
-  Container,
+  Chip,
+  CircularProgress,
   Divider,
   IconButton,
   InputAdornment,
-  Link,
   Menu,
   MenuItem,
-  Stack,
   TextField,
-  Toolbar,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
-import React, { useState } from "react";
-import productsTitles from "../data/productsTitles";
-import SearchIcon from "@mui/icons-material/Search";
-import employeeIcon from "../assets/employee_1.jpg";
-import HomeIcon from "@mui/icons-material/Home";
-import SettingsIcon from "@mui/icons-material/Settings";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import { Box, Stack } from "@mui/system";
+import React from "react";
+import Breadcrumbs from "../components/Breadcrumbs";
+import bellIcon from "../assets/bell.svg";
+import messageIcon from "../assets/message.svg";
+import userImg from "../assets/avatar blue 1.svg";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import avatarImg from "../assets/employee_0.jpg";
+import menuIcon from "../assets/menu.svg";
+import EditIcon from "@mui/icons-material/Edit";
+import search from "../assets/search.svg";
+import toolbar_right from "../assets/toolbar_right.svg";
+import download_icon from "../assets/download_icon.svg";
+import mailto_icon from "../assets/mailto_icon.svg";
+import share_icon from "../assets/share_icon.svg";
+import print_icon from "../assets/print_icon.svg";
+import share_icon_2 from "../assets/share_icon_2.svg";
+import signs_icon from "../assets/signs_icon.svg";
+import arrowCounter from "../assets/arrowCounterClockwise_icon.svg";
+import arrowClock from "../assets/arrowClockwise_icon.svg";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import MobileDropDownMenu from "./menu/MobileDropDownMenu";
-import categories from "../data/categories";
-import MenuBtn from "./menu/MenuBtn";
-import { ReactComponent as CategoryIcon } from "../assets/categories_icon.svg";
-import settings from "../data/settings";
-import { logout } from "../redux/authentication/authActions";
+import { useEffect } from "react";
+import { fetchUserById } from "../redux/slices/admin/users/usersActions";
 import { useNavigate } from "react-router-dom";
-import { SIGNIN_ROUTE, SIGNUP_ROUTE } from "../routes/paths";
+import { setOpenMain, setOpenSub } from "../redux/slices/sideBarSlice";
+import { useRef } from "react";
 
-const Topbar = () => {
-  const navigate = useNavigate();
-  const { isAuth, accessToken } = useSelector((state) => state.auth);
-  const dipatch = useDispatch();
-  const { userInfo } = useSelector((state) => state.userInfo);
+const buttonStyle = {
+  flex: 1,
+  textTransform: "capitalize",
+  fontSize: "14px",
+  color: "secondary.main",
+  pointerEvents: "auto", // Enable pointer events for this button
+  borderRadius: "0",
+  "&:hover": {
+    cursor: "pointer", // Change cursor to pointer on hover
+    background: "#E1FAED80",
+  },
+};
 
-  const logoutHandler = () => {
-    dipatch(logout(accessToken));
-    navigate(SIGNIN_ROUTE);
-  };
+const stylesButtons = {
+  border: "1px solid #e9e9e9",
+  borderRadius: "50%",
+  p: 2,
+  mr: { xs: 2, lg: 3 },
+  width: {
+    xs: "39px",
+    lg: "52px",
+  },
+  height: {
+    xs: "39px",
+    lg: "52px",
+  },
+};
 
+const optionsWrapperStyle = {
+  background: "#FAFAFA",
+  border: "2px solid #EEEEEE",
+  borderRadius: "10px",
+  py: "18px",
+  px: "13px",
+};
+
+const Topbar = ({ title, onMenu }) => {
+  const isOrganigram = false;
   const theme = useTheme();
-  const isTablet = useMediaQuery(theme.breakpoints.up("md"));
+  const lgMatches = useMediaQuery(theme.breakpoints.up("lg"));
+  const [showOptions, setShowOptions] = useState(false);
+  const { token, userInfo } = useSelector((state) => state.auth);
+  const [activeBtn, setActiveBtn] = useState(
+    localStorage.getItem("activeBtn") || userInfo?.system_role
+  );
+  const { user, loading } = useSelector((state) => state.users);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
 
-  const handleClick = (event) => {
+  const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleClose = () => {
+
+  const handleMenuClose = () => {
     setAnchorEl(null);
   };
 
+  const handleEditInformation = () => {
+    navigate("/employee/profile");
+    dispatch(setOpenMain("main__0"));
+    dispatch(setOpenSub("sub__0"));
+    handleMenuClose();
+  };
+
+  const handleButtonClick = (e) => {
+    const text = e.currentTarget.textContent;
+    setActiveBtn(text);
+
+    localStorage.setItem("activeBtn", text);
+
+    if (text === "admin") {
+      navigate("/admin/employees");
+    } else if (text === "manager") {
+      navigate("/manager/employees");
+    } else {
+      navigate("/employee/profile");
+    }
+
+    dispatch(setOpenMain("main__0"));
+    dispatch(setOpenSub("sub__0"));
+    handleMenuClose();
+  };
+
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchUserById(userInfo.id));
+    }
+  }, [token, dispatch]);
+
+  const stackRef = useRef(null);
+  const stackWidth = stackRef.current ? stackRef.current.offsetWidth : 0;
+
+  const routeTitle = title.replace(/-/g, " ");
+
   return (
-    // <Box>
-    <AppBar
-      position="static"
+    <Stack
+      className="topbar"
+      pb={2.5}
+      justifyContent="space-between"
       sx={{
-        background: "transparent",
+        borderBottom: "2px solid #e9e9e9 ",
+        flexDirection: { xs: "column", lg: "row" },
+        alignItems: { lg: "center" },
       }}
     >
-      <Container fullwidth="xl">
-        <Toolbar
-          disableGutters
-          sx={{
-            gap: { xs: "6px", md: "0px" },
-            justifyContent: { xs: "space-between", md: "flex-start" },
-          }}
-        >
-          <Link
-            className="menu__link"
-            href="#"
+      {/* Main header laptop */}
+      {lgMatches && (
+        <Stack spacing={2}>
+          <Typography
+            variant="h1"
             sx={{
-              display: { xs: "none", md: "block" },
-              mr: { md: "20px" },
               color: "primary.main",
+              fontSize: "32px",
+              fontWeight: "600",
+              textTransform: "capitalize",
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <HomeIcon sx={{ mr: "5px" }} />
-              <Typography
-                variant="body2"
-                component="span"
-                sx={{ textTransform: "capitalize" }}
-              >
-                {" "}
-                Home
-              </Typography>
-            </Box>
-          </Link>
+            {routeTitle}
+          </Typography>
+          <Breadcrumbs />
+        </Stack>
+      )}
 
+      {/* menu laptop */}
+      <Stack
+        className="menuBar"
+        alignItems={"center"}
+        sx={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: { xs: "space-between" },
+          mb: "10px",
+          flexWrap: !lgMatches && isOrganigram ? "wrap" : "nowrap",
+        }}
+      >
+        {!lgMatches && (
           <Box
-            className="search__bar"
             sx={{
-              flex: 1,
-              maxWidth: { xs: "230px", md: "280px", lg: "360px" },
-              // mr: { md: "13px" },
+              width: !lgMatches && isOrganigram ? "100%" : "auto",
+              mb: !lgMatches && isOrganigram ? 2 : 0,
             }}
           >
-            <Autocomplete
-              freeSolo
-              fullWidth={true}
-              id="search"
-              sx={{ backgroundColor: "#d9d9d9" }}
-              options={productsTitles.map((option) => option.title)}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  placeholder={"Search"}
-                  size={"small"}
-                  InputProps={{
-                    ...params.InputProps,
-                    type: "search",
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <IconButton>
-                          <SearchIcon
-                            sx={{
-                              color: "secondary.main",
-                              fontSize: isTablet ? "large" : "medium",
-                            }}
-                          />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              )}
-            />
+            <IconButton onClick={() => onMenu(true)}>
+              <img src={menuIcon} alt="menu icon" />
+            </IconButton>
           </Box>
+        )}
 
-          <Stack
-            className="mobile__view"
-            sx={{ flexDirection: "row", display: { xs: "flex", md: "none" } }}
-          >
-            {isAuth ? (
-              <>
-                <Stack
-                  sx={{
-                    flexDirection: "row",
-                    gap: { xs: "6px" },
-                    alignItems: "center",
-                  }}
-                >
-                  <Avatar src={employeeIcon} alt="avatar icon" />
-                  <Typography
-                    variant="body2"
-                    sx={{ textTransform: "capitalize", color: "primary.main" }}
-                  >
-                    {`${userInfo?.firstName} ${userInfo?.lastName}`}
-                  </Typography>
-                </Stack>
-                <MobileDropDownMenu />
-              </>
-            ) : (
+        {/* Default Right side menu bar laptop */}
+        {!isOrganigram && (
+          <Stack sx={{ flexDirection: "row", alignItems: "center" }}>
+            {/* <IconButton sx={stylesButtons}>
+              <Badge color="alert" overlap="circular" variant="dot">
+                <img src={messageIcon} alt="icon" />
+              </Badge>
+            </IconButton>
+            <IconButton sx={stylesButtons}>
+              <Badge color="alert" overlap="circular" variant="dot">
+                <img src={bellIcon} alt="icon" />
+              </Badge>
+            </IconButton> */}
+
+            {/* {lgMatches ? (
               <Stack
+                onClick={handleMenuOpen}
+                flexDirection={"row"}
+                alignItems={"center"}
                 sx={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  color: "secondary.main",
+                  padding: "8px",
+                  pr: 3,
+                  border: "1px solid #E9E9E9",
+                  borderRadius: "30px",
+                  // cursor: "pointer",
                 }}
               >
-                <Link href={SIGNIN_ROUTE} variant="body2" color="inherit">
-                  Login
-                </Link>
-                <Divider
-                  orientation="vertical"
-                  variant="middle"
-                  sx={{
-                    borderRightWidth: "1px",
-                    bgcolor: "secondary.main",
-                    mx: "4px",
-                  }}
+                <Avatar
+                  src={user?.profile_picture?.url}
+                  alt={`${user?.first_name} ${user?.last_name}`}
+                  sx={{ mr: 2.25, width: "39px", height: "39px" }}
                 />
-                <Link href={SIGNUP_ROUTE} variant="body2" color="inherit">
-                  Sign up
-                </Link>
+                {loading ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <Typography
+                    color={"primary.main"}
+                    sx={{ textTransform: "capitalize", mr: 3 }}
+                  >
+                    {`${user?.first_name} ${user?.last_name}`}
+                  </Typography>
+                )}
+                <IconButton onClick={handleMenuOpen}>
+                  <ExpandMoreIcon
+                    sx={{ color: "primary", cursor: "pointer" }}
+                  />
+                </IconButton>
               </Stack>
-            )}
-          </Stack>
+            ) : (
+              <IconButton>
+                <Avatar
+                  src={user?.profile_picture?.url}
+                  alt={`${user?.first_name} ${user?.last_name}`}
+                  sx={{ width: "39px", height: "39px" }}
+                />
+              </IconButton>
+            )} */}
 
-          <Stack
-            className="tablet__view"
-            sx={{
-              display: { xs: "none", md: "flex" },
-              flexDirection: "row",
-              ml: { md: "auto" },
-              gap: { md: "12px" },
-            }}
-          >
             <Stack
-              className="options__wrapper"
+              ref={stackRef}
+              onClick={handleMenuOpen}
+              flexDirection={"row"}
+              alignItems={"center"}
               sx={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: { xs: "25px" },
-                color: "primary.main",
+                padding: "8px",
+                pr: 3,
+                border: "1px solid #E9E9E9",
+                borderRadius: "30px",
+                // cursor: "pointer",
               }}
             >
-              <MenuBtn items={categories} text={"categories"}>
-                <CategoryIcon
-                  fill={"currentColor"}
-                  style={{ width: "22.433px", height: "19.45px" }}
-                />
-              </MenuBtn>
-
-              <MenuBtn items={settings} text={"settings"} isSettings>
-                <SettingsIcon color="inherit" />
-              </MenuBtn>
-
-              <Link
-                className="menu__link"
-                href="#"
-                sx={{
-                  display: { xs: "none", md: "block" },
-                  mr: { md: "20px" },
-                  color: "primary.main",
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <ShoppingCartIcon fontSize="small" sx={{ mr: "5px" }} />
-                  <Typography
-                    variant="body2"
-                    component="span"
-                    sx={{ textTransform: "capitalize" }}
-                  >
-                    {" "}
-                    cart
-                  </Typography>
-                </Box>
-              </Link>
-            </Stack>
-
-            {isAuth ? (
-              <>
-                <Button onClick={handleClick}>
-                  <Stack
-                    sx={{
-                      flexDirection: "row",
-                      gap: { xs: "6px" },
-                      alignItems: "center",
-                    }}
-                  >
-                    <Avatar src={employeeIcon} alt="avatar icon" />
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        textTransform: "capitalize",
-                        color: "primary.main",
-                      }}
-                    >
-                      {`${userInfo?.firstName} ${userInfo?.lastName}`}
-                    </Typography>
-                  </Stack>
-                </Button>
-                <Menu
-                  id="basic-menu"
-                  anchorEl={anchorEl}
-                  open={open}
-                  onClose={handleClose}
+              <Avatar
+                src={user?.profile_picture?.url}
+                alt={`${user?.first_name} ${user?.last_name}`}
+                sx={{ mr: 2.25, width: "39px", height: "39px" }}
+              />
+              {loading ? (
+                <CircularProgress size={20} />
+              ) : (
+                <Typography
+                  color={"primary.main"}
+                  sx={{ textTransform: "capitalize", mr: 3 }}
                 >
-                  <MenuItem onClick={handleClose}>Profile</MenuItem>
-                  <MenuItem onClick={handleClose}>My account</MenuItem>
-                  <MenuItem
-                    sx={{ color: "secondary.main" }}
-                    onClick={logoutHandler}
-                  >
-                    Logout
-                  </MenuItem>
-                </Menu>
-              </>
-            ) : (
+                  {`${user?.first_name} ${user?.last_name}`}
+                </Typography>
+              )}
+              <IconButton onClick={handleMenuOpen}>
+                <ExpandMoreIcon sx={{ color: "primary", cursor: "pointer" }} />
+              </IconButton>
+            </Stack>
+          </Stack>
+        )}
+
+        <Menu
+          anchorEl={stackRef.current}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+          PaperProps={{
+            style: {
+              width: stackWidth, // set width to the width of the Stack
+            },
+          }}
+        >
+          {userInfo?.system_role !== "staff" && (
+            <MenuItem onClick={handleEditInformation}>
+              <EditIcon
+                sx={{ marginRight: 1, width: "20px", height: "20px" }}
+              />
+              <Typography>Profile</Typography>
+            </MenuItem>
+          )}
+
+          {userInfo?.system_role === "admin" && (
+            <MenuItem
+              disableRipple
+              disableTouchRipple
+              sx={{
+                pointerEvents: "none",
+                "&:hover": {
+                  backgroundColor: "transparent", // Change this to the color you want
+                },
+              }}
+            >
               <Stack
                 sx={{
                   flexDirection: "row",
+                  justifyContent: "center",
                   alignItems: "center",
-                  color: "secondary.main",
-                  ml: { md: "10px" },
+                  width: "100%",
                 }}
               >
-                <Link href={SIGNIN_ROUTE} variant="body2" color="inherit">
-                  Login
-                </Link>
-                <Divider
-                  orientation="vertical"
-                  variant="middle"
-                  flexItem
+                <Button
+                  onClick={handleButtonClick}
+                  variant="contained"
+                  color="secondary"
                   sx={{
-                    borderRightWidth: "1px",
-                    bgcolor: "secondary.main",
-                    mx: "4px",
+                    ...buttonStyle,
+                    borderTopLeftRadius: "5px",
+                    borderBottomLeftRadius: "5px",
+                    background: activeBtn === "admin" ? "#E1FAED" : "#FFFFFF",
                   }}
-                />
-                <Link href={SIGNUP_ROUTE} variant="body2" color="inherit">
-                  Sign up
-                </Link>
+                >
+                  admin
+                </Button>
+
+                <Button
+                  onClick={handleButtonClick}
+                  variant="contained"
+                  color="secondary"
+                  sx={{
+                    ...buttonStyle,
+                    background: activeBtn === "manager" ? "#E1FAED" : "#FFFFFF",
+                  }}
+                >
+                  manager
+                </Button>
+
+                <Button
+                  onClick={handleButtonClick}
+                  variant="contained"
+                  color="secondary"
+                  sx={{
+                    ...buttonStyle,
+                    borderTopRightRadius: "5px",
+                    borderBottomRightRadius: "5px",
+                    background:
+                      activeBtn === "employee" ? "#E1FAED" : "#FFFFFF",
+                  }}
+                >
+                  employee
+                </Button>
               </Stack>
-            )}
+            </MenuItem>
+          )}
+
+          {userInfo?.system_role === "manager" && (
+            <MenuItem
+              disableRipple
+              disableTouchRipple
+              sx={{
+                pointerEvents: "none",
+                "&:hover": {
+                  backgroundColor: "transparent", // Change this to the color you want
+                },
+              }}
+            >
+              <Stack
+                sx={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: "100%",
+                }}
+              >
+                <Button
+                  onClick={handleButtonClick}
+                  variant="contained"
+                  color="secondary"
+                  sx={{
+                    ...buttonStyle,
+                    borderTopLeftRadius: "5px",
+                    borderBottomLeftRadius: "5px",
+                    background: activeBtn === "manager" ? "#E1FAED" : "#FFFFFF",
+                  }}
+                >
+                  manager
+                </Button>
+
+                <Button
+                  onClick={handleButtonClick}
+                  variant="contained"
+                  color="secondary"
+                  sx={{
+                    ...buttonStyle,
+                    borderTopRightRadius: "5px",
+                    borderBottomRightRadius: "5px",
+                    background:
+                      activeBtn === "employee" ? "#E1FAED" : "#FFFFFF",
+                  }}
+                >
+                  employee
+                </Button>
+              </Stack>
+            </MenuItem>
+          )}
+        </Menu>
+
+        {/* Organigram Right side menu bar laptop*/}
+        {/* {isOrganigram && (
+          <Stack
+            className="first__row"
+            sx={{
+              flexDirection: { xs: "column", lg: "row" },
+              justifyContent: { lg: "space-between" },
+              gap: "20px",
+            }}
+          >
+            <TextField
+              name="search_organigram"
+              fullWidth
+              size="small"
+              type="search"
+              variant="outlined"
+              sx={{
+                maxWidth: "270px",
+                "> *": {
+                  border: "1px solid #808080",
+                },
+              }}
+              placeholder="Search"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <img src={search} alt="search icon" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <Button
+              variant="contained"
+              color="secondary"
+              sx={{
+                textTransform: "capitalize",
+                fontSize: "14px",
+                px: "65px",
+                alignSelf: { xs: "flex-start", lg: "auto" },
+              }}
+            >
+              finish
+            </Button>
           </Stack>
-        </Toolbar>
-      </Container>
-    </AppBar>
-    // </Box>
+        )} */}
+      </Stack>
+
+      {/* Topbar organigram mobile */}
+      {/* {!lgMatches && isOrganigram && (
+        <Stack
+          className="organigram__toolbar_mobile"
+          sx={(showOptions && optionsWrapperStyle) || {}}
+        >
+          <Stack
+            className="first__row"
+            sx={{
+              flexDirection: { xs: "row" },
+              justifyContent: { xs: "space-between" },
+              alignItems: { xs: "center" },
+              mb: "22px",
+            }}
+          >
+            <TextField
+              name="search_organigram"
+              fullWidth
+              size="small"
+              type="search"
+              variant="outlined"
+              sx={{
+                maxWidth: "270px",
+                "> *": {
+                  border: "1px solid #808080",
+                },
+              }}
+              placeholder="Search"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <img src={search} alt="search icon" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <IconButton onClick={() => setShowOptions((prev) => !prev)}>
+              <img src={toolbar_right} alt="icon" />
+            </IconButton>
+          </Stack>
+
+          {showOptions && (
+            <Stack
+              className="second__row"
+              sx={{ flexDirection: { xs: "row" }, mb: "17px" }}
+            >
+              <Stack gap="16px" mr={2} sx={{ flexDirection: { xs: "row" } }}>
+                <IconButton>
+                  <img
+                    style={{ cursor: "pointer" }}
+                    src={download_icon}
+                    alt="download icon"
+                  />
+                </IconButton>
+                <IconButton>
+                  <img
+                    style={{ cursor: "pointer" }}
+                    src={mailto_icon}
+                    alt="mailto icon"
+                  />
+                </IconButton>
+              </Stack>
+              <Divider sx={{ mr: 2 }} orientation="vertical" flexItem />
+              <Stack gap="16px" mr={2} sx={{ flexDirection: { xs: "row" } }}>
+                <IconButton>
+                  <img
+                    style={{ cursor: "pointer" }}
+                    src={share_icon}
+                    alt="share icon"
+                  />
+                </IconButton>
+                <IconButton>
+                  <img
+                    style={{ cursor: "pointer" }}
+                    src={print_icon}
+                    alt="print icon"
+                  />
+                </IconButton>
+              </Stack>
+              <Divider sx={{ mr: 2 }} orientation="vertical" flexItem />
+              <Stack gap="16px" mr={2} sx={{ flexDirection: { xs: "row" } }}>
+                <IconButton>
+                  <img
+                    style={{ cursor: "pointer" }}
+                    src={share_icon_2}
+                    alt="share icon"
+                  />
+                </IconButton>
+                <IconButton>
+                  <img
+                    style={{ cursor: "pointer" }}
+                    src={signs_icon}
+                    alt="signs icon"
+                  />
+                </IconButton>
+              </Stack>
+            </Stack>
+          )}
+
+          {showOptions && (
+            <Stack
+              className="third__row"
+              sx={{
+                flexDirection: { xs: "row" },
+                justifyContent: { xs: "space-between" },
+              }}
+            >
+              <Stack sx={{ flexDirection: { xs: "row" }, gap: "16px" }}>
+                <IconButton>
+                  <img src={arrowCounter} alt="icon" />
+                </IconButton>
+                <IconButton>
+                  <img src={arrowClock} alt="icon" />
+                </IconButton>
+              </Stack>
+              <Button
+                variant="contained"
+                color="secondary"
+                sx={{
+                  textTransform: "capitalize",
+                  fontSize: "14px",
+                  px: "65px",
+                }}
+              >
+                finish
+              </Button>
+            </Stack>
+          )}
+        </Stack>
+        
+
+      )} */}
+
+      {/* Main header mobile */}
+      {!lgMatches && (
+        <Typography
+          variant="h1"
+          sx={{
+            color: "primary.main",
+            fontSize: "32px",
+            fontWeight: "600",
+            textTransform: "capitalize",
+            mt: { xs: 3, sm: 5 },
+          }}
+        >
+          {routeTitle}
+        </Typography>
+      )}
+    </Stack>
   );
 };
 

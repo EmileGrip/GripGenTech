@@ -46,6 +46,7 @@ const SideBar = ({ sidebarData, onOpen, currentStyle }) => {
     dispatch(logout());
     dispatch(setOpenMain("main__0"));
     dispatch(setOpenSub("sub__0"));
+    localStorage.removeItem("activeBtn");
   };
 
   const mainMenuHandler = (e) => {
@@ -99,7 +100,7 @@ const SideBar = ({ sidebarData, onOpen, currentStyle }) => {
         sx={{
           position: "absolute",
           left: { xs: "30px", md: "25px", lg: "0px" },
-          top: { xs: "40px" },
+          top: { xs: "34px" },
         }}
         onClick={() => onOpen(false)}
       >
@@ -113,8 +114,7 @@ const SideBar = ({ sidebarData, onOpen, currentStyle }) => {
       >
         <img
           style={{ alignSelf: "center" }}
-          width={171}
-          height={47}
+          width={150}
           src={logo}
           alt="logo"
         />
@@ -136,7 +136,7 @@ const SideBar = ({ sidebarData, onOpen, currentStyle }) => {
                           ? "secondary.main"
                           : "inactive.main",
                         backgroundColor: checkMainActive(index)
-                          ? "#B4F4D2"
+                          ? "#E1FAED"
                           : "",
                         "& *": {
                           fontWeight: checkMainActive(index)
@@ -207,7 +207,7 @@ const SideBar = ({ sidebarData, onOpen, currentStyle }) => {
                       color: checkMainActive(index)
                         ? "secondary.main"
                         : "inactive.main",
-                      backgroundColor: checkMainActive(index) ? "#B4F4D2" : "",
+                      backgroundColor: checkMainActive(index) ? "#E1FAED" : "",
                       "& *": {
                         fontWeight: checkMainActive(index)
                           ? "600 !important"

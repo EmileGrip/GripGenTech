@@ -101,6 +101,7 @@ const EditRoleForm = ({ data, editRoleData, closeModal }) => {
               }}
             >
               role name
+              <span style={{ color: "red" }}>*</span>
             </Typography>
             <TextField
               id="roleName"
@@ -128,6 +129,7 @@ const EditRoleForm = ({ data, editRoleData, closeModal }) => {
               }}
             >
               department
+              <span style={{ color: "red" }}>*</span>
             </Typography>
             <TextField
               id="department"

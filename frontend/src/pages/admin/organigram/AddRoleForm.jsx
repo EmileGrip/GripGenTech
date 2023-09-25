@@ -113,6 +113,7 @@ const AddRoleForm = ({ data, suggestedJobs, closeModal }) => {
               }}
             >
               role name
+              <span style={{ color: "red" }}>*</span>
             </Typography>
             <TextField
               id="roleName"
@@ -140,6 +141,7 @@ const AddRoleForm = ({ data, suggestedJobs, closeModal }) => {
               }}
             >
               department
+              <span style={{ color: "red" }}>*</span>
             </Typography>
             <TextField
               id="department"

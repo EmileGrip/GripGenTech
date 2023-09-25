@@ -53,3 +53,23 @@ export const fetchCareerPathOverviewDataById = createAsyncThunk(
     return response.data.payload;
   }
 );
+
+export const fetchJobsRecommendationData = createAsyncThunk(
+  "mySkills/fetchJobsRecommendationData",
+  async (user_id, { getState }) => {
+    const { token } = getState().auth;
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      params: {
+        type: "careerpath",
+        value: user_id,
+      },
+    };
+    const response = await axiosInstance.get(`recommendations`, config);
+    return response.data.payload;
+  }
+);

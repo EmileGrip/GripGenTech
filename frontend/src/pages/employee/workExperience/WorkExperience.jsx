@@ -10,6 +10,7 @@ import {
   Typography,
   Snackbar,
   Alert,
+  Box,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ExpCard from "../../../components/ExpCard";
@@ -206,7 +207,7 @@ const WorkExperience = () => {
             sx={{
               flexDirection: { xs: "column", md: "row" },
               justifyContent: { xs: "center", md: "space-between" },
-              mb: { xs: 2.5, lg: 5.875 },
+              mb: 1.5,
             }}
           >
             <Typography variant="h3" component="h2" color={"primary.main"}>
@@ -218,7 +219,6 @@ const WorkExperience = () => {
               sx={{
                 alignSelf: "flex-start",
                 textTransform: "capitalize",
-                mt: 1,
                 fontSize: "14px",
               }}
               endIcon={<AddIcon />}
@@ -227,6 +227,12 @@ const WorkExperience = () => {
               add job
             </Button>
           </Stack>
+
+          <Box pb={{ xs: 2.5, lg: 5.875 }}>
+            <Typography variant="body2" color="secondary.main">
+              Add work experience to your profile.
+            </Typography>
+          </Box>
 
           <Stack spacing={3.125}>
             {fetchedData.length !== 0 ? (

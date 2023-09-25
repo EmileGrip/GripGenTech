@@ -39,13 +39,14 @@ const SkillsWishlistList = () => {
           closeModal={handleClose}
         />
       </CustomModal>
+
       <Stack
         sx={{
           flexDirection: { xs: "column", sm: "row" },
           justifyContent: { sm: "space-between" },
           alignItems: { sm: "center" },
-          mb: 3.125,
           gap: { xs: 1, sm: 0 },
+          pb: 2,
         }}
       >
         <Typography variant={"h3"} color="primary.main" fontWeight={"400"}>
@@ -66,6 +67,14 @@ const SkillsWishlistList = () => {
           Add Skill
         </Button>
       </Stack>
+
+      <Box pb={8.5}>
+        <Typography variant="body2" color="secondary.main">
+          Add skills to your profile that you don't have yet but want to
+          develop.
+        </Typography>
+      </Box>
+
       {skillsWishlistLoading && <CircularProgress />}
       {!skillsWishlistLoading && (
         <>

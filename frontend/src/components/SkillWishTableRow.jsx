@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import moreHoriz__icon from "../assets/moreHoriz__icon.svg";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import { fetchSkillsWishlistData } from "../redux/slices/Employee/mySkills/mySkillsActions";
 import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../helper/axiosInstance";
@@ -102,8 +103,8 @@ const SkillWishTableRow = ({ skill, isProfile = false, index }) => {
                 Delete Skill
               </Typography>
 
-              <IconButton onClick={handleDeleteData}>
-                <DeleteIcon color="error" />
+              <IconButton onClick={handleDeleteData} sx={{ color: "#FE7777" }}>
+                <DeleteOutlinedIcon fontSize="small" />
               </IconButton>
             </Stack>
           </Popover>

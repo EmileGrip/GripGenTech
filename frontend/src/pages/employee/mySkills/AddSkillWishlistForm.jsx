@@ -36,9 +36,18 @@ const AddSkillWishlistForm = ({ data, closeModal }) => {
   // Loading State
   const [loading, setLoading] = useState(false);
 
-  const suggestedHandler = (value) => {
+  const suggestedHandler = async (value) => {
     setValue(value);
-    selectValue({}, value);
+
+    // Call the searchSkills function here
+    const selectedId = await searchSkills(token, value, true);
+
+    // Then select the value
+    if (selectedId) {
+      formik.setFieldValue("skill", selectedId);
+    } else {
+      formik.setFieldValue("skill", "");
+    }
   };
 
   const formik = useFormik({
@@ -67,7 +76,7 @@ const AddSkillWishlistForm = ({ data, closeModal }) => {
   });
 
   const searchSkills = useCallback(
-    async (token, value) => {
+    async (token, value, isSuggested = false) => {
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -88,6 +97,11 @@ const AddSkillWishlistForm = ({ data, closeModal }) => {
         );
         console.log(response.data);
         setOptions(response.data.payload);
+
+        if (isSuggested) {
+          const selectedId = response.data.payload[0].id;
+          return selectedId;
+        }
         // onSuccess(true);
         // onClose();
       } catch (error) {
@@ -148,8 +162,12 @@ const AddSkillWishlistForm = ({ data, closeModal }) => {
       const selectedOption = options.find(
         (option) => option.name === optionName
       );
-      const selectedId = selectedOption ? selectedOption.id : null;
-      formik.setFieldValue("skill", selectedId);
+
+      if (selectedOption) {
+        formik.setFieldValue("skill", selectedOption.id);
+      } else {
+        formik.setFieldValue("skill", "");
+      }
     },
     [formik, options]
   );
@@ -173,6 +191,8 @@ const AddSkillWishlistForm = ({ data, closeModal }) => {
     setInputValue(newValue);
   };
 
+  const suggestedSkills = data?.slice(0, 12);
+
   return (
     <form onSubmit={handleSearch}>
       <Stack sx={{ px: { xs: 2.5, lg: 0 } }}>
@@ -188,6 +208,7 @@ const AddSkillWishlistForm = ({ data, closeModal }) => {
             }}
           >
             search skills
+            <span style={{ color: "red" }}>*</span>
           </Typography>
           <Autocomplete
             freeSolo
@@ -256,11 +277,12 @@ const AddSkillWishlistForm = ({ data, closeModal }) => {
             sx={{ flexGrow: 1, mt: "16px" }}
             mb={"50px"}
           >
-            {data.map((skill) => (
+            {suggestedSkills.map((skill) => (
               <Grid2 key={skill.skill_id} xs={4}>
                 <SuggestedSkillChip
                   title={skill.title}
-                  onClick={suggestedHandler}
+                  onClick={() => suggestedHandler(skill.title)}
+                  selectedSkill={value}
                 >
                   {skill.title}
                 </SuggestedSkillChip>

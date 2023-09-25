@@ -10,6 +10,7 @@ import {
   CircularProgress,
   Alert,
   Snackbar,
+  Box,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import Grid2 from "@mui/material/Unstable_Grid2";
@@ -259,7 +260,7 @@ const LearningExperience = () => {
         flexDirection="row"
         alignItems="center"
         justifyContent="space-between"
-        mb={2.5}
+        mb={1.5}
       >
         <Typography variant="h3" component="h2" color={"primary.main"}>
           Education
@@ -270,8 +271,8 @@ const LearningExperience = () => {
           sx={{
             alignSelf: "flex-start",
             textTransform: "capitalize",
-            mt: 1,
             fontSize: "14px",
+            width: "160px",
           }}
           endIcon={<AddIcon />}
           onClick={() => addBtnHandler("Education")}
@@ -279,6 +280,12 @@ const LearningExperience = () => {
           add education
         </Button>
       </Stack>
+
+      <Box pb={2.5}>
+        <Typography variant="body2" color="secondary.main">
+          Add education to your profile.
+        </Typography>
+      </Box>
 
       {loading && <CircularProgress />}
       {!loading && (
@@ -312,7 +319,7 @@ const LearningExperience = () => {
         flexDirection="row"
         alignItems="center"
         justifyContent="space-between"
-        mb={2.5}
+        mb={1.5}
       >
         <Typography variant="h3" component="h2" color={"primary.main"}>
           Courses
@@ -323,8 +330,8 @@ const LearningExperience = () => {
           sx={{
             alignSelf: "flex-start",
             textTransform: "capitalize",
-            mt: 1,
             fontSize: "14px",
+            width: "160px",
           }}
           endIcon={<AddIcon />}
           onClick={() => addBtnHandler("Course")}
@@ -332,6 +339,12 @@ const LearningExperience = () => {
           add course
         </Button>
       </Stack>
+
+      <Box pb={2.5}>
+        <Typography variant="body2" color="secondary.main">
+          Add courses to your profile.
+        </Typography>
+      </Box>
 
       {loading && <CircularProgress />}
       {!loading && (

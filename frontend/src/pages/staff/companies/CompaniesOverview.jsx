@@ -61,7 +61,11 @@ const CompaniesOverview = () => {
               <>
                 {lgMatches && <HeadersTableCompanies />}
                 {sortedCompanies?.map((company) => (
-                  <TableRowCompanies company={company} key={company.id} />
+                  <TableRowCompanies
+                    key={company.id}
+                    company={company}
+                    fetchData={fetchData}
+                  />
                 ))}
               </>
             )}

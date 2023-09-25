@@ -25,20 +25,30 @@ const formControlWrapperStyle = {
   mb: 9.375,
 };
 
-const AddJobForm = ({ data, suggestedJobs, closeModal, onSuccess }) => {
+const AddJobForm = ({ data, closeModal, onSuccess }) => {
   const [value, setValue] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState("");
   const { token } = useSelector((state) => state.auth);
+  const { jobsRecommendation } = useSelector((state) => state.development);
   const dispatch = useDispatch();
   const noJobsMatch = "No jobs match";
 
   // Loading State
   const [loading, setLoading] = useState(false);
 
-  const suggestedHandler = (value) => {
+  const suggestedHandler = async (value) => {
     setValue(value);
-    selectValue({}, value);
+
+    // Call the searchSkills function here
+    const selectedId = await searchJobs(token, value, true);
+
+    // Then select the value
+    if (selectedId) {
+      formik.setFieldValue("job", selectedId);
+    } else {
+      formik.setFieldValue("job", "");
+    }
   };
 
   const formik = useFormik({
@@ -67,7 +77,7 @@ const AddJobForm = ({ data, suggestedJobs, closeModal, onSuccess }) => {
   });
 
   const searchJobs = useCallback(
-    async (token, value) => {
+    async (token, value, isSuggested = false) => {
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -88,6 +98,11 @@ const AddJobForm = ({ data, suggestedJobs, closeModal, onSuccess }) => {
         );
         console.log(response.data);
         setOptions(response.data.payload);
+
+        if (isSuggested) {
+          const selectedId = response.data.payload[0].id;
+          return selectedId;
+        }
         // onSuccess(true);
         // onClose();
       } catch (error) {
@@ -155,8 +170,12 @@ const AddJobForm = ({ data, suggestedJobs, closeModal, onSuccess }) => {
       const selectedOption = options.find(
         (option) => option.title === optionName
       );
-      const selectedId = selectedOption ? selectedOption.id : null;
-      formik.setFieldValue("job", selectedId);
+
+      if (selectedOption) {
+        formik.setFieldValue("job", selectedOption.id);
+      } else {
+        formik.setFieldValue("job", "");
+      }
     },
     [formik, options]
   );
@@ -180,6 +199,8 @@ const AddJobForm = ({ data, suggestedJobs, closeModal, onSuccess }) => {
     setInputValue(newValue);
   };
 
+  const suggestedJobs = jobsRecommendation?.slice(0, 12);
+
   return (
     <form onSubmit={handleSearch}>
       <Stack sx={{ px: { xs: 2.5, lg: 0 } }}>
@@ -195,6 +216,7 @@ const AddJobForm = ({ data, suggestedJobs, closeModal, onSuccess }) => {
             }}
           >
             search job
+            <span style={{ color: "red" }}>*</span>
           </Typography>
           <Autocomplete
             freeSolo
@@ -264,9 +286,13 @@ const AddJobForm = ({ data, suggestedJobs, closeModal, onSuccess }) => {
             mb={"50px"}
           >
             {suggestedJobs.map((job) => (
-              <Grid2 key={job} xs={4}>
-                <SuggestedSkillChip onClick={suggestedHandler}>
-                  {job}
+              <Grid2 key={job.id} xs={4}>
+                <SuggestedSkillChip
+                  title={job.title}
+                  onClick={() => suggestedHandler(job.title)}
+                  selectedSkill={value}
+                >
+                  {job.title}
                 </SuggestedSkillChip>
               </Grid2>
             ))}

@@ -298,7 +298,7 @@ const Profile = () => {
         Work Experience
       </Typography>
 
-      <Stack className="displayData__section" sx={{ width: "100%" }}>
+      <Stack className="displayData__section" sx={{ width: "100%", gap: 3 }}>
         {workExpLoading && <CircularProgress />}
         {!workExpLoading && (
           <>
@@ -339,7 +339,10 @@ const Profile = () => {
             Education
           </Typography>
 
-          <Stack className="displayData__section" sx={{ width: "100%" }}>
+          <Stack
+            className="displayData__section"
+            sx={{ width: "100%", gap: 3 }}
+          >
             {educationLoading && <CircularProgress />}
             {!educationLoading && (
               <>
@@ -377,7 +380,10 @@ const Profile = () => {
             Courses
           </Typography>
 
-          <Stack className="displayData__section" sx={{ width: "100%" }}>
+          <Stack
+            className="displayData__section"
+            sx={{ width: "100%", gap: 3 }}
+          >
             {coursesLoading && <CircularProgress />}
             {!coursesLoading && (
               <>

@@ -36,8 +36,12 @@ const options = {
     },
   },
   responsive: true,
-
   maintainAspectRatio: false,
+  // scales: {
+  //   y: {
+  //     maxBarThickness: 80, // Adjusted max thickness
+  //   },
+  // },
 };
 
 const AverageGapChart = ({
@@ -56,6 +60,7 @@ const AverageGapChart = ({
         data: jobAvgGapData?.data,
         borderColor: "rgb(170,220,254)",
         backgroundColor: "rgba(170,220,254,0.5)",
+        // barThickness: 30,
       },
     ],
   };
@@ -68,6 +73,7 @@ const AverageGapChart = ({
         data: skillAvgGapData?.data,
         borderColor: "rgb(255, 99, 132)",
         backgroundColor: "rgba(255, 99, 132, 0.5)",
+        // barThickness: 30,
       },
     ],
   };
@@ -80,6 +86,7 @@ const AverageGapChart = ({
         data: employeeAvgGapData?.data,
         borderColor: "rgb(99, 220, 132)",
         backgroundColor: "rgba(99, 220, 132, 0.5)",
+        // barThickness: 30,
       },
     ],
   };
@@ -107,6 +114,20 @@ const AverageGapChart = ({
       {!datasetValue && <CircularProgress />}
       {datasetValue && <Bar options={options} data={datasetValue} />}
     </Box>
+    // <Box sx={{ height: "800px", maxHeight: "800px", overflowY: "scroll" }}>
+    //   <Box
+    //     sx={{
+    //       display: "flex",
+    //       justifyContent: "center",
+    //       alignItems: "center",
+    //       position: "relative",
+    //       height: "300px",
+    //     }}
+    //   >
+    //     {!datasetValue && <CircularProgress />}
+    //     {datasetValue && <Bar options={options} data={datasetValue} />}
+    //   </Box>
+    // </Box>
   );
 };
 

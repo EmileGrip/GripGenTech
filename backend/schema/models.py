@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from .managers import GUserManager
 from neomodel import StructuredNode, StringProperty, UniqueIdProperty,IntegerProperty, RelationshipTo
+from django.contrib.contenttypes.fields import GenericForeignKey,GenericRelation
+from django.contrib.contenttypes.models import ContentType
 # Create your models here.
 
 ##########################################
@@ -130,7 +132,7 @@ class Experience(models.Model):
     #experience title
     title = models.CharField(max_length=50, null=False)
     #experience description
-    description = models.CharField(max_length=200, null=True)
+    description = models.CharField(max_length=500, null=True)
     #company (just name)
     company = models.CharField(max_length=50, null=False)
     #experience start date
@@ -158,7 +160,7 @@ class Education(models.Model):
     #institution (just name)
     institution = models.CharField(max_length=50, null=False)
     #education start date
-    start_date = models.DateField(null=False)
+    start_date = models.DateField(null=True)
     #education end date
     end_date = models.DateField(null=True)
     #user id
@@ -176,9 +178,9 @@ class Course(models.Model):
     #course title
     degree = models.CharField(max_length=50, null=False)
     #institution (just name)
-    institution = models.CharField(max_length=50, null=False)
+    institution = models.CharField(max_length=50, null=True)
     #course start date
-    start_date = models.DateField(null=False)
+    start_date = models.DateField(null=True)
     #course end date
     end_date = models.DateField(null=True)
     #user id
@@ -306,8 +308,96 @@ class Role(models.Model):
 
     def __str__(self):
         return f"{self.title} at {self.company_id}"
-#define position model 
+ 
+#define vacancy role
+class VacancyRole(models.Model):
+    #role id
+    id = models.AutoField(primary_key=True)
+    #company id
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)
+    #job profile id
+    job_profile = models.ForeignKey(JobProfile, on_delete=models.SET_NULL, null=True, blank=True)
+    #start_date
+    start_date = models.DateField(null=False)
+    #end_date
+    end_date = models.DateField(null=True)
+    #hours (full time or part time)
+    hours = models.CharField(max_length=50, null=True)
+    #salary
+    salary = models.IntegerField(null=True)
+    #description
+    description = models.CharField(max_length=700, null=True)
+    #content_type
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    #object_id
+    object_id = models.PositiveIntegerField()
+    #content_object
+    vacancy = GenericForeignKey('content_type', 'object_id')
+    
+    
+    def __str__(self):
+        return f"{self.job_profile.title} at {self.company}"
+    
+#define vacancy skill
+class VacancySkill(models.Model):
+    #role id
+    id = models.AutoField(primary_key=True)
+    #title
+    title = models.CharField(max_length=50, null=False)
+    #company id
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)
+    #vacancy_role
+    vacancy_role = models.ForeignKey(VacancyRole, on_delete=models.CASCADE, null=False, related_name='skills')
+    #skill
+    skill_ref = models.CharField(max_length=50, null=False)
+        
+    def __str__(self):
+        return f"{self.title} at {self.company}"   
+#define job_post model
+class JobVacancy(models.Model):
+    #role id
+    id = models.AutoField(primary_key=True)
+    #company id
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)
+    #department
+    department = models.CharField(max_length=50, null=False)
+    #user id
+    user = models.ForeignKey(GripUser, on_delete=models.CASCADE, null=False)
+    #ref_post_id
+    ref_post_id = models.CharField(max_length=50, null=False)
+    #status
+    status = models.CharField(max_length=50, null=False)
+    #role relationship
+    roles = GenericRelation(VacancyRole)
+    def __str__(self):
+        return f"Job Post in {self.job_profile.title} department at {self.company.name}"
+    
+#define project model
 
+class ProjectVacancy(models.Model):
+    #role id
+    id = models.AutoField(primary_key=True)
+    #company id
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)
+    #user id
+    user = models.ForeignKey(GripUser, on_delete=models.CASCADE, null=False)
+    #placeholder1
+    placeholder1 = models.CharField(max_length=50, null=False)
+    #placeholder2
+    placeholder2 = models.CharField(max_length=50, null=False)
+    #start_date
+    start_date = models.DateField(null=False)
+    #end_date
+    end_date = models.DateField(null=True)
+    #description
+    description = models.CharField(max_length=700, null=True)
+    #status
+    status = models.CharField(max_length=50, null=False)
+    #role relationship
+    roles = GenericRelation(VacancyRole)
+    def __str__(self):
+        return f"Project \"{self.placeholder1}\" at {self.company.name}"
+    
 
 ##########################################
 ##              Neo4j Models            ##
@@ -368,6 +458,7 @@ class Occupation(StructuredNode):
     description = StringProperty(null=True)
     #Occupation alternative labels
     altLabels = StringProperty(null=True)
+    iscoGroup = StringProperty(null=True)
     #relationship
     #occupation skills
     hasSkill = RelationshipTo("Skill", 'hasSkill')
@@ -405,6 +496,15 @@ class Person(StructuredNode):
     def __str__(self):
         return self.name
     
-
+class JobPosting(StructuredNode):
+    
+    #company_name
+    company_name = StringProperty(null=False)
+    #job_title
+    job_title = StringProperty(null=False)
+    #HasExtractedSkill
+    HasExtractedSkill = RelationshipTo("Skill", 'HasExtractedSkill')
+    #BestMatchTitle
+    BestMatchTitle = RelationshipTo("Occupation", 'BestMatchTitle')
     
     

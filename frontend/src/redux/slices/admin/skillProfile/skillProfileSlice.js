@@ -15,7 +15,7 @@ const skillProfileSlice = createSlice({
     skillProfile: [],
     skillProfileRecommendations: [],
     selectedJob: null,
-    selectedTitle: "",
+    selectedTitle: null,
   },
   reducers: {
     setSelectedJob: (state, action) => {

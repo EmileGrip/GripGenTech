@@ -18,6 +18,7 @@ import axiosInstance from "../helper/axiosInstance";
 import { deleteUser } from "../redux/slices/admin/users/usersActions";
 import moreHoriz__icon from "../assets/moreHoriz__icon.svg";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 
 const CardEmployee = ({ onOpen, data }) => {
   const dispatch = useDispatch();
@@ -94,8 +95,8 @@ const CardEmployee = ({ onOpen, data }) => {
               Delete Employee
             </Typography>
 
-            <IconButton onClick={handleOpenDialog}>
-              <DeleteIcon color="error" />
+            <IconButton onClick={handleOpenDialog} sx={{ color: "#FE7777" }}>
+              <DeleteOutlinedIcon fontSize="small" />
             </IconButton>
           </Stack>
         </Popover>
@@ -132,7 +133,7 @@ const CardEmployee = ({ onOpen, data }) => {
           width: "93px",
           height: "93px",
           mb: "14px",
-          border: "9px solid #B4F4D2",
+          border: "9px solid #E1FAED",
         }}
       />
       <Box
@@ -140,12 +141,10 @@ const CardEmployee = ({ onOpen, data }) => {
         title={data.first_name + " " + data.last_name}
       >
         <Typography
-          component="h3"
+          variant="h3"
           mb={0.5}
           color="primary"
           sx={{
-            fontWeight: "700",
-            fontSize: "18px",
             textTransform: "capitalize",
             whiteSpace: "nowrap",
             overflow: "hidden",

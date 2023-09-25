@@ -20,4 +20,7 @@ urlpatterns = [
     path('', include('files.url')),
     path('', include('skill_wish.urls')),
     path('', include('recommendations.urls')),
+    path('', include('job_vacancy.urls')),
+    path('', include('vacancy_role.urls')),
+    path('', include('vacancy_skill.urls')),
 ]
