@@ -1,6 +1,7 @@
 from rest_framework import serializers, exceptions
 from schema.models import Role, JobProfile,JobVacancy
-from job_vacancy.lib import get_non_none_dict
+from schema.utils import get_non_none_dict
+from vacancy_role.serializers import VacancyRoleSerializer
 
 class GetSerializer(serializers.Serializer):
     filter = serializers.ChoiceField(choices=['all','pending','approved','rejected'],required=False,default='all')
@@ -23,7 +24,7 @@ class PostSerializer(serializers.Serializer):
     start_date = serializers.DateField(required=True)
     job_profile_id = serializers.IntegerField(required=True)
     description = serializers.CharField(required=True)
-    end_date = serializers.DateField(required=False)
+    end_date = serializers.CharField(required=False,allow_blank=True,allow_null=True)
     hours = serializers.CharField(required=False)
     salary = serializers.IntegerField(required=False)
     skills = serializers.ListField(required=False)
@@ -51,11 +52,8 @@ class PostSerializer(serializers.Serializer):
         
         if Role.objects.filter(company_id_id=company_id,department=department).exists() is False:
             raise exceptions.ValidationError('Department does not exist')
-        #check if job_profile_id is valid
-        if JobProfile.objects.filter(id=job_profile_id,company_id_id=company_id).exists() is False:
-            raise exceptions.ValidationError('Job profile does not exist')
-        
-        return get_non_none_dict(
+        #get non null fields from data for vacancy role
+        vacancy_role_data = get_non_none_dict(
             department=department,
             start_date=start_date,
             job_profile_id=job_profile_id,
@@ -63,11 +61,26 @@ class PostSerializer(serializers.Serializer):
             end_date=end_date,
             hours=hours,
             salary=salary,
+            skills=skills
+        )
+        #define vacancy role serializer
+        serializer = VacancyRoleSerializer(data=vacancy_role_data)
+        serializer.is_valid(raise_exception=True)
+        role_data = dict(serializer.validated_data)
+     
+        return get_non_none_dict(
+            department=department,
+            start_date=role_data["start_date"],
+            job_profile_id=role_data["job_profile_id"],
+            description=role_data.get("description"),
+            end_date=role_data.get("end_date"),
+            hours=role_data.get("hours"),
+            salary=role_data.get("salary"),
             user_id=user_id,
             system_role=system_role,
             status=status,
             company_id=company_id,
-            skills=skills
+            skills=role_data.get("skills")
         )
 
 class PutSerializer(serializers.Serializer):

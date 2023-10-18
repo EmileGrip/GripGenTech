@@ -15,6 +15,8 @@ import {
 import { useState } from "react";
 import hintIcon from "../assets/hintIcon.svg";
 import completeIcon from "../assets/completeIcon.svg";
+import statusInvalidate from "../assets/status_invalidate.svg";
+import statusValidate from "../assets/status_validate.svg";
 import DescriptionTooltip from "../ui/DescriptionTooltip";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
@@ -149,6 +151,13 @@ const SkillTableRow = ({ skill, isProfile = false }) => {
   const skillName = smMatches
     ? skill?.title?.slice(0, 30)
     : skill?.title?.slice(0, 15);
+
+  const proficiencyMap = {
+    1: "Basic",
+    2: "Intermediate",
+    3: "Advanced",
+    4: "Expert",
+  };
 
   return (
     <Stack
@@ -311,19 +320,34 @@ const SkillTableRow = ({ skill, isProfile = false }) => {
             <Tooltip
               title={
                 <>
-                  <div style={{ textAlign: "center" }}>Proficiency needed</div>
-                  <RatingBar
-                    initialValue={
-                      skill.required_level === 0 ? 0 : skill.required_level
-                    }
-                  />
+                  <Typography
+                    variant="h5"
+                    color="#0C1716"
+                    fontWeight="500"
+                    textAlign="center"
+                  >
+                    Your level:
+                    <br />
+                    <span
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: "700",
+                        color: "#0C1716",
+                      }}
+                    >
+                      {proficiencyMap[String(skill.level)]}
+                    </span>
+                  </Typography>
                 </>
               }
               placement="top-start"
               followCursor
             >
               <span>
-                <RatingBar initialValue={skill.level} />
+                <RatingBar
+                  initialValue={skill.level}
+                  requiredLevel={skill.required_level}
+                />
               </span>
             </Tooltip>
 
@@ -336,7 +360,12 @@ const SkillTableRow = ({ skill, isProfile = false }) => {
             lg={4}
             sx={{ ...gridStyles, justifyContent: "flex-end" }}
           >
-            {skill.status === 0 ? (
+            <img
+              src={skill?.verified ? statusValidate : statusInvalidate}
+              style={{ paddingRight: "13px" }}
+              alt="Status validation icon"
+            />
+            {/* {skill.status === 0 ? (
               <img src={completeIcon} style={imgStyles} alt="logo" />
             ) : lgMatches ? (
               <Typography
@@ -353,7 +382,7 @@ const SkillTableRow = ({ skill, isProfile = false }) => {
               <IconButton onClick={handleOpen}>
                 {open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
               </IconButton>
-            )}
+            )} */}
           </Grid>
         </Grid>
 

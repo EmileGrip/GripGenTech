@@ -22,15 +22,22 @@ import {
   MANAGER_NEW_PROJECT_ROUTE,
   MANAGER_PROJECTS_ROUTE,
 } from "../../../routes/paths";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { jobs } from "../../../data/jobsData";
 import RatingBar from "../../RatingBar";
 import { skillsTable } from "../../../data/skillsData";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useEffect } from "react";
 import { useRef } from "react";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import axiosInstance from "../../../helper/axiosInstance";
+import { fetchProjects } from "../../../redux/slices/internalMobility/addProjectFormActions";
+import {
+  setOpenProjectSnack,
+  setProjectFormInfo,
+  setProjectResponse,
+} from "../../../redux/slices/internalMobility/addProjectFormSlice";
 
 const boxStyles = {
   display: "flex",
@@ -38,24 +45,74 @@ const boxStyles = {
   gap: 2,
 };
 
+function isDateValid(dateString) {
+  const regex = /^\d{4}-\d{2}-\d{2}$/;
+  return regex.test(dateString);
+}
+
 const ProjectOverview = () => {
   //   const [hoveredRoles, setHoveredRoles] = useState({});
   const [showDetails, setShowDetails] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
   const detailsRef = useRef(null);
-  const {
-    name,
-    department,
-    startDate,
-    endDate,
-    description,
-    role,
-    roleStartDate,
-    roleEndDate,
-    hours,
-    salary,
-    roleDescription,
-  } = useSelector((state) => state.addProjectForm);
+  const { token } = useSelector((state) => state.auth);
+  const { name, department, startDate, endDate, description, roles } =
+    useSelector((state) => state.addProjectForm);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const sendData = useCallback(async () => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    };
+
+    try {
+      // setLoading(true);
+      const response = await axiosInstance.post(
+        `project_vacancy`,
+        {
+          name,
+          department,
+          start_date: isDateValid(startDate) ? startDate : null,
+          end_date: isDateValid(endDate) ? endDate : null,
+          description,
+          roles,
+        },
+        config
+      );
+      console.log(response.data);
+      dispatch(setOpenProjectSnack(true));
+      dispatch(setProjectResponse(response.data));
+    } catch (error) {
+      dispatch(setOpenProjectSnack(true));
+      dispatch(setProjectResponse(error?.response.data));
+      console.log(error?.response.data);
+    } finally {
+      // setLoading(false);
+      dispatch(fetchProjects());
+      dispatch(
+        setProjectFormInfo({
+          name: "",
+          department: "",
+          startDate: null,
+          endDate: null,
+          description: "",
+          roles: "",
+          role: "",
+          roleStartDate: null,
+          roleEndDate: null,
+          hours: "",
+          salary: "",
+          roleDescription: "",
+        })
+      );
+      navigate(projectsLink);
+    }
+  }, [token]);
 
   useEffect(() => {
     // Add an event listener to close details when clicking outside.
@@ -120,7 +177,7 @@ const ProjectOverview = () => {
   return (
     <Stack sx={{ position: "relative", gap: 3 }}>
       <Typography variant="h2" color="#173433" textTransform="capitalize">
-        Insurance Website and App
+        {name}
       </Typography>
 
       <Stack
@@ -168,7 +225,7 @@ const ProjectOverview = () => {
                 color="#788894"
                 textTransform="capitalize"
               >
-                Start Date: {startDate}
+                Start Date: {isDateValid(startDate) ? startDate : ""}
               </Typography>
             </Box>
           </Grid>
@@ -186,7 +243,7 @@ const ProjectOverview = () => {
                 color="#788894"
                 textTransform="capitalize"
               >
-                End Date: {endDate}
+                End Date: {isDateValid(endDate) ? endDate : ""}
               </Typography>
             </Box>
           </Grid>
@@ -227,9 +284,9 @@ const ProjectOverview = () => {
         columnSpacing={"20px"}
         columns={{ xs: 4, sm: 8, md: 12, lg: 12, xl: 16 }}
       >
-        {jobs.length >= 1 &&
-          jobs.map((job) => (
-            <Grid2 xs={4} sm={4} md={4} lg={4} xl={4} key={job.id}>
+        {roles?.length >= 1 &&
+          roles?.map((role) => (
+            <Grid2 xs={4} sm={4} md={4} lg={4} xl={4} key={role.id}>
               <Box>
                 {showDetails && selectedRole && (
                   <Stack
@@ -255,7 +312,7 @@ const ProjectOverview = () => {
                         color="#AAAAAA"
                         textTransform="capitalize"
                       >
-                        Hours: {selectedRole.kind}
+                        Hours: {selectedRole.hours}
                       </Typography>
                     </Box>
 
@@ -263,7 +320,7 @@ const ProjectOverview = () => {
                       <img src={dateIcon} alt="Date icon" />
 
                       <Typography variant="h5" color="#AAAAAA">
-                        Start date: {selectedRole.startDate}
+                        Start date: {selectedRole.start_date}
                       </Typography>
                     </Box>
 
@@ -283,9 +340,9 @@ const ProjectOverview = () => {
                         pr: 2,
                       }}
                     >
-                      {skillsTable.map((skill) => (
+                      {role.skills?.map((skill) => (
                         <Box
-                          key={skill.skillName}
+                          key={skill.title}
                           sx={{
                             display: "flex",
                             justifyContent: "space-between",
@@ -295,7 +352,7 @@ const ProjectOverview = () => {
                           <Typography
                             variant="h5"
                             color="#737373"
-                            title={skill.skillName}
+                            title={skill.title}
                             sx={{
                               textTransform: "capitalize",
                               whiteSpace: "nowrap",
@@ -304,7 +361,7 @@ const ProjectOverview = () => {
                               width: "60%",
                             }}
                           >
-                            {skill.skillName}
+                            {skill.title}
                           </Typography>
 
                           <Tooltip
@@ -313,7 +370,10 @@ const ProjectOverview = () => {
                                 <div style={{ textAlign: "center" }}>
                                   Proficiency needed
                                 </div>
-                                <RatingBar initialValue={skill.status} />
+                                <RatingBar
+                                  initialValue={skill.level}
+                                  requiredLevel={skill.level}
+                                />
                               </>
                             }
                             placement="top-start"
@@ -326,7 +386,10 @@ const ProjectOverview = () => {
                                 paddingRight: "8px",
                               }}
                             >
-                              <RatingBar initialValue={skill.currentProf} />
+                              <RatingBar
+                                initialValue={skill.level}
+                                requiredLevel={skill.level}
+                              />
                             </span>
                           </Tooltip>
                         </Box>
@@ -351,7 +414,7 @@ const ProjectOverview = () => {
                   <Typography
                     variant="h5"
                     color="darkGreen"
-                    title={job.title}
+                    title={role.title}
                     sx={{
                       fontSize: "18px",
                       textTransform: "capitalize",
@@ -361,13 +424,13 @@ const ProjectOverview = () => {
                       width: "80%",
                     }}
                   >
-                    {job.title}
+                    {role.title}
                   </Typography>
 
                   <IconButton
-                    //   onMouseEnter={() => handleMouseEnter(job.title)}
-                    //   onMouseLeave={() => handleMouseLeave(job.title)}
-                    onClick={() => openDetails(job)}
+                    //   onMouseEnter={() => handleMouseEnter(role.title)}
+                    //   onMouseLeave={() => handleMouseLeave(role.title)}
+                    onClick={() => openDetails(role)}
                   >
                     <ExpandLessIcon sx={{ color: "#788894" }} />
                   </IconButton>
@@ -380,18 +443,17 @@ const ProjectOverview = () => {
       <Divider sx={{ borderBottom: "2px solid #EEEEEE" }} />
 
       <Stack sx={{ flexDirection: { sm: "row" }, gap: { xs: 2, sm: 4 } }}>
-        <Link to={projectsLink}>
-          <Button
-            sx={{
-              width: { xs: "100%", sm: "190px" },
-              background: (theme) => theme.palette.accent,
-            }}
-          >
-            <Typography variant="h6" textTransform="none" py={0.5}>
-              Submit for approval
-            </Typography>
-          </Button>
-        </Link>
+        <Button
+          onClick={sendData}
+          sx={{
+            width: { xs: "100%", sm: "190px" },
+            background: (theme) => theme.palette.accent,
+          }}
+        >
+          <Typography variant="h6" textTransform="none" py={0.5}>
+            Submit for approval
+          </Typography>
+        </Button>
 
         <Link to={newProjectLink}>
           <Button

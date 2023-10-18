@@ -32,8 +32,9 @@ def addVacancyRole(vacancy_id,vacancy_type,job_profile_id,company_id,start_date,
         vacancy=vacancy
     )
     #add skills
-    for skill_ref in skills : 
-        addVacancySkill(vacancy_role.id,skill_ref)
+    if skills is not None:
+        for skill in skills : 
+            addVacancySkill(vacancy_role.id,skill["skill_ref"],skill["level"])
     return vacancy_role
 
 def editVacancyRole(id,job_profile_id,start_date,description,end_date,hours,salary):
@@ -74,7 +75,7 @@ def getAction(data,context):
             "end_date":role.end_date,
             "hours":role.hours,
             "salary":role.salary,
-            "skills":role.skills.values("id","title","skill_ref")
+            "skills":role.skills.values("id","title","skill_ref","level")
         })
     return {
         "success":True,
@@ -108,7 +109,7 @@ def postAction(data,context):
             "end_date":vacancy_role.end_date,
             "hours":vacancy_role.hours,
             "salary":vacancy_role.salary,
-            "skills":vacancy_role.skills.all().values("id","title","skill_ref")
+            "skills":vacancy_role.skills.all().values("id","title","skill_ref","level")
         }
         }
 
@@ -135,7 +136,7 @@ def putAction(data,context):
             "end_date":vacancy_role.end_date,
             "hours":vacancy_role.hours,
             "salary":vacancy_role.salary,
-            "skills":vacancy_role.skills.all().values("id","title","skill_ref")
+            "skills":vacancy_role.skills.all().values("id","title","skill_ref","level")
         }
     }
 

@@ -11,6 +11,7 @@ import jobProfileSliceReducer from "./slices/admin/jobProfile/jobProfileSlice";
 import skillProfileSliceReducer from "./slices/admin/skillProfile/skillProfileSlice";
 import mySkillsSliceReducer from "./slices/Employee/mySkills/mySkillsSlice";
 import developmentSliceReducer from "./slices/Employee/development/developmentSlice";
+import addJobFormSliceReducer from "./slices/internalMobility/addJobFormSlice";
 import addProjectFormSliceReducer from "./slices/internalMobility/addProjectFormSlice";
 
 const rootReducer = combineReducers({
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
   skillProfile: skillProfileSliceReducer,
   mySkills: mySkillsSliceReducer,
   development: developmentSliceReducer,
+  addJobForm: addJobFormSliceReducer,
   addProjectForm: addProjectFormSliceReducer,
   // ...
 });

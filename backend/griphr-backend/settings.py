@@ -81,6 +81,8 @@ INSTALLED_APPS = [
     'job_vacancy',
     'vacancy_role',
     'vacancy_skill',
+    'project_vacancy',
+    'endorsement',
     # Add your apps here to enable them
     'vectordb',
     'django.contrib.admin',

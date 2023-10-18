@@ -28,7 +28,7 @@ const SkillRow = ({ skill }) => {
           >
             <Typography
               variant="h5"
-              title={skill.skillName}
+              title={skill?.title}
               sx={{
                 color: "darkGreen",
                 textTransform: "capitalize",
@@ -37,11 +37,11 @@ const SkillRow = ({ skill }) => {
                 textOverflow: "ellipsis",
               }}
             >
-              {skill.skillName}
+              {skill?.title}
             </Typography>
 
             <DescriptionTooltip
-              title={skill.description}
+              title={skill?.description}
               placement="bottom-start"
             >
               <img src={hintIcon} alt="icon" style={{ alignSelf: "center" }} />
@@ -54,8 +54,8 @@ const SkillRow = ({ skill }) => {
             <Tooltip
               title={
                 <>
-                  <div style={{ textAlign: "center" }}>Proficiency needed</div>
-                  <RatingBar initialValue={skill.status} />
+                  <div style={{ textAlign: "center" }}>Level:</div>
+                  <RatingBar initialValue={skill?.level} />
                 </>
               }
               placement="top-start"
@@ -68,7 +68,7 @@ const SkillRow = ({ skill }) => {
                   paddingRight: "8px",
                 }}
               >
-                <RatingBar initialValue={skill.currentProf} />
+                <RatingBar initialValue={skill?.level} />
               </span>
             </Tooltip>
           </Box>

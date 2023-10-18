@@ -3,6 +3,9 @@ from schema.models import JobProfile,GripUser,Company,JobTitle
 from datetime import datetime
 from django.forms.models import model_to_dict
 from schema.utils import get_node_id
+from role.fuzzy_matching import get_best_matched_occupation
+from neomodel import db
+
 class JobProfileSerializer(serializers.Serializer):
     
     #define the fields related to the model Experience
@@ -102,6 +105,16 @@ class JobProfileSerializer(serializers.Serializer):
             job_title = JobTitle(label=title).save()
         #create job_profile_data
         job_profile = JobProfile.objects.create(title=title,company_id=company,job_id=get_node_id(job_title))
+        #connect to the best match for job title
+        occupation = get_best_matched_occupation(job_title.label)
+        if occupation is not None:
+            #generate similar to relationship between jobtitle and occupation
+            job_title.SimilarTo.connect(occupation)
+        #add relationship between person and job title
+        person,_ = db.cypher_query(f'MATCH (s:Person) WHERE ID(s) = {self.context["request"].user.person_id} RETURN s', None, resolve_objects=True)
+        if len(person) != 0:
+            person = person[0][0]
+            person.HasJob.connect(job_title)
         self.response = {
             "success":True,
             "message":"Experience created successfully",

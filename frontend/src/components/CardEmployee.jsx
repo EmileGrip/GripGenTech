@@ -17,17 +17,20 @@ import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../helper/axiosInstance";
 import { deleteUser } from "../redux/slices/admin/users/usersActions";
 import moreHoriz__icon from "../assets/moreHoriz__icon.svg";
+import editIcon from "../assets/edit_icon.svg";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 
-const CardEmployee = ({ onOpen, data }) => {
+const CardEmployee = ({ onOpen, data, handleOpenEditForm, setEmployeeId }) => {
   const dispatch = useDispatch();
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
 
   const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
+    // setAnchorEl(event.currentTarget);
+    handleOpenEditForm();
+    setEmployeeId(data.id);
   };
   const handleClose = () => {
     setAnchorEl(null);
@@ -83,6 +86,27 @@ const CardEmployee = ({ onOpen, data }) => {
             horizontal: "left",
           }}
         >
+          <Stack
+            sx={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              px: 2,
+            }}
+          >
+            <Typography variant="h6" color="primary.main">
+              Edit Employee
+            </Typography>
+
+            <IconButton onClick={handleOpenEditForm}>
+              <img
+                src={editIcon}
+                alt="Edit icon"
+                style={{ width: "18px", height: "18px", marginRight: "3px" }}
+              />
+            </IconButton>
+          </Stack>
+
           <Stack
             sx={{
               flexDirection: "row",

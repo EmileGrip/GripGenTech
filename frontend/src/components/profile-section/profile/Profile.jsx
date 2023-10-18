@@ -35,13 +35,14 @@ import EducationCard from "../../EducationCard";
 import CourseCard from "../../CourseCard";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
 import MockContent from "../../../pages/employee/development/MockContent";
+import SkillsOverview from "./skillsValidation/SkillsOverview";
 
 const Profile = () => {
   const { id } = useParams();
   const theme = useTheme();
   const mdMatches = useMediaQuery(theme.breakpoints.down("md"));
   const lgMatches = useMediaQuery(theme.breakpoints.down("lg"));
-  const { token } = useSelector((state) => state.auth);
+  const { token, userInfo } = useSelector((state) => state.auth);
   const { skills, skillsWishlist, skillsDataLoading, skillsWishlistLoading } =
     useSelector((state) => state.mySkills);
   const dispatch = useDispatch();
@@ -217,75 +218,89 @@ const Profile = () => {
         )}
       </Stack>
 
-      <Typography
-        variant="h2"
-        sx={{
-          fontSize: { xs: "20px", lg: "32px" },
-          mb: { xs: "24px", lg: "48px" },
-          color: "primary.main",
-        }}
-      >
-        Skill profile
-      </Typography>
+      {userInfo?.system_role !== "employee" ? (
+        <SkillsOverview
+          skills={sortedSkills}
+          skillsLoading={skillsDataLoading}
+          skillsWishlist={sortedSkillsWishlist}
+          skillsWishlistLoading={skillsWishlistLoading}
+          user={user}
+          userId={id}
+          isProfile={true}
+        />
+      ) : (
+        <>
+          <Typography
+            variant="h2"
+            sx={{
+              fontSize: { xs: "20px", lg: "32px" },
+              mb: { xs: "24px", lg: "48px" },
+              color: "primary.main",
+            }}
+          >
+            Skill profile
+          </Typography>
 
-      <Stack className="displayData__section" sx={{ width: "100%" }}>
-        {skillsDataLoading && <CircularProgress />}
-        {!skillsDataLoading && (
-          <>
-            {sortedSkills.length < 1 ? (
-              <Typography variant="h3" color="primary" mb={3.125}>
-                No skills found
-              </Typography>
-            ) : (
-              <Box className="tableContent__section">
-                <SkillHeadersRow data={headers} isProfile={true} />
-                {sortedSkills.map((skill) => (
-                  <SkillTableRow
-                    skill={skill}
-                    key={skill.id}
-                    isProfile={true}
-                  />
-                ))}
-              </Box>
+          <Stack className="displayData__section" sx={{ width: "100%" }}>
+            {skillsDataLoading && <CircularProgress />}
+            {!skillsDataLoading && (
+              <>
+                {sortedSkills.length < 1 ? (
+                  <Typography variant="h3" color="primary" mb={3.125}>
+                    No skills found
+                  </Typography>
+                ) : (
+                  <Box className="tableContent__section">
+                    <SkillHeadersRow data={headers} isProfile={true} />
+                    {sortedSkills.map((skill) => (
+                      <SkillTableRow
+                        skill={skill}
+                        key={skill.id}
+                        isProfile={true}
+                      />
+                    ))}
+                  </Box>
+                )}
+              </>
             )}
-          </>
-        )}
-      </Stack>
+          </Stack>
 
-      <Typography
-        variant="h2"
-        sx={{
-          fontSize: { xs: "20px", lg: "32px" },
-          mb: { xs: "24px", lg: "48px" },
-          color: "primary.main",
-        }}
-      >
-        Skill wishlist profile
-      </Typography>
+          <Typography
+            variant="h2"
+            sx={{
+              fontSize: { xs: "20px", lg: "32px" },
+              mb: { xs: "24px", lg: "48px" },
+              color: "primary.main",
+            }}
+          >
+            Skill wishlist profile
+          </Typography>
 
-      <Stack className="displayData__section" sx={{ width: "100%" }}>
-        {skillsWishlistLoading && <CircularProgress />}
-        {!skillsWishlistLoading && (
-          <>
-            {sortedSkillsWishlist.length < 1 ? (
-              <Typography variant="h3" color="primary" mb={3.125}>
-                No skills found
-              </Typography>
-            ) : (
-              <Box className="tableContent__section">
-                {sortedSkillsWishlist.map((skill, index) => (
-                  <SkillWishTableRow
-                    skill={skill}
-                    key={skill.id}
-                    isProfile={true}
-                    index={index}
-                  />
-                ))}
-              </Box>
+          <Stack className="displayData__section" sx={{ width: "100%" }}>
+            {skillsWishlistLoading && <CircularProgress />}
+            {!skillsWishlistLoading && (
+              <>
+                {sortedSkillsWishlist.length < 1 ? (
+                  <Typography variant="h3" color="primary" mb={3.125}>
+                    No skills found
+                  </Typography>
+                ) : (
+                  <Box className="tableContent__section">
+                    {sortedSkillsWishlist.map((skill, index) => (
+                      <SkillWishTableRow
+                        skill={skill}
+                        key={skill.id}
+                        isProfile={true}
+                        index={index}
+                      />
+                    ))}
+                  </Box>
+                )}
+              </>
             )}
-          </>
-        )}
-      </Stack>
+          </Stack>
+        </>
+      )}
 
       <Typography
         variant="h2"

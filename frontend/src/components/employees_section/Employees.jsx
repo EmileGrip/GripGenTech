@@ -1,10 +1,12 @@
 import { useLocation, useOutletContext } from "react-router-dom";
 import { useEffect } from "react";
 import {
+  Alert,
   Button,
   CircularProgress,
   Divider,
   InputAdornment,
+  Snackbar,
   Stack,
   TextField,
   Typography,
@@ -22,14 +24,105 @@ import { useState } from "react";
 import CustomModal from "../../ui/CustomModal";
 import EmployeeProfile from "../EmployeeProfile";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUsers } from "../../redux/slices/admin/users/usersActions";
+import {
+  editUser,
+  fetchUserById,
+  fetchUsers,
+} from "../../redux/slices/admin/users/usersActions";
+import { setResponse } from "../../redux/slices/admin/users/usersSlice";
 import AssignRoleForm from "../../pages/admin/organigram/AssignRoleForm";
+import { useFormik } from "formik";
+import * as yup from "yup";
+import EditForm from "../../pages/employee/mySkills/EditForm";
+
+const validationSchema = yup.object().shape({
+  firstName: yup.string().required("First name is required"),
+  lastName: yup.string().required("Last name is required"),
+});
 
 const Employees = () => {
   const location = useLocation();
   const [title, setTitle] = useOutletContext();
   const [sortOrder, setSortOrder] = useState("asc");
   const [searchQuery, setSearchQuery] = useState("");
+  const [employeeId, setEmployeeId] = useState();
+  const { token } = useSelector((state) => state.auth);
+  const { user, response } = useSelector((state) => state.users);
+  const dispatch = useDispatch();
+
+  const [openSnack, setOpenSnack] = useState(false);
+  const handleClick = () => {
+    setOpenSnack(true);
+  };
+  const handleSnackClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSnack(false);
+  };
+
+  // Edit functionalities
+  const [openEditForm, setOpenEditForm] = useState(false);
+  const [editFormLoading, setEditFormLoading] = useState(false);
+
+  const handleOpenEditForm = () => setOpenEditForm(true);
+  const handleCloseEditForm = () => setOpenEditForm(false);
+
+  useEffect(() => {
+    if (token && employeeId) {
+      dispatch(fetchUserById(employeeId));
+    }
+  }, [token, dispatch, employeeId]);
+
+  // Clear the response data when the component mounts
+  useEffect(() => {
+    return () => {
+      dispatch(setResponse({ success: false, message: "" }));
+    };
+  }, [token, dispatch]);
+
+  useEffect(() => {
+    formik.setValues({
+      firstName: user?.first_name || "",
+      lastName: user?.last_name || "",
+      phone: user?.phone || "",
+      location: user?.location || "",
+      gender: user?.gender ? [user?.gender] : [],
+    });
+  }, [user]);
+
+  const formik = useFormik({
+    initialValues: {
+      firstName: "",
+      lastName: "",
+      phone: "",
+      location: "",
+      gender: [],
+    },
+    validationSchema,
+    onSubmit: async (values, { setSubmitting }) => {
+      // submit to the server
+      // Assuming the editUser function returns a promise
+      setEditFormLoading(true);
+      dispatch(editUser({ id: employeeId, ...values }))
+        .then(() => {
+          dispatch(
+            setResponse({ success: true, message: "User updated successfully" })
+          );
+          handleClick();
+        })
+        .catch(() => {
+          dispatch(setResponse({ success: true, message: "Operation failed" }));
+          handleClick();
+        })
+        .finally(() => {
+          dispatch(fetchUsers(token));
+          setEditFormLoading(false);
+          setSubmitting(false);
+          handleCloseEditForm();
+        });
+    },
+  });
 
   const handleFilterClick = () => {
     // Toggle the sorting order
@@ -44,8 +137,6 @@ const Employees = () => {
     setTitle(location.pathname.split("/").at(-1));
   }, [location, setTitle]);
 
-  const { token } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
   const { data: fetchedUsersData, loading } = useSelector(
     (state) => state.users
   );
@@ -90,6 +181,28 @@ const Employees = () => {
 
   return (
     <>
+      <Snackbar
+        open={openSnack}
+        autoHideDuration={6000}
+        onClose={handleSnackClose}
+      >
+        <Alert
+          onClose={handleSnackClose}
+          severity={!response?.success ? "error" : "success"}
+          sx={{ width: "100%" }}
+        >
+          {response?.message}
+        </Alert>
+      </Snackbar>
+
+      <CustomModal
+        open={openEditForm}
+        onClose={handleCloseEditForm}
+        title={`edit information`}
+      >
+        <EditForm formik={formik} loading={editFormLoading} />
+      </CustomModal>
+
       {/* <CustomDialog open={open} onClose={handleClose} data={dialogData} /> */}
       <CustomModal
         open={isAssignRoleOpen}
@@ -279,7 +392,12 @@ const Employees = () => {
             {modifiedUsersData?.length > 0 ? (
               modifiedUsersData.map((employee, index) => (
                 <Grid2 xs={4} sm={4} md={4} lg={4} xl={4} key={index}>
-                  <CardEmployee onOpen={dialogHanlder} data={employee} />
+                  <CardEmployee
+                    onOpen={dialogHanlder}
+                    data={employee}
+                    handleOpenEditForm={handleOpenEditForm}
+                    setEmployeeId={setEmployeeId}
+                  />
                 </Grid2>
               ))
             ) : (

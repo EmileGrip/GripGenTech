@@ -12,13 +12,10 @@ class JobProfileApi(APIView):
     @method_permission_classes([IsAdmin, IsEmployee,IsManager])
     def get(self, request):
         return self.__handle(request)
-    @method_permission_classes([IsAdmin])
+    @method_permission_classes([IsAdmin,IsManager])
     def post(self, request):
         return self.__handle(request)
-    @method_permission_classes([IsAdmin])
-    def put(self, request):
-        return self.__handle(request)
-    @method_permission_classes([IsAdmin])
+    @method_permission_classes([IsAdmin,IsManager])
     def delete(self, request):
         return self.__handle(request)
     

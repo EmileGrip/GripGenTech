@@ -265,7 +265,7 @@ class UserSerializer(serializers.Serializer):
     def validate_put(self,data):
 
         #get all fields from data
-        id = self.context['request'].user.id 
+        id = data.get("id")
         first_name = data.get('first_name',None)
         last_name = data.get('last_name',None)
         phone = data.get('phone',None)
@@ -274,7 +274,11 @@ class UserSerializer(serializers.Serializer):
         resume = data.get('resume',None)
         profile_picture = data.get('profile_picture',None)
         
-      
+        if self.context['request'].user.system_role == 'admin':
+            if not GripUser.objects.filter(id=id,company_id=self.context['request'].user.company_id).exists():
+                raise exceptions.ValidationError('User does not exist')
+        else:
+            id = self.context['request'].user.id 
         #check if profile picture exists and valid
         if profile_picture is not None:
             if not GripFile.objects.filter(id=profile_picture).exists():

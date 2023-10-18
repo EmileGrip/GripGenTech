@@ -59,9 +59,9 @@ class PathSerializer(serializers.Serializer):
             
             skills_score = []
             #get job profile related skill requirements
-            skills_required = SkillRequirement.objects.filter(job_profile_id=carerjob.job_profile_id)
+            skills_required = SkillRequirement.objects.filter(job_profile_id=carerjob.job_profile_id).all()
             #get user skills 
-            user_skills = SkillProficiency.objects.filter(user_id_id=self.context['request'].user.id)
+            user_skills = SkillProficiency.objects.filter(user_id_id=self.context['request'].user.id).all()
             #loop through required skills 
             for req_skill in skills_required:
                 skills_score.append({
@@ -69,7 +69,8 @@ class PathSerializer(serializers.Serializer):
                     "description":req_skill.description,
                     "level":0,
                     "required_level":req_skill.level,
-                    "status":-req_skill.level
+                    "status":-req_skill.level,
+                    "verified":False
                     })
                     
             for user_skill in user_skills:
@@ -77,6 +78,9 @@ class PathSerializer(serializers.Serializer):
                     if score["title"] == user_skill.title:
                         score["level"] = user_skill.level
                         score["status"] += user_skill.level
+                        if user_skill.endorsements.exists():
+                            score["verified"] = True
+                        break
             self.response={
                 "success":True,
                 "message":"Career Job data fetched successfully",

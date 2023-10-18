@@ -14,7 +14,7 @@ role ( by name ) for admins, superadmin
 class SearchSerializer(serializers.Serializer):
     
     #define the fields related to the model Search
-    key = serializers.CharField(required=True)
+    key = serializers.ChoiceField(required=True,choices=['user','job_profile','skill','role','department'])
     value = serializers.CharField(required=True,max_length=100)
     
     def __get_non_null_fields(self,**kwargs):
@@ -32,12 +32,6 @@ class SearchSerializer(serializers.Serializer):
         search_key = data.get('key').lower()
         value = data.get('value')
         
-        if not search_key:
-           raise exceptions.ValidationError('Search key is required')
-        
-        if not search_key in ["user","job_profile","skill","role"]:
-            raise exceptions.ValidationError('Search key shoud be one of the following : [user,job_profile,skill,role]')
-
         if not value : 
             self.response = {
                 "success":True,
@@ -159,8 +153,6 @@ class SearchSerializer(serializers.Serializer):
     def search_department(self,name):
         #check permissions 
         current_user =  self.context['request'].user
-        if current_user.system_role != 'manager':
-            raise exceptions.ValidationError('You are not authorized to perform this action')
         #get users with firstname and lastname
         departments = Role.objects.filter(department__contains=name).values_list('department',flat=True).distinct()
         #add results to reponse 

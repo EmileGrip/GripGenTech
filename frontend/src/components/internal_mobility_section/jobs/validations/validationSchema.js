@@ -7,7 +7,10 @@ const validationSchema = yup.object().shape({
     .date()
     .required("Start date is required")
     .typeError("Start date is required"),
-  description: yup.string().required("Description is required"),
+});
+
+export const validationsForm = yup.object().shape({
+  skill: yup.string().required("Skill is required"),
 });
 
 export default validationSchema;

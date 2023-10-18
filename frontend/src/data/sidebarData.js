@@ -81,7 +81,7 @@ export const sidebarEmployeeData = [
     ],
   },
   {
-    categoryName: "Internal mobility",
+    categoryName: "Internal Mobility",
     catergoryPath: EMPLOYEE_JOBS_ROUTE,
     iconsPath: {
       active: internalMobility_active,
@@ -123,7 +123,7 @@ export const sidebarManagerData = [
     subCategory: [],
   },
   {
-    categoryName: "Internal mobility",
+    categoryName: "Internal Mobility",
     catergoryPath: MANAGER_JOBS_ROUTE,
     iconsPath: {
       active: internalMobility_active,
@@ -186,7 +186,7 @@ export const sidebarAdminData = [
     subCategory: [],
   },
   {
-    categoryName: "Internal mobility",
+    categoryName: "Internal Mobility",
     catergoryPath: ADMIN_JOBS_ROUTE,
     iconsPath: {
       active: internalMobility_active,

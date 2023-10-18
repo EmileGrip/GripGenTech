@@ -269,7 +269,7 @@ function App() {
                 />
 
                 <Route
-                  path={`${MANAGER_PROJECT_DETAILS_ROUTE}/:id${ROLES_REQUIRED_ROUTE}`}
+                  path={`${MANAGER_PROJECT_DETAILS_ROUTE}/:id${ROLES_REQUIRED_ROUTE}/:roleId`}
                   element={<RolesRequired />}
                 />
               </Route>

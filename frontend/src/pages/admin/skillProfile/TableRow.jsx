@@ -318,7 +318,10 @@ const TableRow = ({ skill }) => {
             </Tooltip> */}
 
             <span style={{ marginTop: "7px" }}>
-              <RatingBar initialValue={skill.level} />
+              <RatingBar
+                initialValue={skill.level}
+                requiredLevel={skill.level}
+              />
             </span>
 
             {lgMatches && (

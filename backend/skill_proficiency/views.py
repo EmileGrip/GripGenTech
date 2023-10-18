@@ -22,6 +22,9 @@ class SkillProficiencyApi(APIView):
         return self.__handle(request)
     
     @method_permission_classes([IsAdmin, IsEmployee,IsManager])
+    def patch(self, request):
+        return self.__handle(request)
+    @method_permission_classes([IsAdmin, IsEmployee,IsManager])
     def delete(self, request):
         return self.__handle(request)
     

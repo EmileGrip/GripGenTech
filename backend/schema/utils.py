@@ -17,3 +17,21 @@ def get_node_id(node):
 
 def get_non_none_dict(**d):
     return {k: v for k, v in d.items() if v not in [None,""]}
+
+def filter_request(data):
+    
+    if not data in [None,""]:
+        if type(data) == str:
+            return data.strip()
+        elif type(data) == list:
+            return [filter_request(item) for item in data]
+        elif type(data) == dict:
+            response = {}
+            for key, value in data.items():
+                if not value in [None,""]:
+                    response[key] = filter_request(value)
+            return response
+        else:
+            return data
+    else:
+        return data

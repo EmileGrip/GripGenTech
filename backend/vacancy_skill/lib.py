@@ -4,10 +4,10 @@ from schema.utils import getNodeByID
 
 def getVacancyRoleSkills(vacancy_role_id):
     role = VacancyRole.objects.get(id = vacancy_role_id)
-    skills = role.skills.all().values("id","title","skill_ref")
+    skills = role.skills.all().values("id","title","skill_ref","level")
     return skills
 
-def addVacancySkill(vacancy_role_id,skill_ref):
+def addVacancySkill(vacancy_role_id,skill_ref,level):
     role = VacancyRole.objects.get(id = vacancy_role_id)
     jobpost = getNodeByID("JobPosting",role.vacancy.ref_post_id)
     skill_node = getNodeByID("Skill",skill_ref)
@@ -15,15 +15,16 @@ def addVacancySkill(vacancy_role_id,skill_ref):
         title=skill_node.preferredLabel,
         company_id=role.company.id,
         vacancy_role=role,
-        skill_ref = skill_ref
+        skill_ref = skill_ref,
+        level=level
     )
     connectSkillToJobPost(skill_node,jobpost)
-    return {
-        "id":skill.id,
-        "title":skill.title,
-        "skill_ref":skill.skill_ref
-    }
+    return skill
     
+def editVacancySkill(id,level):
+    skill = VacancySkill.objects.get(id=id)
+    skill.level = level
+    skill.save()
 def deleteVacancySkill(vacancy_skill_id):
     #get vacancy skill
     vacancy_skill = VacancySkill.objects.get(id=vacancy_skill_id)
@@ -54,16 +55,28 @@ def getAction(data,context):
     }
     
 def postAction(data,context):
+    skill = addVacancySkill(
+            data["vacancy_role_id"],
+            data["skill_ref"],
+            data["level"]
+            )
     return {
         "success":True,
         "message":"Vacancy skill added successfully",
-        "payload":addVacancySkill(
-            data["vacancy_role_id"],
-            data["skill_ref"]
-            )
+        "payload":{
+            "id":skill.id,
+            "title":skill.title,
+            "skill_ref":skill.skill_ref,
+            "level":skill.level
+        }
         }
 
-
+def putAction(data,context):
+    editVacancySkill(data["id"],data["level"])
+    return {
+        "success":True,
+        "message":"Vacancy skill updated successfully"
+    }
 def deleteAction(data,context):
     deleteVacancySkill(data["id"])
     return {

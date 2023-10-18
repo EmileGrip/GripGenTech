@@ -13,7 +13,9 @@ import {
 import Grid2 from "@mui/material/Unstable_Grid2";
 import SearchIcon from "@mui/icons-material/Search";
 import { DatePicker } from "@mui/x-date-pickers";
-import { suggestedJobs } from "../../../data/skillsData";
+import { useCallback, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import axiosInstance from "../../../helper/axiosInstance";
 
 const boxStyles = {
   minHeight: "82px",
@@ -23,11 +25,169 @@ const formControlStyles = {
   "& .MuiInputBase-root": { borderRadius: "7px" },
 };
 
-const Details = ({ formik, projects = false, roles = false }) => {
+const Details = ({
+  data,
+  formik,
+  chosenRole,
+  projects = false,
+  roles = false,
+}) => {
   const theme = useTheme();
   const lgMatches = useMediaQuery(theme.breakpoints.up("lg"));
+  const [inputProjectDepartmentValue, setInputProjectDepartmentValue] =
+    useState("");
+  const [inputProjectRoleValue, setInputProjectRoleValue] = useState("");
+  const [inputJobDepartmentValue, setInputJobDepartmentValue] = useState("");
+  const [inputJobRoleValue, setInputJobRoleValue] = useState("");
+  const [projectDepartmentOptions, setProjectDepartmentOptions] = useState([]);
+  const [projectRoleOptions, setProjectRoleOptions] = useState([]);
+  const [jobDepartmentOptions, setJobDepartmentOptions] = useState([]);
+  const [jobRoleOptions, setJobRoleOptions] = useState([]);
+  const { token } = useSelector((state) => state.auth);
   const noDepartmentsMatch = "No departments match";
   const noRolesMatch = "No roles match";
+
+  // Loading State
+  const [loading, setLoading] = useState(false);
+
+  const searchJobs = useCallback(
+    async (token, value, fieldName, isRole = false) => {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      };
+
+      try {
+        setLoading(true);
+        const response = await axiosInstance.post(
+          `search`,
+          {
+            key:
+              fieldName === "jobDepartment" || fieldName === "projectDepartment"
+                ? "department"
+                : "job_profile",
+            value: value,
+          },
+          config
+        );
+
+        if (fieldName === "projectDepartment") {
+          setProjectDepartmentOptions(response.data.payload);
+        } else if (fieldName === "projectRole") {
+          setProjectRoleOptions(response.data.payload);
+        } else if (fieldName === "jobDepartment") {
+          setJobDepartmentOptions(response.data.payload);
+        } else if (fieldName === "jobRole") {
+          setJobRoleOptions(response.data.payload);
+        }
+
+        if (isRole) {
+          const selectedId = response.data.payload[0].id;
+          return selectedId;
+        } else {
+          return response.data.payload[0];
+        }
+      } catch (error) {
+        console.log(error?.response.data);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token]
+  );
+
+  const jobRoleHandler = async (value) => {
+    const selectedId = await searchJobs(token, value, "jobRole", true);
+    const selectedRole = await searchJobs(token, value, "jobRole");
+    if (selectedId) {
+      formik.setFieldValue("role", selectedId);
+    } else {
+      formik.setFieldValue("role", "");
+    }
+
+    if (selectedRole) {
+      formik.setFieldValue("fullRoleObj", selectedRole);
+    } else {
+      formik.setFieldValue("fullRoleObj", null);
+    }
+  };
+
+  useEffect(() => {
+    if (inputProjectDepartmentValue !== "") {
+      searchJobs(token, inputProjectDepartmentValue, "projectDepartment");
+    } else {
+      setProjectDepartmentOptions([]);
+    }
+  }, [searchJobs, token, inputProjectDepartmentValue]);
+  useEffect(() => {
+    if (inputProjectRoleValue !== "") {
+      jobRoleHandler(inputProjectRoleValue);
+    } else {
+      setProjectRoleOptions([]);
+    }
+  }, [searchJobs, token, inputProjectRoleValue]);
+
+  useEffect(() => {
+    if (inputJobDepartmentValue !== "") {
+      searchJobs(token, inputJobDepartmentValue, "jobDepartment");
+    } else {
+      setJobDepartmentOptions([]);
+    }
+  }, [searchJobs, token, inputJobDepartmentValue]);
+  useEffect(() => {
+    if (inputJobRoleValue !== "") {
+      jobRoleHandler(inputJobRoleValue);
+    } else {
+      setJobRoleOptions([]);
+    }
+  }, [searchJobs, token, inputJobRoleValue]);
+
+  const handleInputChange = (event, newValue, fieldName) => {
+    if (fieldName === "projectDepartment") {
+      setInputProjectDepartmentValue(newValue);
+    } else if (fieldName === "projectRole") {
+      setInputProjectRoleValue(newValue);
+    } else if (fieldName === "jobDepartment") {
+      setInputJobDepartmentValue(newValue);
+    } else if (fieldName === "jobRole") {
+      setInputJobRoleValue(newValue);
+    }
+    searchJobs(token, newValue, fieldName);
+  };
+
+  // Callback function to update formik fields dynamically
+  const handleFieldChange = (event, fieldName) => {
+    formik.setFieldValue(fieldName, event.target.value);
+  };
+  const selectValue = useCallback(
+    (e, optionName, fieldName) => {
+      if (fieldName === "jobDepartment") {
+        const selectedOption = jobDepartmentOptions.find(
+          (option) => option === optionName
+        );
+
+        if (selectedOption) {
+          formik.setFieldValue("department", selectedOption);
+        } else {
+          formik.setFieldValue("department", "");
+        }
+      } else if (fieldName === "projectDepartment") {
+        const selectedOption = projectDepartmentOptions.find(
+          (option) => option === optionName
+        );
+
+        if (selectedOption) {
+          formik.setFieldValue("department", selectedOption);
+        } else {
+          formik.setFieldValue("department", "");
+        }
+      }
+    },
+    [formik, jobDepartmentOptions, projectDepartmentOptions]
+  );
 
   return (
     <Stack
@@ -73,24 +233,28 @@ const Details = ({ formik, projects = false, roles = false }) => {
             ) : roles ? (
               <Autocomplete
                 freeSolo
-                id="search_role"
-                name="search_role"
-                //   value={value}
-                options={
-                  suggestedJobs.length < 1
-                    ? [noRolesMatch].map((option) => option)
-                    : suggestedJobs.map((option) => option)
+                id="project_role"
+                name="role"
+                value={
+                  chosenRole?.title ? chosenRole?.title : inputProjectRoleValue
                 }
-                //   inputValue={inputValue}
-                //   onInputChange={handleInputChange}
+                options={
+                  projectRoleOptions.length < 1
+                    ? [noRolesMatch].map((option) => option)
+                    : projectRoleOptions.map((option) => option.title)
+                }
+                inputValue={inputProjectRoleValue}
+                onInputChange={(event, newValue) => {
+                  handleInputChange(event, newValue, "projectRole");
+                }}
                 onBlur={formik.handleBlur}
-                //   onChange={(e, value) => selectValue(e, value)}
+                onChange={(e, value) => handleFieldChange(e, "role")}
                 sx={formControlStyles}
                 renderInput={(params) => (
                   <TextField
                     error={formik.touched.role && Boolean(formik.errors.role)}
                     helperText={formik.touched.role ? formik.errors.role : ""}
-                    name="search_role"
+                    name="role"
                     fullWidth
                     label="Search role"
                     placeholder="Search role"
@@ -104,7 +268,7 @@ const Details = ({ formik, projects = false, roles = false }) => {
                             style={{ display: "flex", alignItems: "center" }}
                           >
                             {params.InputProps.endAdornment}
-                            {/* {loading && <CircularProgress size={20} />} */}
+                            {loading && <CircularProgress size={20} />}
                           </div>
 
                           <IconButton>
@@ -119,18 +283,22 @@ const Details = ({ formik, projects = false, roles = false }) => {
             ) : (
               <Autocomplete
                 freeSolo
-                id="search_department"
-                name="search_department"
-                //   value={value}
-                options={
-                  suggestedJobs.length < 1
-                    ? [noDepartmentsMatch].map((option) => option)
-                    : suggestedJobs.map((option) => option)
+                id="job_department"
+                name="department"
+                value={
+                  data?.department ? data?.department : inputJobDepartmentValue
                 }
-                //   inputValue={inputValue}
-                //   onInputChange={handleInputChange}
+                options={
+                  jobDepartmentOptions.length < 1
+                    ? [noDepartmentsMatch].map((option) => option)
+                    : jobDepartmentOptions.map((option) => option)
+                }
+                inputValue={inputJobDepartmentValue}
+                onInputChange={(event, newValue) => {
+                  handleInputChange(event, newValue, "jobDepartment");
+                }}
                 onBlur={formik.handleBlur}
-                //   onChange={(e, value) => selectValue(e, value)}
+                onChange={(e, value) => selectValue(e, value, "jobDepartment")}
                 sx={formControlStyles}
                 renderInput={(params) => (
                   <TextField
@@ -141,7 +309,7 @@ const Details = ({ formik, projects = false, roles = false }) => {
                     helperText={
                       formik.touched.department ? formik.errors.department : ""
                     }
-                    name="search_department"
+                    name="department"
                     fullWidth
                     label="Search Department"
                     placeholder="Search Department"
@@ -155,7 +323,7 @@ const Details = ({ formik, projects = false, roles = false }) => {
                             style={{ display: "flex", alignItems: "center" }}
                           >
                             {params.InputProps.endAdornment}
-                            {/* {loading && <CircularProgress size={20} />} */}
+                            {loading && <CircularProgress size={20} />}
                           </div>
 
                           <IconButton>
@@ -177,18 +345,26 @@ const Details = ({ formik, projects = false, roles = false }) => {
               {projects ? (
                 <Autocomplete
                   freeSolo
-                  id="department"
+                  id="project_department"
                   name="department"
-                  //   value={value}
-                  options={
-                    suggestedJobs.length < 1
-                      ? [noDepartmentsMatch].map((option) => option)
-                      : suggestedJobs.map((option) => option)
+                  value={
+                    data?.department
+                      ? data?.department
+                      : inputProjectDepartmentValue
                   }
-                  //   inputValue={inputValue}
-                  //   onInputChange={handleInputChange}
+                  options={
+                    projectDepartmentOptions.length < 1
+                      ? [noDepartmentsMatch].map((option) => option)
+                      : projectDepartmentOptions.map((option) => option)
+                  }
+                  inputValue={inputProjectDepartmentValue}
+                  onInputChange={(event, newValue) => {
+                    handleInputChange(event, newValue, "projectDepartment");
+                  }}
                   onBlur={formik.handleBlur}
-                  //   onChange={(e, value) => selectValue(e, value)}
+                  onChange={(e, value) =>
+                    selectValue(e, value, "projectDepartment")
+                  }
                   sx={formControlStyles}
                   renderInput={(params) => (
                     <TextField
@@ -215,7 +391,7 @@ const Details = ({ formik, projects = false, roles = false }) => {
                               style={{ display: "flex", alignItems: "center" }}
                             >
                               {params.InputProps.endAdornment}
-                              {/* {loading && <CircularProgress size={20} />} */}
+                              {loading && <CircularProgress size={20} />}
                             </div>
 
                             <IconButton>
@@ -230,24 +406,24 @@ const Details = ({ formik, projects = false, roles = false }) => {
               ) : (
                 <Autocomplete
                   freeSolo
-                  id="search_role"
-                  name="search_role"
-                  //   value={value}
-                  options={
-                    suggestedJobs.length < 1
-                      ? [noRolesMatch].map((option) => option)
-                      : suggestedJobs.map((option) => option)
+                  id="job_role"
+                  name="role"
+                  value={
+                    data?.role.title ? data?.role.title : inputJobRoleValue
                   }
-                  //   inputValue={inputValue}
-                  //   onInputChange={handleInputChange}
+                  options={jobRoleOptions.map((option) => option.title)}
+                  inputValue={inputJobRoleValue}
+                  onInputChange={(event, newValue) => {
+                    handleInputChange(event, newValue, "jobRole");
+                  }}
                   onBlur={formik.handleBlur}
-                  //   onChange={(e, value) => selectValue(e, value)}
+                  onChange={(e, value) => handleFieldChange(e, "role")}
                   sx={formControlStyles}
                   renderInput={(params) => (
                     <TextField
                       error={formik.touched.role && Boolean(formik.errors.role)}
                       helperText={formik.touched.role ? formik.errors.role : ""}
-                      name="search_role"
+                      name="role"
                       fullWidth
                       label="Search or add new Role"
                       placeholder="Search or add new Role"
@@ -261,7 +437,7 @@ const Details = ({ formik, projects = false, roles = false }) => {
                               style={{ display: "flex", alignItems: "center" }}
                             >
                               {params.InputProps.endAdornment}
-                              {/* {loading && <CircularProgress size={20} />} */}
+                              {loading && <CircularProgress size={20} />}
                             </div>
 
                             <IconButton>

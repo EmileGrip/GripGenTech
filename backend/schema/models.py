@@ -322,9 +322,9 @@ class VacancyRole(models.Model):
     #end_date
     end_date = models.DateField(null=True)
     #hours (full time or part time)
-    hours = models.CharField(max_length=50, null=True)
+    hours = models.CharField(max_length=50, null=True) 
     #salary
-    salary = models.IntegerField(null=True)
+    salary = models.CharField(max_length=50, null=True)
     #description
     description = models.CharField(max_length=700, null=True)
     #content_type
@@ -350,6 +350,8 @@ class VacancySkill(models.Model):
     vacancy_role = models.ForeignKey(VacancyRole, on_delete=models.CASCADE, null=False, related_name='skills')
     #skill
     skill_ref = models.CharField(max_length=50, null=False)
+    #level
+    level = models.IntegerField(null=False)
         
     def __str__(self):
         return f"{self.title} at {self.company}"   
@@ -382,9 +384,9 @@ class ProjectVacancy(models.Model):
     #user id
     user = models.ForeignKey(GripUser, on_delete=models.CASCADE, null=False)
     #placeholder1
-    placeholder1 = models.CharField(max_length=50, null=False)
+    name = models.CharField(max_length=50, null=False)
     #placeholder2
-    placeholder2 = models.CharField(max_length=50, null=False)
+    department = models.CharField(max_length=50, null=False)
     #start_date
     start_date = models.DateField(null=False)
     #end_date
@@ -395,9 +397,23 @@ class ProjectVacancy(models.Model):
     status = models.CharField(max_length=50, null=False)
     #role relationship
     roles = GenericRelation(VacancyRole)
+    #ref_post_id
+    ref_post_id = models.CharField(max_length=50, null=False)
     def __str__(self):
         return f"Project \"{self.placeholder1}\" at {self.company.name}"
     
+class Endorsement(models.Model):
+    #role id
+    id = models.AutoField(primary_key=True)
+    #company id
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)
+    #endorser id
+    endorser = models.ForeignKey(GripUser, on_delete=models.CASCADE, null=False, related_name='endorsers')
+    #skill
+    skill = models.ForeignKey(SkillProficiency, on_delete=models.CASCADE, null=False,related_name='endorsements')
+    #start_date
+    timecreated = models.DateField(auto_now=True)
+
 
 ##########################################
 ##              Neo4j Models            ##

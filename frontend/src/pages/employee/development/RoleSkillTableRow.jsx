@@ -12,6 +12,8 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import hintIcon from "../../../assets/hintIcon.svg";
+import statusInvalidate from "../../../assets/status_invalidate.svg";
+import statusValidate from "../../../assets/status_validate.svg";
 import completeIcon from "../../../assets/completeIcon.svg";
 import DescriptionTooltip from "../../../ui/DescriptionTooltip";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -42,6 +44,13 @@ const RoleSkillTableRow = ({ skill }) => {
   const skillName = smMatches
     ? skill?.title?.slice(0, 25)
     : skill?.title?.slice(0, 20);
+
+  const proficiencyMap = {
+    1: "Basic",
+    2: "Intermediate",
+    3: "Advanced",
+    4: "Expert",
+  };
 
   return (
     <Stack
@@ -99,15 +108,36 @@ const RoleSkillTableRow = ({ skill }) => {
           <Tooltip
             title={
               <>
-                <div style={{ textAlign: "center" }}>Proficiency needed</div>
-                <RatingBar initialValue={skill.required_level} />
+                {/* <div style={{ textAlign: "center" }}>Proficiency needed</div>
+                <RatingBar initialValue={skill.required_level} /> */}
+                <Typography
+                  variant="h5"
+                  color="#0C1716"
+                  fontWeight="500"
+                  textAlign="center"
+                >
+                  Your level:
+                  <br />
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "700",
+                      color: "#0C1716",
+                    }}
+                  >
+                    {proficiencyMap[String(skill.level)]}
+                  </span>
+                </Typography>
               </>
             }
             placement="top-start"
             followCursor
           >
             <span>
-              <RatingBar initialValue={skill.level} />
+              <RatingBar
+                initialValue={skill.level}
+                requiredLevel={skill.required_level}
+              />
             </span>
           </Tooltip>
 
@@ -115,7 +145,11 @@ const RoleSkillTableRow = ({ skill }) => {
         </Grid>
 
         <Grid xs={2} sm={2} sx={{ ...gridStyles, justifyContent: "flex-end" }}>
-          {skill.status === 0 ? (
+          <img
+            src={skill?.verified ? statusValidate : statusInvalidate}
+            alt="Status validation icon"
+          />
+          {/* {skill.status === 0 ? (
             <img src={completeIcon} style={imgStyles} alt="logo" />
           ) : lgMatches ? (
             <Typography
@@ -132,7 +166,7 @@ const RoleSkillTableRow = ({ skill }) => {
             <IconButton onClick={handleOpen}>
               {open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
             </IconButton>
-          )}
+          )} */}
         </Grid>
       </Grid>
 
@@ -173,7 +207,10 @@ const RoleSkillTableRow = ({ skill }) => {
               sx={{ ...gridStyles, mt: "3px", pl: { sm: 1 } }}
             >
               <span>
-                <RatingBar initialValue={skill.required_level} />
+                <RatingBar
+                  initialValue={skill.level}
+                  requiredLevel={skill.required_level}
+                />
               </span>
             </Grid>
 
@@ -183,19 +220,10 @@ const RoleSkillTableRow = ({ skill }) => {
               lg={4}
               sx={{ ...gridStyles, justifyContent: "flex-end" }}
             >
-              {skill.status === 0 ? (
-                <img src={completeIcon} style={imgStyles} alt="logo" />
-              ) : (
-                <Typography
-                  variant="body1"
-                  sx={{
-                    color: "primary.main",
-                    pr: 2,
-                  }}
-                >
-                  {skill.status}
-                </Typography>
-              )}
+              <img
+                src={skill?.verified ? statusValidate : statusInvalidate}
+                alt="Status validation icon"
+              />
             </Grid>
           </Grid>
         </Collapse>

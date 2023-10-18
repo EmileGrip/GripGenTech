@@ -134,6 +134,13 @@ const SkillTableRowOverview = ({ skill }) => {
     ? skill?.title?.slice(0, 30)
     : skill?.title?.slice(0, 15);
 
+  const proficiencyMap = {
+    1: "Basic",
+    2: "Intermediate",
+    3: "Advanced",
+    4: "Expert",
+  };
+
   return (
     <>
       <Stack sx={{ justifyContent: "center" }}>
@@ -249,14 +256,32 @@ const SkillTableRowOverview = ({ skill }) => {
                 <Tooltip
                   title={
                     <>
-                      <div style={{ textAlign: "center" }}>
+                      {/* <div style={{ textAlign: "center" }}>
                         Proficiency needed
                       </div>
                       <RatingBar
                         initialValue={
                           skill.required_level === 0 ? 0 : skill.required_level
                         }
-                      />
+                      /> */}
+                      <Typography
+                        variant="h5"
+                        color="#0C1716"
+                        fontWeight="500"
+                        textAlign="center"
+                      >
+                        Your level:
+                        <br />
+                        <span
+                          style={{
+                            fontSize: "14px",
+                            fontWeight: "700",
+                            color: "#0C1716",
+                          }}
+                        >
+                          {proficiencyMap[String(skill.level)]}
+                        </span>
+                      </Typography>
                     </>
                   }
                   placement="top-start"
@@ -269,7 +294,10 @@ const SkillTableRowOverview = ({ skill }) => {
                       paddingRight: "8px",
                     }}
                   >
-                    <RatingBar initialValue={skill.level} />
+                    <RatingBar
+                      initialValue={skill.level}
+                      requiredLevel={skill.required_level}
+                    />
                   </span>
                 </Tooltip>
 

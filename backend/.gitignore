@@ -3,3 +3,4 @@
 schema/.$schema.drawio.bkp
 grip_env
 .env
+.vscode/launch.json

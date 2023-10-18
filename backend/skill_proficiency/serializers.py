@@ -10,6 +10,7 @@ class SkillProficiencySerializer(serializers.Serializer):
     user_id = serializers.IntegerField(required=False)
     skill_id = serializers.CharField(required=False)
     level = serializers.IntegerField(required=False)
+    skills = serializers.ListField(required=False)
 
     def __get_non_null_fields(self,**kwargs):
         return {k: v for k, v in kwargs.items() if v not in [None,""]}
@@ -26,6 +27,8 @@ class SkillProficiencySerializer(serializers.Serializer):
             return self.validate_delete(data)
         if self.context['method'] == 'PUT':
             return self.validate_put(data)
+        if self.context['method'] == 'PATCH':
+            return self.validate_patch(data)
 
     def validate_get(self,data):
         #get company_id from request object
@@ -41,11 +44,14 @@ class SkillProficiencySerializer(serializers.Serializer):
         if user.company_id.id != self.context['request'].user.company_id.id:
             raise exceptions.ValidationError('You do not have permission to access this data')
         #get all skill proficiency for this job profile
-        skill_proficiencys = SkillProficiency.objects.filter(user_id=user_id).values()
-        #loop trhough all skill proficiency
-        for skill in skill_proficiencys:
-            skill['required_level']=0
-            skill['status']=skill['level']
+        skill_profs = SkillProficiency.objects.filter(user_id=user_id).all()
+        skill_proficiencys = []
+        for skill in skill_profs:
+            skill_prof = model_to_dict(skill)
+            skill_prof['verified']= skill.endorsements.exists()
+            skill_prof['required_level']=0
+            skill_prof['status']=skill.level
+            skill_proficiencys.append(skill_prof)
         #check if the user is related to role
         if Role.objects.filter(user_id_id=user_id).exists() is True:
             role = Role.objects.get(user_id_id=user_id)
@@ -103,6 +109,26 @@ class SkillProficiencySerializer(serializers.Serializer):
             "id":id
         }
     
+    def validate_patch(self,data):
+        skills = data.get('skills')
+        #check if skills is valid
+        if skills is None:
+            raise exceptions.ValidationError('Skills is required')
+        if len(skills) == 0:
+            raise exceptions.ValidationError('Skills is required')
+        
+        #iterate through skills and check for it's keys 
+        for skill in skills : 
+            self.validate_post(skill)
+        self.response = {
+            "success":True,
+            "message":"Skills created successfully"
+        }  
+        return {
+            "skills":skills
+        }
+        
+            
     def validate_post(self,data):
 
         #get fields from request object

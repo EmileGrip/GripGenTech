@@ -1,8 +1,15 @@
 import {
   Box,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Divider,
   IconButton,
+  Menu,
+  MenuItem,
   Stack,
   Typography,
   useMediaQuery,
@@ -10,7 +17,7 @@ import {
 } from "@mui/material";
 import moreHoriz__icon from "../../../assets/moreHoriz__icon.svg";
 import progressBar from "../../../assets/horizontal_progress_bar.svg";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ADMIN_JOB_DETAILS_ROUTE,
@@ -21,11 +28,28 @@ import {
   MANAGER_PROJECT_DETAILS_ROUTE,
 } from "../../../routes/paths";
 import { skillsTable } from "../../../data/skillsData";
+import { useDispatch, useSelector } from "react-redux";
+import axiosInstance from "../../../helper/axiosInstance";
+import { fetchJobs } from "../../../redux/slices/internalMobility/addJobFormSlice";
+import { fetchProjects } from "../../../redux/slices/internalMobility/addProjectFormActions";
+import {
+  setOpenProjectSnack,
+  setProjectResponse,
+} from "../../../redux/slices/internalMobility/addProjectFormSlice";
 
-const JobCard = ({ data, projects }) => {
+const JobCard = ({
+  data,
+  projects,
+  handleEditOpen,
+  getClickedJobId,
+  onSuccess,
+}) => {
   const theme = useTheme();
   const mdMatches = useMediaQuery(theme.breakpoints.up("md"));
   const [showMore, setShowMore] = useState(false);
+  const { token } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+
   const URL = window.location.href;
   const parts = URL.split("/");
   const currentFlow = parts[3];
@@ -45,6 +69,86 @@ const JobCard = ({ data, projects }) => {
         : `${ADMIN_JOB_DETAILS_ROUTE}/${data.id}`
       : "/"; // Default URL or handle other cases here
 
+  const [mobileAnchorEl, setMobileAnchorEl] = useState(null);
+  const [desktopAnchorEl, setDesktopAnchorEl] = useState(null);
+
+  const handleMobileMenuOpen = (event) => {
+    setMobileAnchorEl(event.currentTarget);
+    getClickedJobId(data.id);
+  };
+  const handleDesktopMenuOpen = (event) => {
+    setDesktopAnchorEl(event.currentTarget);
+    getClickedJobId(data.id);
+  };
+  const handleMenuClose = () => {
+    setMobileAnchorEl(null);
+    setDesktopAnchorEl(null);
+  };
+
+  const [openDialog, setOpenDialog] = useState(false);
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  const deleteData = useCallback(
+    async (token, id, api) => {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        data: {
+          id,
+        },
+      };
+
+      try {
+        // setLoading(true);
+        const response = await axiosInstance.delete(api, config);
+        console.log(response.data);
+        if (projects) {
+          dispatch(setOpenProjectSnack(true));
+          dispatch(setProjectResponse(response.data));
+        } else {
+          onSuccess(response.data);
+        }
+      } catch (error) {
+        if (projects) {
+          dispatch(setOpenProjectSnack(true));
+          dispatch(setProjectResponse(error?.response.data));
+        } else {
+          onSuccess(error?.response.data);
+        }
+        console.log(error?.response.data);
+      } finally {
+        // setLoading(false);
+        if (api === "job_vacancy") {
+          dispatch(fetchJobs());
+        } else {
+          dispatch(fetchProjects());
+        }
+      }
+    },
+    [token]
+  );
+
+  const handleDeleteJob = () => {
+    if (projects) {
+      deleteData(token, data.id, "project_vacancy");
+    } else {
+      deleteData(token, data.id, "job_vacancy");
+    }
+    setMobileAnchorEl(null);
+    setDesktopAnchorEl(null);
+    handleCloseDialog();
+  };
+
+  const description = projects ? data?.description : data?.role?.description;
+
   return (
     <>
       {currentFlow === "employee" ? (
@@ -59,6 +163,7 @@ const JobCard = ({ data, projects }) => {
             background: "#FAFAFA",
             border: "2px solid #EEEEEE",
             borderRadius: "10px",
+            height: "340px",
           }}
         >
           <Link
@@ -70,18 +175,18 @@ const JobCard = ({ data, projects }) => {
               color: "#173433",
             }}
           >
-            <Typography variant="h3">{data.title}</Typography>
+            <Typography variant="h3">{data?.role.title}</Typography>
           </Link>
 
           <img src={progressBar} alt="Horizontal progress bar" />
 
           <Typography variant="body1" color="#788894">
             <span style={{ fontSize: "20px", verticalAlign: "super" }}>.</span>{" "}
-            Start date: {data.startDate}{" "}
+            Start date: {data?.role.start_date}{" "}
             <span style={{ fontSize: "20px", verticalAlign: "super" }}>.</span>{" "}
-            {data.kind}{" "}
+            {data?.role.hours ? data?.role.hours : ""}{" "}
             <span style={{ fontSize: "20px", verticalAlign: "super" }}>.</span>{" "}
-            USD ${data.salary}
+            USD ${data?.role.salary ? data?.role.salary : ""}
           </Typography>
 
           <Stack
@@ -90,22 +195,29 @@ const JobCard = ({ data, projects }) => {
               justifyContent: { xs: "center", lg: "flex-start" },
               alignItems: "center",
               gap: "12px",
-              flexWrap: "wrap",
+              maxWidth: "100%",
+              overflowX: "auto",
+              overflowY: "hidden",
+              whiteSpace: "nowrap",
+              p: 2,
             }}
           >
-            {skillsTable.length >= 1 && (
+            {data?.role.skills < 1 ? (
+              <Typography color="primary" fontSize="16px">
+                No skills found
+              </Typography>
+            ) : (
               <Stack
                 sx={{
                   flexDirection: "row",
                   justifyContent: "center",
                   alignItems: "center",
                   gap: "12px",
-                  flexWrap: "wrap",
                 }}
               >
-                {skillsTable.map((skill) => (
+                {data?.role.skills.map((skill) => (
                   <Box
-                    key={skill.skillName}
+                    key={skill?.title}
                     sx={{
                       display: "flex",
                       justifyContent: "center",
@@ -123,7 +235,7 @@ const JobCard = ({ data, projects }) => {
                       color="#FFFFFF"
                       fontWeight="500"
                     >
-                      {skill.skillName}
+                      {skill?.title}
                     </Typography>
                   </Box>
                 ))}
@@ -141,11 +253,11 @@ const JobCard = ({ data, projects }) => {
           >
             <Typography
               variant="body1"
-              title={data.description}
+              title={description}
               color="#788894"
               width="100%"
             >
-              {data.description}
+              {description}
             </Typography>
           </Box>
         </Stack>
@@ -162,6 +274,7 @@ const JobCard = ({ data, projects }) => {
         >
           {!mdMatches && (
             <IconButton
+              onClick={handleMobileMenuOpen}
               sx={{
                 alignSelf: "center",
                 p: 0,
@@ -173,6 +286,75 @@ const JobCard = ({ data, projects }) => {
               <img src={moreHoriz__icon} alt="More horizontal icon" />
             </IconButton>
           )}
+
+          <Menu
+            anchorEl={mobileAnchorEl}
+            open={Boolean(mobileAnchorEl)}
+            onClose={handleMenuClose}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            PaperProps={{
+              style: {
+                width: "120px",
+              },
+            }}
+          >
+            <MenuItem
+              onClick={handleEditOpen}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                color: "#788894",
+              }}
+            >
+              <Typography>Edit</Typography>
+            </MenuItem>
+
+            <MenuItem
+              onClick={handleOpenDialog}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                color: "#788894",
+              }}
+            >
+              <Typography>Delete</Typography>
+            </MenuItem>
+          </Menu>
+
+          <Dialog
+            open={openDialog}
+            onClose={handleCloseDialog}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">
+              {projects ? "Confirm Project Delete" : "Confirm Job Delete"}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                {`Are you sure you want to delete this ${
+                  projects ? "project" : "job"
+                }?`}
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseDialog} autoFocus>
+                cancel
+              </Button>
+              <Button onClick={handleDeleteJob} color="error">
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
 
           <Stack
             sx={{
@@ -191,7 +373,9 @@ const JobCard = ({ data, projects }) => {
                 color: "#173433",
               }}
             >
-              <Typography variant="h3">{data.title}</Typography>
+              <Typography variant="h3">
+                {projects ? data?.name : data?.role?.title}
+              </Typography>
             </Link>
 
             <Stack
@@ -215,17 +399,67 @@ const JobCard = ({ data, projects }) => {
             </Stack>
 
             {mdMatches && (
-              <IconButton sx={{ alignSelf: "center", p: 0 }}>
+              <IconButton
+                onClick={handleDesktopMenuOpen}
+                sx={{ alignSelf: "center", p: 0 }}
+              >
                 <img src={moreHoriz__icon} alt="More horizontal icon" />
               </IconButton>
             )}
+
+            <Menu
+              anchorEl={desktopAnchorEl}
+              open={Boolean(desktopAnchorEl)}
+              onClose={handleMenuClose}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "right",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              PaperProps={{
+                style: {
+                  width: "120px",
+                },
+              }}
+            >
+              <MenuItem
+                onClick={handleEditOpen}
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  color: "#788894",
+                }}
+              >
+                <Typography>Edit</Typography>
+              </MenuItem>
+
+              <MenuItem
+                onClick={handleOpenDialog}
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  color: "#788894",
+                }}
+              >
+                <Typography>Delete</Typography>
+              </MenuItem>
+            </Menu>
           </Stack>
 
           <Typography
             variant="h5"
             sx={{ color: "#788894", textTransform: "capitalize", mb: 1 }}
           >
-            {`${data.department} - Start date: ${data.startDate} - ${data.kind} - USD $${data.salary}`}
+            {`${data?.department} - Start date: ${
+              projects ? data?.start_date : data?.role?.start_date
+            } ${data?.role?.hours ? `- ${data?.role?.hours}` : ""} ${
+              data?.role?.salary ? `- USD $${data?.role?.salary}` : ""
+            }`}
           </Typography>
 
           <Stack
@@ -248,29 +482,31 @@ const JobCard = ({ data, projects }) => {
                   variant="body1"
                   sx={{ color: "#788894", width: "100%" }}
                 >
-                  {data.description}
+                  {description}
                 </Typography>
               </Box>
 
-              <Button
-                disableRipple={true}
-                variant="text"
-                sx={{
-                  color: "#66C1FF",
-                  alignSelf: "flex-start",
-                  textTransform: "capitalize",
-                  fontWeight: "400",
-                  lineHeight: "1.5",
-                  "&: hover": {
-                    backgroundColor: "transparent",
-                  },
-                  fontSize: { xs: "12px", md: "16px" },
-                  mt: { xs: -1 },
-                }}
-                onClick={() => setShowMore(!showMore)}
-              >
-                {showMore ? "... show less" : "... show more"}
-              </Button>
+              {description.length >= 87 && (
+                <Button
+                  disableRipple={true}
+                  variant="text"
+                  sx={{
+                    color: "#66C1FF",
+                    alignSelf: "flex-start",
+                    textTransform: "capitalize",
+                    fontWeight: "400",
+                    lineHeight: "1.5",
+                    "&: hover": {
+                      backgroundColor: "transparent",
+                    },
+                    fontSize: { xs: "12px", md: "16px" },
+                    mt: { xs: -1 },
+                  }}
+                  onClick={() => setShowMore(!showMore)}
+                >
+                  {showMore ? "... show less" : "... show more"}
+                </Button>
+              )}
             </Stack>
 
             <Box

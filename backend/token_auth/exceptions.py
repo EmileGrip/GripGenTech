@@ -55,7 +55,10 @@ def _auth_failed(exc,context,response):
     return response
 
 def ParseExcMessage(exc):
-    details = exc.get_full_details()
+    try:
+        details = exc.get_full_details()
+    except:
+        details = exc.detail
     detailString =""
     for key in details.keys():
         if key != "non_field_errors":

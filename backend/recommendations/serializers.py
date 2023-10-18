@@ -4,9 +4,9 @@ from datetime import datetime
 from django.forms.models import model_to_dict
 from neomodel import db
 from role.fuzzy_matching import get_best_matched_occupation
-
+from job_vacancy.matching import getProfileMatchingvacancies,getCareerMatchingVacancies
 class GetSerializer(serializers.Serializer):
-    type = serializers.ChoiceField(choices=['user_skills', 'job_skills','careerpath','occupation'],required=True)
+    type = serializers.ChoiceField(choices=['user_skills', 'job_skills','careerpath','occupation','job_vacancy'],required=True)
     value = serializers.CharField(required=True)
     def get_node_id(self,node):
         #split element_id 
@@ -24,6 +24,8 @@ class GetSerializer(serializers.Serializer):
             recoommendations = self.get_careerpath_reccomendations(value)
         if r_type == 'occupation':
             recoommendations = self.get_occupation_reccomendations(value)
+        if r_type == 'job_vacancy':
+            recoommendations = self.get_job_vacancy_recommendations(value)
         self.response = {
             "success":True,
             "message":"Recommendations fetched successfully.",
@@ -151,6 +153,8 @@ class GetSerializer(serializers.Serializer):
     def get_occupation_reccomendations(self,title):
         result = []
         occupations = get_best_matched_occupation(title,20)
+        if not occupations:
+            return []
         for occupation in occupations:
             result.append({
                 "id":self.get_node_id(occupation),
@@ -158,3 +162,9 @@ class GetSerializer(serializers.Serializer):
                 "description":occupation.description
             })
         return result
+    
+    def get_job_vacancy_recommendations(self,user_id):
+        return {
+            "profile_based": getProfileMatchingvacancies(user_id,as_dict=True),
+            "career_based": getCareerMatchingVacancies(user_id)
+        }

@@ -51,8 +51,8 @@ export const editUser = createAsyncThunk(
     const response = await axiosInstance.put(
       `user`,
       {
-        firstName,
-        lastName,
+        first_name: firstName,
+        last_name: lastName,
         gender: gender[0].toLowerCase(),
         phone,
         location,

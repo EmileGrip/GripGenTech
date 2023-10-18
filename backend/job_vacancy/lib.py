@@ -1,11 +1,19 @@
 from schema.models import JobVacancy,VacancyRole,VacancySkill,JobPosting,JobProfile,Company
-from schema.utils import get_node_id,getNodeByID,get_non_none_dict
+from schema.utils import get_node_id,getNodeByID
 from vacancy_skill.lib import connectSkillToJobPost,addVacancySkill,disconnectSkillFromJobPost
-from vacancy_role.lib import addVacancyRole, getVacancyRoles,deleteVacancyRole
+from vacancy_role.lib import addVacancyRole, getVacancyRoles
 from neomodel import db
+from job_vacancy.matching import getProfileMatchingvacancies, getCareerMatchingVacancies
+
+def getUserMathchingJobs(user_id):
+    pass
+
 
 def getJobVacancies(company_id,status):
-    jobs = JobVacancy.objects.filter(company_id=company_id,status=status)
+    if status == 'all':
+        jobs = JobVacancy.objects.filter(company_id=company_id)
+    else:
+        jobs = JobVacancy.objects.filter(company_id=company_id,status=status)
     
     response = []
     for job in jobs:
@@ -17,14 +25,16 @@ def getJobVacancies(company_id,status):
         response.append({
             "id":job.id,
             "department":job.department,
+            "status":job.status,
             "role":{
                 "id":vacancy_role.id,
                 "title":vacancy_role.job_profile.title,
+                "description":vacancy_role.description,
                 "start_date":vacancy_role.start_date,
                 "end_date":vacancy_role.end_date,
                 "hours":vacancy_role.hours,
                 "salary":vacancy_role.salary,
-                "skills":vacancy_role.skills.all().values("id","title","skill_ref")
+                "skills":vacancy_role.skills.all().values("id","title","skill_ref","level")
         }})
     return response
         
@@ -112,7 +122,7 @@ def addJobVacancy(job_profile_id,company_id,user_id,status,department,start_date
             "hours":vacancy_role.hours,
             "salary":vacancy_role.salary,
             "description":vacancy_role.description,
-            "skills":vacancy_role.skills.all().values("id","title","skill_ref")
+            "skills":vacancy_role.skills.all().values("id","title","skill_ref","level")
         }
     }
 
@@ -142,7 +152,7 @@ def postAction(data,context):
             data["department"],
             data["start_date"],
             data["description"],
-            data["skills"],
+            data.get("skills"),
             data.get("end_date"),
             data.get("hours"),
             data.get("salary")
