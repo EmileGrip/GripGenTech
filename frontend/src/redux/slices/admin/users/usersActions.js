@@ -36,7 +36,7 @@ export const editUser = createAsyncThunk(
   "user/editUser",
   async (
     { id, firstName, lastName, gender, phone, location },
-    { getState, dispatch }
+    { getState }
   ) => {
     const { token } = getState().auth;
     const config = {
@@ -59,9 +59,6 @@ export const editUser = createAsyncThunk(
       },
       config
     );
-
-    // Dispatch the fetchUserById action after editUser is successful
-    dispatch(fetchUserById(id));
 
     return response.data.payload;
   }

@@ -3,15 +3,17 @@ import {
   Box,
   Button,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogTitle,
   IconButton,
   InputAdornment,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
-import Grid2 from "@mui/material/Unstable_Grid2";
+import CloseIcon from "@mui/icons-material/Close";
 import { useFormik } from "formik";
-import SuggestedSkillChip from "../../../pages/employee/mySkills/SuggestedSkillChip";
 import { useCallback, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import { validationsForm } from "./validations/validationSchema";
@@ -20,14 +22,11 @@ import axiosInstance from "../../../helper/axiosInstance";
 import { useEffect } from "react";
 import { fetchJobs } from "../../../redux/slices/internalMobility/addJobFormSlice";
 import { fetchProjects } from "../../../redux/slices/internalMobility/addProjectFormActions";
-
-const formControlWrapperStyle = {
-  minHeight: "140px",
-  mb: 9.375,
-};
+import { debounce } from "lodash";
 
 const AddSkillForm = ({
   data,
+  open,
   closeModal,
   roles,
   onEdit,
@@ -41,23 +40,31 @@ const AddSkillForm = ({
   const { token } = useSelector((state) => state.auth);
   const noSkillsMatch = "No skills match";
   const dispatch = useDispatch();
+  // const [openDialog, setOpenDialog] = useState(false);
+
+  // const handleOpenDialog = () => {
+  //   setOpenDialog(true);
+  // };
+  // const handleCloseDialog = () => {
+  //   setOpenDialog(false);
+  // };
 
   // Loading State
   const [loading, setLoading] = useState(false);
 
-  const suggestedHandler = async (value) => {
-    setValue(value);
+  // const suggestedHandler = async (value) => {
+  //   setValue(value);
 
-    // Call the searchSkills function here
-    const selectedId = await searchSkills(token, value, true);
+  //   // Call the searchSkills function here
+  //   const selectedId = await searchSkills(token, value, true);
 
-    // Then select the value
-    if (selectedId) {
-      formik.setFieldValue("skill", selectedId);
-    } else {
-      formik.setFieldValue("skill", "");
-    }
-  };
+  //   // Then select the value
+  //   if (selectedId) {
+  //     formik.setFieldValue("skill", selectedId);
+  //   } else {
+  //     formik.setFieldValue("skill", "");
+  //   }
+  // };
 
   const formik = useFormik({
     initialValues: {
@@ -134,6 +141,17 @@ const AddSkillForm = ({
     [token]
   );
 
+  const debouncedSearchSkills = useCallback(
+    debounce((token, inputValue) => {
+      if (inputValue !== "") {
+        searchSkills(token, inputValue);
+      } else {
+        setOptions([]);
+      }
+    }, 1000),
+    []
+  );
+
   const sendData = useCallback(
     async (token, values) => {
       const config = {
@@ -174,12 +192,8 @@ const AddSkillForm = ({
   );
 
   useEffect(() => {
-    if (inputValue !== "") {
-      searchSkills(token, inputValue);
-    } else {
-      setOptions([]);
-    }
-  }, [searchSkills, token, inputValue]);
+    debouncedSearchSkills(token, inputValue);
+  }, [debouncedSearchSkills, token, inputValue]);
 
   const selectValue = useCallback(
     (e, optionName) => {
@@ -217,125 +231,119 @@ const AddSkillForm = ({
     setInputValue(newValue);
   };
 
-  const suggestedSkills = data?.slice(0, 12);
-
   return (
-    <form onSubmit={handleSearch}>
-      <Stack sx={{ px: { xs: 2.5, lg: 0 } }}>
-        <Box sx={formControlWrapperStyle}>
-          <Typography
-            variant="h3"
-            component="label"
-            htmlFor="search_skill"
-            sx={{
-              textTransform: "capitalize",
-              fontWeight: 400,
-              color: "secondary.main",
-            }}
-          >
-            search skills
-            <span style={{ color: "red" }}>*</span>
-          </Typography>
-          <Autocomplete
-            freeSolo
-            id="search_skill"
-            name="search_skill"
-            value={value}
-            options={
-              options.length < 1
-                ? [noSkillsMatch].map((option) => option)
-                : options.map((option) => option.name)
-            }
-            inputValue={inputValue}
-            onInputChange={handleInputChange}
-            onBlur={formik.handleBlur}
-            onChange={(e, value) => selectValue(e, value)}
-            label="Search input"
-            sx={{ mt: "16px" }}
-            renderInput={(params) => (
-              <TextField
-                error={formik.touched.skill && Boolean(formik.errors.skill)}
-                helperText={formik.touched.skill ? formik.errors.skill : ""}
-                name="search_skill"
-                fullWidth
-                placeholder="Search Skill"
-                {...params}
-                type="search"
-                InputProps={{
-                  ...params.InputProps,
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <IconButton>
-                        <SearchIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <div style={{ display: "flex", alignItems: "center" }}>
-                        {params.InputProps.endAdornment}
-                        {loading && <CircularProgress size={20} />}
-                      </div>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            )}
-          />
-        </Box>
+    <Stack sx={{ px: { xs: 2.5, lg: 0 } }}>
+      <Dialog
+        open={open}
+        onClose={closeModal}
+        PaperProps={{
+          sx: {
+            backgroundColor: "white",
+            py: 2,
+            width: { xs: "300px", md: "800px" },
+          }, // Make dialog background transparent
+        }}
+        BackdropProps={{
+          sx: { backgroundColor: "rgba(0, 0, 0, 0.1)" }, // Make backdrop transparent
+        }}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "40px",
+        }}
+      >
+        <IconButton
+          aria-label="close"
+          onClick={closeModal}
+          sx={{
+            position: "absolute",
+            top: 10,
+            right: 10,
+            color: "grey",
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
 
-        <Box>
-          <Typography
-            variant="h3"
-            component="label"
-            htmlFor="search_skill"
-            sx={{
-              textTransform: "capitalize",
-              fontWeight: 400,
-              color: "secondary.main",
-            }}
-          >
-            suggested skills
-          </Typography>
-          <Grid2
-            container
-            spacing={2}
-            sx={{ flexGrow: 1, mt: "16px" }}
-            mb={"50px"}
-          >
-            {suggestedSkills.map((skill) => (
-              <Grid2 key={skill.skill_id} xs={4}>
-                <SuggestedSkillChip
-                  title={skill.title}
-                  onClick={() => suggestedHandler(skill.title)}
-                  selectedSkill={value}
-                >
-                  {skill.title}
-                </SuggestedSkillChip>
-              </Grid2>
-            ))}
-          </Grid2>
-        </Box>
+        <DialogTitle>Add Skill</DialogTitle>
 
-        <Box>
-          <Button
-            onClick={formik.handleSubmit}
-            type="button"
-            disabled={formik.isSubmitting}
-            variant="contained"
-            color="secondary"
+        <Autocomplete
+          freeSolo
+          id="search_skill"
+          name="search_skill"
+          value={value}
+          options={
+            options.length < 1
+              ? [noSkillsMatch].map((option) => option)
+              : options.map((option) => option.name)
+          }
+          inputValue={inputValue}
+          onInputChange={handleInputChange}
+          onBlur={formik.handleBlur}
+          onChange={(e, value) => selectValue(e, value)}
+          label="Search input"
+          sx={{ my: "20px", mx: 3 }}
+          renderInput={(params) => (
+            <TextField
+              error={formik.touched.skill && Boolean(formik.errors.skill)}
+              helperText={formik.touched.skill ? formik.errors.skill : ""}
+              name="search_skill"
+              fullWidth
+              placeholder="Search Skill"
+              {...params}
+              type="search"
+              InputProps={{
+                ...params.InputProps,
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <IconButton>
+                      <SearchIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      {params.InputProps.endAdornment}
+                      {loading && <CircularProgress size={20} />}
+                    </div>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          )}
+        />
+
+        <DialogActions sx={{ justifyContent: "center", px: 3 }}>
+          <Box
             sx={{
-              alignSelf: "flex-start",
-              textTransform: "capitalize",
-              fontSize: "14px",
-              px: "50px",
+              display: "flex",
+              justifyContent: { xs: "center", md: "flex-start" },
+              width: { xs: "100%" },
+              pb: "12px",
             }}
           >
-            add skill
-          </Button>
-        </Box>
-      </Stack>
-    </form>
+            <Button
+              onClick={handleSearch}
+              type="submit"
+              sx={{
+                width: { xs: "100%", sm: "220px" },
+                background: (theme) => theme.palette.accent,
+                color: "darkGreen",
+                textTransform: "capitalize",
+              }}
+            >
+              <Typography variant="h6">Add Skill</Typography>
+            </Button>
+          </Box>
+        </DialogActions>
+      </Dialog>
+    </Stack>
   );
 };
 

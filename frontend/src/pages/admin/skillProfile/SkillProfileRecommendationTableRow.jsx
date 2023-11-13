@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useRef } from "react";
 import DescriptionTooltip from "../../../ui/DescriptionTooltip";
 import hintIcon from "../../../assets/hintIcon.svg";
 import { Button, Grid, Stack, Typography } from "@mui/material";
@@ -17,12 +17,17 @@ const gridStyles = {
   p: "0 !important",
 };
 
-const SkillProfileRecommendationTableRow = ({ skill, jobProfileId }) => {
+const SkillProfileRecommendationTableRow = ({
+  skill,
+  jobProfileId,
+  handleSetTargetId,
+}) => {
   const { token } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   const sendData = useCallback(
     async (token, skill_id) => {
+      handleSetTargetId(skill.id);
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -58,8 +63,12 @@ const SkillProfileRecommendationTableRow = ({ skill, jobProfileId }) => {
     [token, jobProfileId]
   );
 
+  const skillRef = useRef(null);
+
   return (
     <Stack
+      ref={skillRef}
+      id={skill.id}
       key={skill.id}
       sx={{
         flexDirection: "row",

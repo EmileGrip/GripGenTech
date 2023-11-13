@@ -15,7 +15,9 @@ import {
   useTheme,
 } from "@mui/material";
 import moreHoriz__icon from "../../../assets/moreHoriz__icon.svg";
-import { useCallback, useState } from "react";
+import increaseIcon from "../../../assets/increase_icon.svg";
+import decreaseIcon from "../../../assets/decrease_icon.svg";
+import { useCallback, useRef, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -35,11 +37,12 @@ const gridStyles = {
   p: 0,
 };
 
-const TableRow = ({ skill }) => {
+const TableRow = ({ skill, handleSetTargetId }) => {
   const theme = useTheme();
   const lgMatches = useMediaQuery(theme.breakpoints.up("lg"));
   const { token } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  const [localSkillLevel, setLocalSkillLevel] = useState(skill.level);
 
   const proficiencyMap = {
     1: "Basic",
@@ -61,7 +64,10 @@ const TableRow = ({ skill }) => {
   const open = !!anchorEl;
 
   const increaseLevel = useCallback(async () => {
-    if (skill.level < 4) {
+    if (localSkillLevel < 4) {
+      setLocalSkillLevel((prev) => prev + 1);
+      const updatedSkillLevel = localSkillLevel + 1; // Use the updated state here
+      // handleSetTargetId(skill.id);
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -74,21 +80,25 @@ const TableRow = ({ skill }) => {
       try {
         const response = await axiosInstance.put(
           "skill_profile",
-          { level: skill.level + 1 },
+          { level: updatedSkillLevel },
           config
         );
         console.log(response.data.payload);
       } catch (error) {
         console.log(error.response.data);
+        setLocalSkillLevel((prev) => prev - 1);
       } finally {
         // setLoading(false);
-        dispatch(fetchSkillProfile(skill.job_profile_id_id));
+        // dispatch(fetchSkillProfile(skill.job_profile_id_id));
       }
     }
-  }, []);
+  }, [localSkillLevel]);
 
   const decreaseLevel = useCallback(async () => {
-    if (skill.level > 1) {
+    if (localSkillLevel > 1) {
+      setLocalSkillLevel((prev) => prev - 1);
+      const updatedSkillLevel = localSkillLevel - 1; // Use the updated state here
+      // handleSetTargetId(skill.id);
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -101,20 +111,22 @@ const TableRow = ({ skill }) => {
       try {
         const response = await axiosInstance.put(
           "skill_profile",
-          { level: skill.level - 1 },
+          { level: updatedSkillLevel },
           config
         );
         console.log(response.data.payload);
       } catch (error) {
         console.log(error.response.data);
+        setLocalSkillLevel((prev) => prev + 1);
       } finally {
         // setLoading(false);
-        dispatch(fetchSkillProfile(skill.job_profile_id_id));
+        // dispatch(fetchSkillProfile(skill.job_profile_id_id));
       }
     }
-  }, []);
+  }, [localSkillLevel]);
 
   const deleteData = useCallback(async () => {
+    handleSetTargetId(skill.id, true);
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -141,8 +153,12 @@ const TableRow = ({ skill }) => {
     setAnchorEl(null);
   };
 
+  const skillRef = useRef(null);
+
   return (
     <Stack
+      ref={skillRef}
+      id={skill.id}
       sx={{
         flexDirection: { xs: "row" },
       }}
@@ -166,33 +182,6 @@ const TableRow = ({ skill }) => {
             horizontal: "left",
           }}
         >
-          <Stack
-            sx={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              px: 2,
-              gap: "8px",
-            }}
-          >
-            <Typography variant="h6" color="primary.main">
-              Proficiency Level
-            </Typography>
-            <Stack
-              sx={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-              }}
-            >
-              <IconButton onClick={increaseLevel}>
-                <AddIcon color="success" />
-              </IconButton>
-              <IconButton onClick={decreaseLevel}>
-                <RemoveIcon color="error" />
-              </IconButton>
-            </Stack>
-          </Stack>
-          <Divider variant="middle" />
           <Stack
             sx={{
               flexDirection: "row",
@@ -243,7 +232,7 @@ const TableRow = ({ skill }) => {
           </Grid>
 
           {lgMatches && (
-            <Grid xs={0} lg={7} sx={{ ...gridStyles, pt: 2, pb: 1 }}>
+            <Grid xs={0} lg={6} sx={{ ...gridStyles, pt: 2, pb: 1 }}>
               {skill.description.length > 101 ? (
                 <Typography
                   color="primary.main"
@@ -293,7 +282,7 @@ const TableRow = ({ skill }) => {
           <Grid
             xs={8}
             sm={6}
-            lg={4}
+            lg={5}
             sx={{
               ...gridStyles,
               justifyContent: { md: "center", lg: "center", xl: "flex-start" },
@@ -317,19 +306,43 @@ const TableRow = ({ skill }) => {
               </span>
             </Tooltip> */}
 
-            <span style={{ marginTop: "7px" }}>
-              <RatingBar
-                initialValue={skill.level}
-                requiredLevel={skill.level}
-              />
-            </span>
+            <Stack sx={{ flexDirection: "row", alignItems: "center" }}>
+              <IconButton onClick={decreaseLevel}>
+                <img
+                  src={decreaseIcon}
+                  alt="Decrease icon"
+                  style={{ cursor: "pointer" }}
+                />
+              </IconButton>
+
+              <span
+                style={{
+                  marginTop: "7px",
+                  marginLeft: "4px",
+                  marginRight: "8px",
+                }}
+              >
+                <RatingBar
+                  initialValue={localSkillLevel}
+                  requiredLevel={localSkillLevel}
+                />
+              </span>
+
+              <IconButton onClick={increaseLevel}>
+                <img
+                  src={increaseIcon}
+                  alt="Increase icon"
+                  style={{ cursor: "pointer" }}
+                />
+              </IconButton>
+            </Stack>
 
             {lgMatches && (
               <Typography
                 variant="body2"
                 sx={{ color: "#788894", fontSize: "14px" }}
               >
-                {proficiencyMap[String(skill.level)]}
+                {proficiencyMap[String(localSkillLevel)]}
               </Typography>
             )}
           </Grid>

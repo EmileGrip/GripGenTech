@@ -28,6 +28,7 @@ env_vars = {
     "EMAIL_PORT" : os.environ.get('EMAIL_PORT'),
     "EMAIL_HOST_USER" : os.environ.get('EMAIL_HOST_USER'),
     "DEFAULT_FROM_EMAIL" : os.environ.get('DEFAULT_FROM_EMAIL'),
+    "EMAIL_AUTH_TYPE" :  os.environ.get('EMAIL_AUTH_TYPE'),
     "EMAIL_HOST_PASSWORD" : os.environ.get('EMAIL_HOST_PASSWORD'),
     "GRIP_HOST":os.environ.get('GRIP_HOST'),
     "AWS_ACCESS_KEY_ID":os.environ.get('AWS_ACCESS_KEY_ID'),
@@ -84,7 +85,6 @@ INSTALLED_APPS = [
     'project_vacancy',
     'endorsement',
     # Add your apps here to enable them
-    'vectordb',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -205,8 +205,13 @@ EMAIL_HOST = env_vars["EMAIL_HOST"]
 EMAIL_HOST_USER = env_vars["EMAIL_HOST_USER"]
 EMAIL_HOST_PASSWORD = env_vars["EMAIL_HOST_PASSWORD"]
 EMAIL_PORT = env_vars["EMAIL_PORT"]
-#EMAIL_USE_SSL = True
-EMAIL_USE_TLS = True 
+#use tls if you use aws service, otherwise use ssl
+if  env_vars["EMAIL_AUTH_TYPE"] == "ssl":
+    EMAIL_USE_SSL = True
+elif env_vars["EMAIL_AUTH_TYPE"] == "tls":
+    EMAIL_USE_TLS = True 
+else:
+    raise Exception("EMAIl_AUTH_TYPE should be ssl or tls only")
 DEFAULT_FROM_EMAIL = env_vars["DEFAULT_FROM_EMAIL"]
 
 
@@ -232,14 +237,41 @@ CACHES = {
     }
 }
 
-DJANGO_VECTOR_DB =  {
-    "DEFAULT_EMBEDDING_CLASS": "vectordb.embedding_functions.OpenAIEmbeddings",
-    "DEFAULT_EMBEDDING_MODEL": "text-embedding-ada-002",  # "all-MiniLM-L6-v2",
-    "DEFAULT_EMBEDDING_SPACE": "cosine",
-    "DEFAULT_EMBEDDING_DIMENSION": 1536,  # Default is 384 for "all-MiniLM-L6-v2"
-    "DEFAULT_MAX_N_RESULTS": 10,  # Number of results to return from search maximum is default is 10
-    "DEFAULT_MIN_SCORE": 0.0,  # Minimum score to return from search default is 0.0
-    "DEFAULT_MAX_BRUTEFORCE_N": 10_000,  # Maximum number of items to search using brute force default is 10_000. If the number of items is greater than this number, the search will be done using the HNSW index.
-}
 
 OPENAI_API_KEY = env_vars["OPENAI_API_KEY"]
+
+#search indeces in neo4j database
+
+SEARCH_INDECES = {
+    "occupation": {
+        "label":"Occupation",
+        "index":"occupation_list",
+        "fields":["preferredLabel","description","altLabels"],
+        "global":True
+    },
+    "skill": {
+        "label":"Skill",
+        "index":"skill_list",
+        "fields":["preferredLabel","description","altLabels"],
+        "global":True
+    },
+    "job_title": {
+        "label":"JobTitle",
+        "index":"job_title_list",
+        "fields":["label"],
+        "global":False
+    },
+    "job_posting": {
+        "label":"JobPosting",
+        "index":"job_posting_list",
+        "fields":["job_title"],
+        "global":False
+    },
+    "user":{
+        "label":"Person",
+        "index":"person_list",
+        "fields":["name"],
+        "global":False
+    }
+    
+}

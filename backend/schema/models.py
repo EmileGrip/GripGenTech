@@ -333,6 +333,8 @@ class VacancyRole(models.Model):
     object_id = models.PositiveIntegerField()
     #content_object
     vacancy = GenericForeignKey('content_type', 'object_id')
+    #role_ref_id
+    role_ref_id = models.CharField(max_length=10,null=False)
     
     
     def __str__(self):
@@ -362,7 +364,7 @@ class JobVacancy(models.Model):
     #company id
     company = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)
     #department
-    department = models.CharField(max_length=50, null=False)
+    department = models.CharField(max_length=50, null=True)
     #user id
     user = models.ForeignKey(GripUser, on_delete=models.CASCADE, null=False)
     #ref_post_id
@@ -372,7 +374,7 @@ class JobVacancy(models.Model):
     #role relationship
     roles = GenericRelation(VacancyRole)
     def __str__(self):
-        return f"Job Post in {self.job_profile.title} department at {self.company.name}"
+        return f"Job Post in {self.department} department at {self.company.name}"
     
 #define project model
 
@@ -382,7 +384,7 @@ class ProjectVacancy(models.Model):
     #company id
     company = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)
     #user id
-    user = models.ForeignKey(GripUser, on_delete=models.CASCADE, null=False)
+    user = models.ForeignKey(GripUser, on_delete=models.CASCADE, null=True)
     #placeholder1
     name = models.CharField(max_length=50, null=False)
     #placeholder2
@@ -490,6 +492,8 @@ class JobTitle(StructuredNode):
 
     #jobTitle label
     label = StringProperty( null=False)
+    #comapny_id
+    company_id = StringProperty(null=False)
     #relationship
     #jobTitle relation to occupation
     SimilarTo = RelationshipTo("Occupation", 'SimilarTo')
@@ -502,7 +506,7 @@ class Person(StructuredNode):
     #person name
     name = StringProperty(null=False)
     #person company id 
-    company = StringProperty(null=True)
+    company_id = StringProperty(null=True)
     #relationship
     #person skills
     HasSkill = RelationshipTo("Skill", 'HasSkill')
@@ -514,13 +518,21 @@ class Person(StructuredNode):
     
 class JobPosting(StructuredNode):
     
-    #company_name
-    company_name = StringProperty(null=False)
     #job_title
     job_title = StringProperty(null=False)
+    #company_name
+    company_name = StringProperty(null=False)
+    #company_id
+    company_id = StringProperty(null=False)
+    #HasRole
+    HasRole = RelationshipTo("JobPostingRole", 'HasRole')
+    
+class JobPostingRole(StructuredNode):
+    #job_title
+    role_title = StringProperty(null=False)
+    #company_id
+    company_id = StringProperty(null=False)
     #HasExtractedSkill
     HasExtractedSkill = RelationshipTo("Skill", 'HasExtractedSkill')
     #BestMatchTitle
     BestMatchTitle = RelationshipTo("Occupation", 'BestMatchTitle')
-    
-    

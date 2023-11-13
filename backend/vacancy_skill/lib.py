@@ -2,23 +2,34 @@ from schema.models import VacancyRole,VacancySkill
 from neomodel import db
 from schema.utils import getNodeByID
 
+def connectSkillToRole(skill,jobpost):
+    jobpost.HasExtractedSkill.connect(skill)
+    jobpost.save()
+
+def disconnectSkillFromRole(skill,jobpost):
+    jobpost.HasExtractedSkill.disconnect(skill)
+    jobpost.save()
 def getVacancyRoleSkills(vacancy_role_id):
     role = VacancyRole.objects.get(id = vacancy_role_id)
     skills = role.skills.all().values("id","title","skill_ref","level")
+    ref_ids = [skill["skill_ref"] for skill in skills]
+    descriptions = getSkillsDescription(ref_ids)
+    for i in range(len(skills)):
+        skills[i]["description"] = descriptions[skills[i]["skill_ref"]]
     return skills
 
 def addVacancySkill(vacancy_role_id,skill_ref,level):
     role = VacancyRole.objects.get(id = vacancy_role_id)
-    jobpost = getNodeByID("JobPosting",role.vacancy.ref_post_id)
+    rolepost = getNodeByID("JobPostingRole",role.role_ref_id)
     skill_node = getNodeByID("Skill",skill_ref)
     skill = VacancySkill.objects.create(
-        title=skill_node.preferredLabel,
+        title=str(skill_node.preferredLabel)[:50],
         company_id=role.company.id,
         vacancy_role=role,
         skill_ref = skill_ref,
         level=level
     )
-    connectSkillToJobPost(skill_node,jobpost)
+    connectSkillToRole(skill_node,rolepost)
     return skill
     
 def editVacancySkill(id,level):
@@ -29,23 +40,21 @@ def deleteVacancySkill(vacancy_skill_id):
     #get vacancy skill
     vacancy_skill = VacancySkill.objects.get(id=vacancy_skill_id)
     #get the realted job posting 
-    jobpost =getNodeByID("JobPosting",vacancy_skill.vacancy_role.vacancy.ref_post_id)
+    jobpost =getNodeByID("JobPostingRole",vacancy_skill.vacancy_role.role_ref_id)
     #get skill node 
     skill_node = getNodeByID("Skill",vacancy_skill.skill_ref)
     #disconnect it 
-    disconnectSkillFromJobPost(skill_node,jobpost)
+    disconnectSkillFromRole(skill_node,jobpost)
     #delete skill
     vacancy_skill.delete()
 
-def connectSkillToJobPost(skill,jobpost):
-    jobpost.HasExtractedSkill.connect(skill)
-    jobpost.save()
 
-def disconnectSkillFromJobPost(skill,jobpost):
-    jobpost.HasExtractedSkill.disconnect(skill)
-    jobpost.save()
-    
-
+def getSkillsDescription(skill_ref):
+    data = {}
+    for node_id in skill_ref:
+        node = getNodeByID("Skill",node_id)
+        data[node_id] = node.description
+    return data
 def getAction(data,context):
    
     return {

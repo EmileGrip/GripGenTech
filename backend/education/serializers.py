@@ -9,12 +9,11 @@ class EducationSerializer(serializers.Serializer):
     #defining the filed related to the model Education
     id = serializers.IntegerField(required=False)
     user_id = serializers.IntegerField(required=False)
-    company = serializers.CharField(required=False)
     start_date = serializers.DateField(required=False)
     end_date = serializers.DateField(required=False)
-    level = serializers.CharField(required=False)
-    institution = serializers.CharField(required=False)
-    degree = serializers.CharField(required=False)
+    level = serializers.CharField(required=False,max_length=50)
+    institution = serializers.CharField(required=False,max_length=50)
+    degree = serializers.CharField(required=False,max_length=50)
     user_id = serializers.IntegerField(required=False)
     
 

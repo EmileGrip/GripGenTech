@@ -27,7 +27,6 @@ import {
   MANAGER_JOB_DETAILS_ROUTE,
   MANAGER_PROJECT_DETAILS_ROUTE,
 } from "../../../routes/paths";
-import { skillsTable } from "../../../data/skillsData";
 import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../../helper/axiosInstance";
 import { fetchJobs } from "../../../redux/slices/internalMobility/addJobFormSlice";
@@ -148,6 +147,7 @@ const JobCard = ({
   };
 
   const description = projects ? data?.description : data?.role?.description;
+  const formattedDescription = description !== null ? description : "";
 
   return (
     <>
@@ -168,25 +168,40 @@ const JobCard = ({
         >
           <Link
             to={jobDetailsLink}
+            title={projects ? data?.name : data?.role?.title}
             style={{
               fontSize: "14px",
               textDecoration: "underline",
               textTransform: "capitalize",
               color: "#173433",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
             }}
           >
-            <Typography variant="h3">{data?.role.title}</Typography>
+            <Typography variant="h3">
+              {projects ? data?.name : data?.role?.title}
+            </Typography>
           </Link>
 
           <img src={progressBar} alt="Horizontal progress bar" />
 
           <Typography variant="body1" color="#788894">
+            {data?.department}{" "}
             <span style={{ fontSize: "20px", verticalAlign: "super" }}>.</span>{" "}
-            Start date: {data?.role.start_date}{" "}
-            <span style={{ fontSize: "20px", verticalAlign: "super" }}>.</span>{" "}
-            {data?.role.hours ? data?.role.hours : ""}{" "}
-            <span style={{ fontSize: "20px", verticalAlign: "super" }}>.</span>{" "}
-            USD ${data?.role.salary ? data?.role.salary : ""}
+            Start date: {projects ? data?.start_date : data?.role?.start_date}{" "}
+            {!projects && (
+              <>
+                <span style={{ fontSize: "20px", verticalAlign: "super" }}>
+                  .
+                </span>{" "}
+                {data?.role?.hours ? data?.role?.hours : ""}{" "}
+                <span style={{ fontSize: "20px", verticalAlign: "super" }}>
+                  .
+                </span>{" "}
+                USD ${data?.role?.salary ? data?.role?.salary : ""}
+              </>
+            )}
           </Typography>
 
           <Stack
@@ -202,7 +217,7 @@ const JobCard = ({
               p: 2,
             }}
           >
-            {data?.role.skills < 1 ? (
+            {data?.role?.skills < 1 ? (
               <Typography color="primary" fontSize="16px">
                 No skills found
               </Typography>
@@ -215,7 +230,7 @@ const JobCard = ({
                   gap: "12px",
                 }}
               >
-                {data?.role.skills.map((skill) => (
+                {data?.role?.skills.map((skill) => (
                   <Box
                     key={skill?.title}
                     sx={{
@@ -358,7 +373,7 @@ const JobCard = ({
 
           <Stack
             sx={{
-              flexDirection: { md: "row" },
+              flexDirection: { md: "row", justifyContent: "space-between" },
               alignItems: { md: "center" },
               gap: { xs: 1, md: 0 },
               mb: 1,
@@ -366,19 +381,30 @@ const JobCard = ({
           >
             <Link
               to={jobDetailsLink}
+              title={projects ? data?.name : data?.role?.title}
               style={{
                 fontSize: "14px",
                 textDecoration: "underline",
                 textTransform: "capitalize",
                 color: "#173433",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
               }}
             >
-              <Typography variant="h3">
+              <Typography
+                variant="h3"
+                sx={{
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
                 {projects ? data?.name : data?.role?.title}
               </Typography>
             </Link>
 
-            <Stack
+            {/* <Stack
               sx={{
                 flexDirection: "row",
                 alignItems: "center",
@@ -396,7 +422,7 @@ const JobCard = ({
               <Typography variant="h3">5</Typography>
 
               <Typography variant="h5">Matches</Typography>
-            </Stack>
+            </Stack> */}
 
             {mdMatches && (
               <IconButton
@@ -455,7 +481,7 @@ const JobCard = ({
             variant="h5"
             sx={{ color: "#788894", textTransform: "capitalize", mb: 1 }}
           >
-            {`${data?.department} - Start date: ${
+            {`${data?.department ? ` ${data?.department} -` : ""} Start date: ${
               projects ? data?.start_date : data?.role?.start_date
             } ${data?.role?.hours ? `- ${data?.role?.hours}` : ""} ${
               data?.role?.salary ? `- USD $${data?.role?.salary}` : ""
@@ -482,11 +508,11 @@ const JobCard = ({
                   variant="body1"
                   sx={{ color: "#788894", width: "100%" }}
                 >
-                  {description}
+                  {formattedDescription}
                 </Typography>
               </Box>
 
-              {description.length >= 87 && (
+              {formattedDescription?.length >= 87 && (
                 <Button
                   disableRipple={true}
                   variant="text"
@@ -516,7 +542,12 @@ const JobCard = ({
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                background: data.status === "declined" ? "#B95144" : "#6AE6A4",
+                background:
+                  data.status === "declined"
+                    ? "#B95144"
+                    : data.status === "pending"
+                    ? "#66C1FF"
+                    : "#6AE6A4",
                 borderRadius: "40px",
                 textTransform: "capitalize",
                 opacity: 0.2,

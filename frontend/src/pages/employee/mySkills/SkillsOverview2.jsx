@@ -30,6 +30,7 @@ import SkillTableRow from "../../../components/profile-section/profile/skillsVal
 import { useFormik } from "formik";
 import { validationsForm } from "./validations/validationSchema";
 import axiosInstance from "../../../helper/axiosInstance";
+import { debounce } from "lodash";
 
 const SkillsOverview2 = () => {
   const { token, userInfo } = useSelector((state) => state.auth);
@@ -182,6 +183,17 @@ const SkillsOverview2 = () => {
     [token]
   );
 
+  const debouncedSearchSkills = useCallback(
+    debounce((token, inputValue) => {
+      if (inputValue !== "") {
+        searchSkills(token, inputValue);
+      } else {
+        setOptions([]);
+      }
+    }, 1000),
+    []
+  );
+
   const AddSkill = useCallback(
     async (token, values) => {
       const config = {
@@ -217,12 +229,8 @@ const SkillsOverview2 = () => {
   );
 
   useEffect(() => {
-    if (inputValue !== "") {
-      searchSkills(token, inputValue);
-    } else {
-      setOptions([]);
-    }
-  }, [searchSkills, token, inputValue]);
+    debouncedSearchSkills(token, inputValue);
+  }, [debouncedSearchSkills, token, inputValue]);
 
   const selectValue = useCallback(
     (e, optionName) => {

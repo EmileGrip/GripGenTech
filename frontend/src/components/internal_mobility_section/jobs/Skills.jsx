@@ -33,18 +33,30 @@ const Skills = ({
   roles = false,
   onEdit,
   vacancyRoleId,
+  jobProfileId,
   getSkills,
   data,
   onSuccess,
-  job,
 }) => {
   const [chosenSkill, setChosenSkill] = useState(null);
-  const [roleId, setRoleId] = useState("");
   const { token } = useSelector((state) => state.auth);
   const { skillProfileRecommendations } = useSelector(
     (state) => state.skillProfile
   );
   const dispatch = useDispatch();
+  const [suggestedSkills, setSuggestedSkills] = useState(
+    skillProfileRecommendations
+  );
+
+  const suggestedSkillsData = onEdit
+    ? skillProfileRecommendations
+    : suggestedSkills;
+
+  useEffect(() => {
+    if (!onEdit) {
+      setSuggestedSkills(skillProfileRecommendations);
+    }
+  }, [skillProfileRecommendations]);
 
   const [open, setOpen] = useState(false);
   const handleOpen = () => {
@@ -94,7 +106,11 @@ const Skills = ({
       console.log(error?.response.data);
     } finally {
       // setLoading(false);
-      dispatch(fetchJobs());
+      if (roles) {
+        dispatch(fetchProjects());
+      } else {
+        dispatch(fetchJobs());
+      }
       setChosenSkill(null);
       setOpenDialog(false);
     }
@@ -147,58 +163,25 @@ const Skills = ({
   }, [skills]);
 
   useEffect(() => {
-    if (onEdit) {
-      searchJobs(job?.role?.title);
+    if (token && jobProfileId) {
+      dispatch(fetchSkillProfileRecommendationData(jobProfileId));
     }
-  }, [job?.role?.title]);
-
-  useEffect(() => {
-    if (token && roleId) {
-      dispatch(fetchSkillProfileRecommendationData(roleId));
-    }
-  }, [token, dispatch, roleId, selectedSkills]);
+  }, [token, dispatch, jobProfileId, selectedSkills]);
 
   const addSuggestedSkill = () => {
     if (onEdit) {
       sendData(token, vacancyRoleId, chosenSkill.id, chosenSkill.level);
     } else {
       getSelectedSkills(chosenSkill);
+
+      // Remove the chosen skill from suggestedSkills
+      setSuggestedSkills((prevSuggestedSkills) =>
+        prevSuggestedSkills.filter((skill) => skill.id !== chosenSkill.id)
+      );
+
       setChosenSkill(null);
     }
   };
-
-  const searchJobs = useCallback(
-    async (value) => {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      };
-
-      try {
-        // setLoading(true);
-        const response = await axiosInstance.post(
-          `search`,
-          {
-            key: "job_profile",
-            value,
-          },
-          config
-        );
-
-        const selectedId = response.data.payload[0].id;
-        setRoleId(selectedId);
-        // return selectedId;
-      } catch (error) {
-        console.log(error?.response.data);
-      } finally {
-        // setLoading(false);
-      }
-    },
-    [token]
-  );
 
   const sendData = useCallback(
     async (token, vacancy_role_id, skill_ref, level) => {
@@ -233,7 +216,7 @@ const Skills = ({
         } else {
           dispatch(fetchJobs());
         }
-        dispatch(fetchSkillProfileRecommendationData(roleId));
+        dispatch(fetchSkillProfileRecommendationData(jobProfileId));
         setChosenSkill(null);
         // closeModal();
       }
@@ -241,13 +224,37 @@ const Skills = ({
     [token]
   );
 
-  const handleDeleteData = (id) => {
+  const handleEditData = () => {
+    if (onEdit) {
+      editLevel();
+    } else {
+      const skillIndex = selectedSkills.findIndex(
+        (skill) => skill.id === chosenSkill.id
+      );
+      if (skillIndex !== -1) {
+        // Create a copy of the skills array and update the chosen skill
+        const updatedSkills = [...skills];
+        updatedSkills[skillIndex] = chosenSkill;
+
+        // Update the skills state
+        setSkills(updatedSkills);
+      }
+    }
+    setChosenSkill(null);
+    setOpenDialog(false);
+  };
+
+  const handleDeleteData = (skill) => {
     if (onEdit) {
       deleteData();
     } else {
-      const filteredSkills = skills?.filter((skill) => skill.id !== id);
+      const filteredSkills = skills?.filter((s) => s.id !== skill.id);
       setSkills(filteredSkills);
       getSkills(filteredSkills);
+      setSuggestedSkills((prevSuggestedSkills) => [
+        ...prevSuggestedSkills,
+        skill,
+      ]);
     }
     setChosenSkill(null);
     setOpenDialog(false);
@@ -255,17 +262,16 @@ const Skills = ({
 
   return (
     <>
-      <CustomModal open={open} onClose={handleClose} title="Add Skill">
-        <AddSkillForm
-          data={[]}
-          closeModal={handleClose}
-          roles={roles}
-          onEdit={onEdit}
-          vacancyRoleId={vacancyRoleId}
-          getSelectedSkills={getSelectedSkills}
-          onSuccess={onSuccess}
-        />
-      </CustomModal>
+      <AddSkillForm
+        data={[]}
+        open={open}
+        closeModal={handleClose}
+        roles={roles}
+        onEdit={onEdit}
+        vacancyRoleId={vacancyRoleId}
+        getSelectedSkills={getSelectedSkills}
+        onSuccess={onSuccess}
+      />
 
       <Stack
         sx={{
@@ -293,7 +299,7 @@ const Skills = ({
             flexWrap: "wrap",
           }}
         >
-          {skillProfileRecommendations?.length >= 1 && (
+          {suggestedSkillsData?.length >= 1 && (
             <Stack
               sx={{
                 flexDirection: "row",
@@ -303,10 +309,15 @@ const Skills = ({
                 flexWrap: "wrap",
               }}
             >
-              {skillProfileRecommendations?.map((skill) => (
+              {suggestedSkillsData?.map((skill) => (
                 <Box
                   onClick={() =>
-                    setChosenSkill({ ...skill, level: 1, addSkill: true })
+                    setChosenSkill({
+                      ...skill,
+                      level: 1,
+                      addSkill: true,
+                      editSkill: false,
+                    })
                   }
                   key={skill?.title}
                   sx={{
@@ -551,7 +562,11 @@ const Skills = ({
 
                   <img
                     onClick={() =>
-                      setChosenSkill({ ...skill, editSkill: true })
+                      setChosenSkill({
+                        ...skill,
+                        editSkill: true,
+                        addSkill: false,
+                      })
                     }
                     src={editIcon}
                     alt="Edit icon"
@@ -672,7 +687,7 @@ const Skills = ({
                   }}
                 >
                   <Button
-                    onClick={editLevel}
+                    onClick={handleEditData}
                     sx={{
                       width: "93px",
                       height: "22px",
@@ -736,10 +751,7 @@ const Skills = ({
             <Button onClick={handleCloseDialog} autoFocus>
               cancel
             </Button>
-            <Button
-              onClick={() => handleDeleteData(chosenSkill.id)}
-              color="error"
-            >
+            <Button onClick={() => handleDeleteData(chosenSkill)} color="error">
               Delete
             </Button>
           </DialogActions>

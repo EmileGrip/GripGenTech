@@ -8,7 +8,7 @@ class SkillProficiencySerializer(serializers.Serializer):
     #define the fields related to the model Experience
     id = serializers.IntegerField(required=False)
     user_id = serializers.IntegerField(required=False)
-    skill_id = serializers.CharField(required=False)
+    skill_id = serializers.CharField(required=False,max_length=10)
     level = serializers.IntegerField(required=False)
     skills = serializers.ListField(required=False)
 
@@ -104,6 +104,7 @@ class SkillProficiencySerializer(serializers.Serializer):
         self.response = {
             "success":True,
             "message":"Skill Proficiency updated successfully",
+            "payload": model_to_dict(skill_Proficiency)
         }
         return {
             "id":id

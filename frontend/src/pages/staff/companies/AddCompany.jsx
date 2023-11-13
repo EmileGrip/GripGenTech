@@ -101,90 +101,80 @@ const AddCompany = () => {
     enableReinitialize: true,
   });
 
-  const sendCompanyData = useCallback(
-    async (token, values) => {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
+  const sendCompanyData = useCallback(async (token, values) => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    };
+
+    try {
+      // setLoading(true);
+      const response = await axiosInstance.post(
+        `company`,
+        {
+          name: values.name,
+          industry: values.industry,
         },
-      };
-
-      try {
-        // setLoading(true);
-        const response = await axiosInstance.post(
-          `company`,
-          {
-            name: values.name,
-            industry: values.industry,
-          },
-          config
-        );
-        console.log(response.data);
-        setMessage(response.data.message);
-        successHandler(true);
-        // Check if the API call was successful and return the companyId
-        if (
-          response.data &&
-          response.data.payload &&
-          response.data.payload.id
-        ) {
-          return response.data.payload.id;
-        }
-        // onClose();
-      } catch (error) {
-        console.log(error.response.data);
-        setMessage(error.response.data.message);
-        successHandler(false);
-        // Return null in case of an error
-        return null;
-      } finally {
-        // setLoading(false);
+        config
+      );
+      console.log(response.data);
+      setMessage(response.data.message);
+      successHandler(true);
+      // Check if the API call was successful and return the companyId
+      if (response.data && response.data.payload && response.data.payload.id) {
+        return response.data.payload.id;
       }
-    },
-    [token]
-  );
+      // onClose();
+    } catch (error) {
+      console.log(error.response.data);
+      setMessage(error.response.data.message);
+      successHandler(false);
+      // Return null in case of an error
+      return null;
+    } finally {
+      // setLoading(false);
+    }
+  }, []);
 
-  const sendUserData = useCallback(
-    async (token, values, companyId) => {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
+  const sendUserData = useCallback(async (token, values, companyId) => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    };
+
+    try {
+      setLoading(true);
+      const response = await axiosInstance.post(
+        `user`,
+        {
+          first_name: values.firstName,
+          last_name: values.lastName,
+          email: values.email,
+          system_role: "admin",
+          company_id: companyId,
         },
-      };
-
-      try {
-        setLoading(true);
-        const response = await axiosInstance.post(
-          `user`,
-          {
-            first_name: values.firstName,
-            last_name: values.lastName,
-            email: values.email,
-            system_role: "admin",
-            company_id: companyId,
-          },
-          config
-        );
-        console.log(response.data);
-        setMessage(response.data.message);
-        successHandler(true);
-        // onClose();
-        // onFetch();
-      } catch (error) {
-        console.log(error.response.data);
-        setMessage(error.response.data.message);
-        successHandler(false);
-      } finally {
-        setLoading(false);
-        // closeModal();
-      }
-    },
-    [token]
-  );
+        config
+      );
+      console.log(response.data);
+      setMessage(response.data.message);
+      successHandler(true);
+      // onClose();
+      // onFetch();
+    } catch (error) {
+      console.log(error.response.data);
+      setMessage(error.response.data.message);
+      successHandler(false);
+    } finally {
+      setLoading(false);
+      // closeModal();
+    }
+  }, []);
 
   return (
     <>

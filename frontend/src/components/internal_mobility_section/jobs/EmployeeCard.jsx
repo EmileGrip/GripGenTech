@@ -15,12 +15,33 @@ import dollarIcon from "../../../assets/dollar_icon.svg";
 import correctIcon from "../../../assets/correct_icon.svg";
 import React from "react";
 import { Link } from "react-router-dom";
-import { skillsTable } from "../../../data/skillsData";
+import {
+  ADMIN_EMPLOYEES_PROFILE,
+  EMPLOYEE_EMPLOYEES_PROFILE,
+  MANAGER_EMPLOYEES_PROFILE,
+} from "../../../routes/paths";
+import { useSelector } from "react-redux";
 
 const EmployeeCard = ({ data }) => {
   const theme = useTheme();
   const smMatches = useMediaQuery(theme.breakpoints.up("sm"));
-  const modifiedSkills = skillsTable.slice(0, 4);
+  const { userInfo } = useSelector((state) => state.auth);
+
+  const profileLink =
+    userInfo.system_role === "employee"
+      ? `${EMPLOYEE_EMPLOYEES_PROFILE}/${data.id}`
+      : userInfo.system_role === "manager"
+      ? `${MANAGER_EMPLOYEES_PROFILE}/${data.id}`
+      : userInfo.system_role === "admin"
+      ? `${ADMIN_EMPLOYEES_PROFILE}/${data.id}`
+      : "/"; // Default URL or handle other cases here
+  let percentage;
+
+  if (data?.percentage > 0 && data?.percentage <= 100) {
+    percentage = data?.percentage;
+  } else if (data?.percentage > 100) {
+    percentage = 100;
+  }
 
   return (
     <Stack sx={{ flexDirection: "row" }}>
@@ -46,7 +67,7 @@ const EmployeeCard = ({ data }) => {
           }}
         >
           <Avatar
-            src={profilePic}
+            src={data?.pic}
             alt="Profile pic"
             sx={{ width: "75px", height: "75px" }}
           />
@@ -72,19 +93,40 @@ const EmployeeCard = ({ data }) => {
               fontWeight: 700,
             }}
           >
-            jason ruly
+            {data.name}
           </Typography>
 
           <Stack sx={{ alignItems: "center" }}>
-            <img src={progressBar} alt="Horizontal progress bar" />
-
+            <Box
+              sx={{
+                width: "124px",
+                height: "8px",
+                border: "transparent",
+                borderRadius: "10px",
+                backgroundColor: "white",
+                position: "relative",
+              }}
+            >
+              <Box
+                sx={{
+                  backgroundColor: "#6ae6a4",
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  height: "100%",
+                  width: `${percentage}%`,
+                  border: "transparent",
+                  borderRadius: "10px",
+                }}
+              />
+            </Box>
             <Typography variant="body2" color="#FFFFFF">
               Match Level
             </Typography>
           </Stack>
         </Stack>
 
-        <Link to={"/"}>
+        <Link to={`mailto:${data?.email}`}>
           <Button
             sx={{ width: "152px", background: (theme) => theme.palette.accent }}
           >
@@ -95,7 +137,7 @@ const EmployeeCard = ({ data }) => {
         </Link>
 
         <Link
-          to={"/"}
+          to={profileLink}
           style={{ textDecoration: "underline", color: "#FFFFFF" }}
         >
           <Typography variant="body1" textTransform="none">
@@ -116,7 +158,7 @@ const EmployeeCard = ({ data }) => {
             px: 2,
           }}
         >
-          <Stack sx={{ gap: "20px" }}>
+          {/* <Stack sx={{ gap: "20px" }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: "12px" }}>
               <img src={experienceIcon} alt="Experience icon" />
 
@@ -134,16 +176,23 @@ const EmployeeCard = ({ data }) => {
             </Box>
           </Stack>
 
-          <Divider sx={{ my: "12px" }} />
+          <Divider sx={{ my: "12px" }} /> */}
 
           <Typography variant="h5" color="darkGreen" fontWeight="600" mb={1}>
             Proficiency
           </Typography>
 
-          <Stack sx={{ gap: 1 }}>
-            {modifiedSkills.map((skill) => (
+          <Stack
+            sx={{
+              height: "200px",
+              overflowY: "auto",
+              pr: 2,
+              gap: 1,
+            }}
+          >
+            {data?.skills?.map((skill) => (
               <Box
-                key={skill.skillName}
+                key={skill}
                 sx={{
                   display: "flex",
                   justifyContent: "space-between",
@@ -152,7 +201,7 @@ const EmployeeCard = ({ data }) => {
                 }}
               >
                 <Typography
-                  title={skill.skillName}
+                  title={skill}
                   variant="body1"
                   color="#788894"
                   sx={{
@@ -162,7 +211,7 @@ const EmployeeCard = ({ data }) => {
                     width: "80%",
                   }}
                 >
-                  {skill.skillName}
+                  {skill}
                 </Typography>
 
                 <img src={correctIcon} alt="Correct icon" />

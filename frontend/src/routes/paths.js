@@ -16,6 +16,8 @@ export const EMPLOYEE_ORGANIGRAM_ROUTE = "/employee/organigram";
 export const EMPLOYEE_EMPLOYEES_PROFILE = "/employee/organigram/profile";
 export const EMPLOYEE_INTERNAL_MOBILITY_ROUTE = "/employee/internal-mobility";
 export const EMPLOYEE_JOBS_ROUTE = "/employee/internal-mobility/jobs";
+export const EMPLOYEE_JOBS_OVERVIEW_ROUTE =
+  "/employee/internal-mobility/jobs/jobs-overview";
 export const EMPLOYEE_NEW_JOB_ROUTE =
   "/employee/internal-mobility/jobs/new-job";
 export const EMPLOYEE_PROJECT_OVERVIEW_ROUTE =
@@ -23,6 +25,8 @@ export const EMPLOYEE_PROJECT_OVERVIEW_ROUTE =
 export const EMPLOYEE_JOB_DETAILS_ROUTE =
   "/employee/internal-mobility/jobs/job-details";
 export const EMPLOYEE_PROJECTS_ROUTE = "/employee/internal-mobility/projects";
+export const EMPLOYEE_PROJECTS_OVERVIEW_ROUTE =
+  "/employee/internal-mobility/projects/projects-overview";
 export const EMPLOYEE_NEW_PROJECT_ROUTE =
   "/employee/internal-mobility/projects/new-project";
 export const EMPLOYEE_PROJECT_DETAILS_ROUTE =

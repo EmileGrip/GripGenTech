@@ -16,7 +16,7 @@ const HeadersTable = () => {
         pl: "38px",
       }}
     >
-      <Grid xs={8} sm={10} lg={5} key={"Skill"} sx={{ pl: { lg: 2 } }}>
+      <Grid xs={8} sm={10} md={9} lg={5} key={"Skill"} sx={{ pl: { lg: 2 } }}>
         <Typography
           sx={{
             color: "primary.main",
@@ -29,7 +29,7 @@ const HeadersTable = () => {
       </Grid>
 
       {lgMatches && (
-        <Grid xs={0} lg={7} key={"Description"}>
+        <Grid xs={0} lg={7} xl={6} key={"Description"}>
           <Typography
             sx={{
               color: "primary.main",
@@ -46,6 +46,7 @@ const HeadersTable = () => {
         xs={8}
         sm={6}
         lg={4}
+        xl={5}
         key={"Proficiency"}
         sx={{
           textAlign: { md: "center", lg: "left" },

@@ -1,13 +1,11 @@
 from rest_framework import serializers, exceptions
-from schema.models import JobProfile,GripUser,Company,Role,JobTitle,CareerJob,SkillProficiency,SkillRequirement,GripFile
-from datetime import datetime
-from django.forms.models import model_to_dict
+from schema.models import JobProfile,GripUser,Role,CareerJob,SkillProficiency,SkillRequirement,JobVacancy,ProjectVacancy
 from neomodel import db
 from role.fuzzy_matching import get_best_matched_occupation
-from job_vacancy.matching import getProfileMatchingvacancies,getCareerMatchingVacancies
+from job_vacancy.matching import matchVacancy
 class GetSerializer(serializers.Serializer):
-    type = serializers.ChoiceField(choices=['user_skills', 'job_skills','careerpath','occupation','job_vacancy'],required=True)
-    value = serializers.CharField(required=True)
+    type = serializers.ChoiceField(choices=['user_skills', 'job_skills','careerpath','occupation','vacancy','job_candidate','project_candidate','role_candidate'],required=True)
+    value = serializers.CharField(required=True,max_length=50)
     def get_node_id(self,node):
         #split element_id 
         return node.element_id.split(":")[-1]
@@ -24,8 +22,29 @@ class GetSerializer(serializers.Serializer):
             recoommendations = self.get_careerpath_reccomendations(value)
         if r_type == 'occupation':
             recoommendations = self.get_occupation_reccomendations(value)
-        if r_type == 'job_vacancy':
-            recoommendations = self.get_job_vacancy_recommendations(value)
+        if r_type == 'vacancy':
+            user_id = self.context['request'].user.id
+            if not value in ["job","project"]:
+                raise exceptions.ValidationError('Invalid vacancy type, vacancy should be job or project')
+            recoommendations = self.get_vacancy_recommendations(value,user_id)
+        if r_type == 'job_candidate':
+            #check if value is number
+            if str(value).isdigit() == False:
+                raise exceptions.ValidationError('Invalid vacancy id')
+            #check if vacancy exists
+            if not JobVacancy.objects.filter(id=value,company_id=self.context['request'].user.company_id.id).exists():
+                raise exceptions.ValidationError('Vacancy does not exist')
+            recoommendations = self.get_job_candidate_reccomendations(value)
+        if r_type == 'project_candidate':
+            #check if value is number
+            if str(value).isdigit() == False:
+                raise exceptions.ValidationError('Invalid vacancy id')
+            #check if vacancy exists
+            if not ProjectVacancy.objects.filter(id=value,company_id=self.context['request'].user.company_id.id).exists():
+                raise exceptions.ValidationError('Vacancy does not exist')
+            recoommendations = self.get_project_candidate_reccomendations(value)
+        if r_type == 'role_candidate':
+            recoommendations = self.get_role_candidate_reccomendations(value)
         self.response = {
             "success":True,
             "message":"Recommendations fetched successfully.",
@@ -163,8 +182,15 @@ class GetSerializer(serializers.Serializer):
             })
         return result
     
-    def get_job_vacancy_recommendations(self,user_id):
-        return {
-            "profile_based": getProfileMatchingvacancies(user_id,as_dict=True),
-            "career_based": getCareerMatchingVacancies(user_id)
-        }
+    def get_vacancy_recommendations(self,vacancy_type,id):
+        
+        return matchVacancy(id,vacancy_type)
+    
+    def get_job_candidate_reccomendations(self,user_id) :
+        return matchVacancy(user_id,"job_candidate")
+    
+    def get_project_candidate_reccomendations(self,user_id) :
+        return matchVacancy(user_id,"project_candidate")
+    
+    def get_role_candidate_reccomendations(self,user_id) :
+        return matchVacancy(user_id,"role_candidate")

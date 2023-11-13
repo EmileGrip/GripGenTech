@@ -1,42 +1,47 @@
-from schema.models import JobVacancy,VacancyRole,VacancySkill,JobPosting,JobProfile,Company
+from schema.models import JobVacancy,VacancySkill,JobPosting,JobProfile,Company
 from schema.utils import get_node_id,getNodeByID
-from vacancy_skill.lib import connectSkillToJobPost,addVacancySkill,disconnectSkillFromJobPost
-from vacancy_role.lib import addVacancyRole, getVacancyRoles
-from neomodel import db
-from job_vacancy.matching import getProfileMatchingvacancies, getCareerMatchingVacancies
+from vacancy_role.lib import addVacancyRole, getVacancyRoles,deleteVacancyRole
 
-def getUserMathchingJobs(user_id):
-    pass
+def formatJobVacancy(job):
+    vacancy_role= getVacancyRoles(job.id,'job')
+    if vacancy_role.exists():
+        vacancy_role = vacancy_role.first()
+    else:
+        return None
+    
+    return {
+        "id":job.id,
+        "department":job.department,
+        "status":job.status,
+        "email":job.user.email,
+        "role":{
+            "id":vacancy_role.id,
+            "title":vacancy_role.job_profile.title,
+            "job_profile_id":vacancy_role.job_profile.id,
+            "description":vacancy_role.description,
+            "start_date":vacancy_role.start_date,
+            "end_date":vacancy_role.end_date,
+            "hours":vacancy_role.hours,
+            "salary":vacancy_role.salary,
+            "skills":vacancy_role.skills.all().values("id","title","skill_ref","level")
+    }}
 
-
+def formatJobVacancies(jobs):
+    response = []
+    for job in jobs:
+        formatted_job= formatJobVacancy(job)
+        if formatted_job is None:
+            continue
+        response.append(formatted_job)
+    return response
+    
 def getJobVacancies(company_id,status):
     if status == 'all':
         jobs = JobVacancy.objects.filter(company_id=company_id)
     else:
         jobs = JobVacancy.objects.filter(company_id=company_id,status=status)
     
-    response = []
-    for job in jobs:
-        vacancy_role= getVacancyRoles(job.id,'job')
-        if vacancy_role.exists():
-            vacancy_role = vacancy_role.first()
-        else:
-            continue
-        response.append({
-            "id":job.id,
-            "department":job.department,
-            "status":job.status,
-            "role":{
-                "id":vacancy_role.id,
-                "title":vacancy_role.job_profile.title,
-                "description":vacancy_role.description,
-                "start_date":vacancy_role.start_date,
-                "end_date":vacancy_role.end_date,
-                "hours":vacancy_role.hours,
-                "salary":vacancy_role.salary,
-                "skills":vacancy_role.skills.all().values("id","title","skill_ref","level")
-        }})
-    return response
+    return jobs
         
 def addSkillsToRole(skills,vacancy_role,company_id):
     created_skills = []
@@ -60,6 +65,8 @@ def connectOccupationToJobPost(occupation,jobpost):
 def deleteJobVacancy(job_id):
     #get vacancy job 
     job = JobVacancy.objects.get(id=job_id)
+    for role in job.roles.all():
+        deleteVacancyRole(role.id)
     #get ref post id
     jobpost = getNodeByID("JobPosting",job.ref_post_id)
     jobpost.delete()
@@ -94,11 +101,12 @@ def addJobVacancy(job_profile_id,company_id,user_id,status,department,start_date
     #create job posting
     jobpost = JobPosting(
         job_title=job_profile.title,
-        company_name=company.name
+        company_name=company.name,
+        company_id=company_id
     )
     jobpost.save()
     #connect occupation if not None
-    connectOccupationToJobPost(occupation,jobpost)
+    #connectOccupationToJobPost(occupation,jobpost)
     #create vacancy    
     vacancy = JobVacancy.objects.create(
         company_id=company_id,
@@ -126,18 +134,22 @@ def addJobVacancy(job_profile_id,company_id,user_id,status,department,start_date
         }
     }
 
-def editJobVacancy(job_id,department):
+def editJobVacancy(job_id,department,status):
     #get vacancy job
     job = JobVacancy.objects.get(id=job_id)
-    job.department = department
+    if department:
+        job.department = department
+    if status:
+        job.status = status
     job.save()
 def getAction(data,context):
     if data["system_role"]=="employee":
         data["filter"] = "approved"
+    jobs = getJobVacancies(data["company_id"],data["filter"])
     return {
         "success":True,
         "message":"Job vacancies fetched successfully",
-        "payload":getJobVacancies(data["company_id"],data["filter"])
+        "payload":formatJobVacancies(jobs)
     }
     
 def postAction(data,context):
@@ -149,9 +161,9 @@ def postAction(data,context):
             data["company_id"],
             data["user_id"],
             data["status"],
-            data["department"],
+            data.get("department"),
             data["start_date"],
-            data["description"],
+            data.get("description"),
             data.get("skills"),
             data.get("end_date"),
             data.get("hours"),
@@ -160,9 +172,8 @@ def postAction(data,context):
         }
 
 def putAction(data,context):
-    #get vacancy job 
-    if data.get("department") is not None:
-        editJobVacancy(data["id"],data["department"])
+    #get vacancy job   
+    editJobVacancy(data["id"],data.get("department"),data.get("status"))
     return {
         "success":True,
         "message":"Job vacancy updated successfully"

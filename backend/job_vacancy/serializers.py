@@ -4,7 +4,7 @@ from schema.utils import get_non_none_dict
 from vacancy_role.serializers import VacancyRoleSerializer
 
 class GetSerializer(serializers.Serializer):
-    filter = serializers.ChoiceField(choices=['all','pending','approved','rejected'],required=False,default='all')
+    filter = serializers.ChoiceField(choices=['all','pending','approved','declined'],required=False,default='all')
     company_id = serializers.IntegerField(write_only=True,required=False)
     system_role = serializers.CharField(write_only=True,required=False)
 
@@ -20,13 +20,13 @@ class GetSerializer(serializers.Serializer):
             }
     
 class PostSerializer(serializers.Serializer):
-    department = serializers.CharField(required=True)
+    department = serializers.CharField(required=False,allow_blank=True,max_length=50)
     start_date = serializers.DateField(required=True)
     job_profile_id = serializers.IntegerField(required=True)
-    description = serializers.CharField(required=True)
+    description = serializers.CharField(required=False,allow_blank=True,max_length=700)
     end_date = serializers.CharField(required=False,allow_blank=True,allow_null=True)
-    hours = serializers.CharField(required=False)
-    salary = serializers.IntegerField(required=False)
+    hours = serializers.CharField(required=False,allow_blank=True,max_length=50)
+    salary = serializers.CharField(required=False,allow_blank=True,max_length=50)
     skills = serializers.ListField(required=False)
     user_id = serializers.IntegerField(write_only=True,required=False)
     system_role = serializers.CharField(write_only=True,required=False)
@@ -47,11 +47,6 @@ class PostSerializer(serializers.Serializer):
         system_role = self.context['request'].user.system_role
         company_id = self.context['request'].user.company_id.id
         status = data.get('status')
-        
-        #check if department is not in available roles
-        
-        if Role.objects.filter(company_id_id=company_id,department=department).exists() is False:
-            raise exceptions.ValidationError('Department does not exist')
         #get non null fields from data for vacancy role
         vacancy_role_data = get_non_none_dict(
             department=department,
@@ -85,7 +80,7 @@ class PostSerializer(serializers.Serializer):
 
 class PutSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=True)
-    department = serializers.CharField(required=False)
+    department = serializers.CharField(required=False,max_length=50)
     status = serializers.CharField(required=False)
     system_role = serializers.CharField(write_only=True,required=False)
     user_id = serializers.IntegerField(write_only=True,required=False)
@@ -97,14 +92,16 @@ class PutSerializer(serializers.Serializer):
         system_role = self.context['request'].user.system_role
         company_id = self.context['request'].user.company_id.id
         user_id = self.context['request'].user.id
+        status = data.get('status')
         #if role is manager, he only can update his own job
         if system_role == "manager":
             if JobVacancy.objects.filter(id=id,user_id=user_id).exists() is False:
                 raise exceptions.ValidationError('Job does not exist')
-            status = None
         elif system_role =="admin":
             if JobVacancy.objects.filter(id=id).exists() is False:
                 raise exceptions.ValidationError('Job does not exist')
+        else:
+            status = None
         return get_non_none_dict(
             id=id,
             department=department,

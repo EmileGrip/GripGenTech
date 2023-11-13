@@ -1,5 +1,5 @@
 from rest_framework import serializers, exceptions
-from schema.models import JobProfile,GripUser,Company,Role,JobTitle,CareerJob,SkillProficiency,SkillRequirement,CareerLink
+from schema.models import JobProfile,GripUser,Role,CareerJob,SkillProficiency,SkillRequirement,CareerLink
 from datetime import datetime
 from django.forms.models import model_to_dict
 

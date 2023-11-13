@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../../helper/axiosInstance";
 import { fetchCareerPathData } from "../../../redux/slices/Employee/development/developmentActions";
 import { setMessage } from "../../../redux/slices/Employee/development/developmentSlice";
+import { debounce } from "lodash";
 
 const formControlWrapperStyle = {
   minHeight: "140px",
@@ -116,6 +117,17 @@ const AddJobForm = ({ data, closeModal, onSuccess }) => {
     [token]
   );
 
+  const debouncedSearchJobs = useCallback(
+    debounce((token, inputValue) => {
+      if (inputValue !== "") {
+        searchJobs(token, inputValue);
+      } else {
+        setOptions([]);
+      }
+    }, 1000),
+    []
+  );
+
   const sendData = useCallback(
     async (token, values) => {
       const config = {
@@ -158,12 +170,8 @@ const AddJobForm = ({ data, closeModal, onSuccess }) => {
   );
 
   useEffect(() => {
-    if (inputValue !== "") {
-      searchJobs(token, inputValue);
-    } else {
-      setOptions([]);
-    }
-  }, [searchJobs, token, inputValue]);
+    debouncedSearchJobs(token, inputValue);
+  }, [debouncedSearchJobs, token, inputValue]);
 
   const selectValue = useCallback(
     (e, optionName) => {

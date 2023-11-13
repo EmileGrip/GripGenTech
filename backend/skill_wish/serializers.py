@@ -32,7 +32,7 @@ class GetSerializer(serializers.Serializer):
         return {}
     
 class PostSerializer(serializers.Serializer):
-    skill_id = serializers.CharField(required=True)
+    skill_id = serializers.CharField(required=True,max_length=10)
 
     def validate(self,data):
         skill_id = data.get('skill_id')

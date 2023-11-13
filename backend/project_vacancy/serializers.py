@@ -5,7 +5,7 @@ from vacancy_role.serializers import VacancyRoleSerializer
 from datetime import datetime
 
 class GetSerializer(serializers.Serializer):
-    filter = serializers.ChoiceField(choices=['all','pending','approved','rejected'],required=False,default='all')
+    filter = serializers.ChoiceField(choices=['all','pending','approved','declined'],required=False,default='all')
     company_id = serializers.IntegerField(write_only=True,required=False)
     system_role = serializers.CharField(write_only=True,required=False)
 
@@ -21,10 +21,10 @@ class GetSerializer(serializers.Serializer):
             }
     
 class PostSerializer(serializers.Serializer):
-    name = serializers.CharField(required=True)
-    department = serializers.CharField(required=True)
+    name = serializers.CharField(required=True,max_length=50)
+    department = serializers.CharField(required=False,max_length=50,allow_blank=True,allow_null=True)
     start_date = serializers.DateField(required=True)
-    description = serializers.CharField(required=True)
+    description = serializers.CharField(required=True,max_length=700)
     end_date = serializers.CharField(required=False,allow_blank=True,allow_null=True)
     roles = serializers.ListField(required=False)
     user_id = serializers.IntegerField(write_only=True,required=False)
@@ -44,12 +44,7 @@ class PostSerializer(serializers.Serializer):
         system_role = self.context['request'].user.system_role
         company_id = self.context['request'].user.company_id.id
         status = data.get('status')
-        
-        #check if department is not in available roles
-        
-        if Role.objects.filter(company_id_id=company_id,department=department).exists() is False:
-            raise exceptions.ValidationError('Department does not exist')
-        
+          
         if not end_date in [None,""]:
             #validate end date if it's a valid date
             try:
@@ -91,12 +86,12 @@ class PostSerializer(serializers.Serializer):
 
 class PutSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=True)
-    name = serializers.CharField(required=False,allow_null=True,allow_blank=True)
-    department = serializers.CharField(required=False,allow_blank=True,allow_null=True)
+    name = serializers.CharField(required=False,allow_null=True,allow_blank=True,max_length=50)
+    department = serializers.CharField(required=False,allow_blank=True,allow_null=True,max_length=50)
     start_date = serializers.CharField(required=False,allow_blank=True,allow_null=True)
-    description = serializers.CharField(required=False,allow_blank=True,allow_null=True)
+    description = serializers.CharField(required=False,allow_blank=True,allow_null=True,max_length=700)
     end_date = serializers.CharField(required=False,allow_blank=True,allow_null=True)
-    status = serializers.CharField(required=False,allow_blank=True)
+    status = serializers.CharField(required=False,allow_blank=True,max_length=50)
     system_role = serializers.CharField(write_only=True,required=False)
     user_id = serializers.IntegerField(write_only=True,required=False)
     company_id = serializers.IntegerField(write_only=True,required=False)

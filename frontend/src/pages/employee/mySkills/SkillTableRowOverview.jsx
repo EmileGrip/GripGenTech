@@ -39,6 +39,7 @@ const SkillTableRowOverview = ({ skill }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const { userInfo, token } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  const [localSkillLevel, setLocalSkillLevel] = useState(skill.level);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -50,7 +51,9 @@ const SkillTableRowOverview = ({ skill }) => {
   const openPopover = !!anchorEl;
 
   const increaseLevel = useCallback(async () => {
-    if (skill.level < 4) {
+    if (localSkillLevel < 4) {
+      setLocalSkillLevel((prev) => prev + 1);
+      const updatedSkillLevel = localSkillLevel + 1; // Use the updated state here
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -63,21 +66,24 @@ const SkillTableRowOverview = ({ skill }) => {
       try {
         const response = await axiosInstance.put(
           "skill_proficiency",
-          { level: skill.level + 1 },
+          { level: updatedSkillLevel },
           config
         );
         console.log(response.data.payload);
       } catch (error) {
         console.log(error.response.data);
+        setLocalSkillLevel((prev) => prev - 1);
       } finally {
         // setLoading(false);
-        dispatch(fetchSkillsData(userInfo.id));
+        // dispatch(fetchSkillsData(userInfo.id));
       }
     }
-  }, []);
+  }, [localSkillLevel]);
 
   const decreaseLevel = useCallback(async () => {
-    if (skill.level > 1) {
+    if (localSkillLevel > 1) {
+      setLocalSkillLevel((prev) => prev - 1);
+      const updatedSkillLevel = localSkillLevel - 1; // Use the updated state here
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -90,18 +96,19 @@ const SkillTableRowOverview = ({ skill }) => {
       try {
         const response = await axiosInstance.put(
           "skill_proficiency",
-          { level: skill.level - 1 },
+          { level: updatedSkillLevel },
           config
         );
         console.log(response.data.payload);
       } catch (error) {
         console.log(error.response.data);
+        setLocalSkillLevel((prev) => prev + 1);
       } finally {
         // setLoading(false);
-        dispatch(fetchSkillsData(userInfo.id));
+        // dispatch(fetchSkillsData(userInfo.id));
       }
     }
-  }, []);
+  }, [localSkillLevel]);
 
   const deleteData = useCallback(async () => {
     const config = {
@@ -279,7 +286,7 @@ const SkillTableRowOverview = ({ skill }) => {
                             color: "#0C1716",
                           }}
                         >
-                          {proficiencyMap[String(skill.level)]}
+                          {proficiencyMap[String(localSkillLevel)]}
                         </span>
                       </Typography>
                     </>
@@ -295,7 +302,7 @@ const SkillTableRowOverview = ({ skill }) => {
                     }}
                   >
                     <RatingBar
-                      initialValue={skill.level}
+                      initialValue={localSkillLevel}
                       requiredLevel={skill.required_level}
                     />
                   </span>

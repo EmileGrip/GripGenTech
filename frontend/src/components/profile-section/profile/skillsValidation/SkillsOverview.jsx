@@ -35,6 +35,7 @@ import {
 } from "../../../../redux/slices/Employee/mySkills/mySkillsActions";
 import { useFormik } from "formik";
 import { validationsForm } from "../../../../pages/employee/mySkills/validations/validationSchema";
+import { debounce } from "lodash";
 
 const SkillsOverview = ({
   skills,
@@ -229,6 +230,17 @@ const SkillsOverview = ({
     [token]
   );
 
+  const debouncedSearchSkills = useCallback(
+    debounce((token, inputValue) => {
+      if (inputValue !== "") {
+        searchSkills(token, inputValue);
+      } else {
+        setOptions([]);
+      }
+    }, 1000),
+    []
+  );
+
   const AddSkill = useCallback(
     async (token, values) => {
       const config = {
@@ -266,12 +278,8 @@ const SkillsOverview = ({
   );
 
   useEffect(() => {
-    if (inputValue !== "") {
-      searchSkills(token, inputValue);
-    } else {
-      setOptions([]);
-    }
-  }, [searchSkills, token, inputValue]);
+    debouncedSearchSkills(token, inputValue);
+  }, [debouncedSearchSkills, token, inputValue]);
 
   const selectValue = useCallback(
     (e, optionName) => {
@@ -324,6 +332,29 @@ const SkillsOverview = ({
     formik.setFieldValue("skill", value.skill_id);
     setValue(value.title);
   };
+
+  // Prevent page from going to the top after updating skills
+  const [targetId, setTargetId] = useState(null);
+
+  const handleSetTargetId = (id, deleteCase = false) => {
+    const index = skills.findIndex((skill) => skill.id === id);
+    if (index === 0) {
+      setTargetId(skills[index + 1].id);
+    } else if (index === skills.length - 1) {
+      setTargetId(skills[index - 1].id);
+    } else if (deleteCase) {
+      setTargetId(skills[index - 1].id);
+    } else {
+      setTargetId(id);
+    }
+  };
+
+  useEffect(() => {
+    const targetElement = document.getElementById(targetId);
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [targetId, skills]);
 
   return (
     <>
@@ -401,6 +432,7 @@ const SkillsOverview = ({
                             sendData={sendData}
                             deleteData={deleteData}
                             isProfile={isProfile}
+                            handleSetTargetId={handleSetTargetId}
                           />
                         ))}
                       </Box>
@@ -525,7 +557,7 @@ const SkillsOverview = ({
                       <Stack
                         sx={{
                           flexDirection: "row",
-                          justifyContent: { xs: "center" },
+                          // justifyContent: { xs: "center" },
                           alignItems: "center",
                           gap: "12px",
                           flexWrap: "wrap",

@@ -1,11 +1,18 @@
 import {
+  Alert,
   Box,
   Button,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Grid,
   IconButton,
   Menu,
   MenuItem,
+  Snackbar,
   Stack,
   Typography,
   useMediaQuery,
@@ -25,7 +32,6 @@ import {
 } from "../../../routes/paths";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { jobs } from "../../../data/jobsData";
-import { skillsTable } from "../../../data/skillsData";
 import SkillRow from "./SkillRow";
 import EmployeeCard from "./EmployeeCard";
 import JobCard from "./JobCard";
@@ -45,7 +51,6 @@ const JobDetails = ({ projects = false }) => {
   const mdMatches = useMediaQuery(theme.breakpoints.up("md"));
   const lgMatches = useMediaQuery(theme.breakpoints.up("lg"));
   const { id } = useParams();
-  const job = jobs.filter((job) => job.id == id)[0];
   const [showMore1, setShowMore1] = useState(false);
   const [showMore2, setShowMore2] = useState(false);
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
@@ -54,6 +59,22 @@ const JobDetails = ({ projects = false }) => {
   const { token } = useSelector((state) => state.auth);
   const [fetchedData, setFetchedData] = useState([]);
   const jobDetails = fetchedData?.filter((job) => job.id == id)[0];
+  const [recommendationsData, setRecommendationsData] = useState([]);
+
+  const URL = window.location.href;
+  const parts = URL.split("/");
+  const currentFlow = parts[3];
+
+  const initialJobsToDisplay1 = lgMatches ? 3 : 1;
+  const initialJobsToDisplay2 = lgMatches ? 2 : 1;
+
+  const goBackToPreviousPage = () => {
+    if (projects) {
+      navigate(EMPLOYEE_PROJECTS_ROUTE);
+    } else {
+      navigate(EMPLOYEE_JOBS_ROUTE);
+    }
+  };
 
   const fetchData = useCallback(
     async (token) => {
@@ -77,24 +98,74 @@ const JobDetails = ({ projects = false }) => {
     [token]
   );
 
+  const fetchRecommendationsData = useCallback(
+    async (token, roleId) => {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          type: "role_candidate",
+          value: roleId,
+        },
+      };
+
+      try {
+        // setRecommendationsDataLoading(true);
+        const response = await axiosInstance.get(`recommendations`, config);
+        console.log(response.data);
+        setRecommendationsData(response.data.payload);
+      } catch (error) {
+        console.log(error?.response.data);
+      } finally {
+        // setRecommendationsDataLoading(false);
+      }
+    },
+    [token]
+  );
+
   useEffect(() => {
     fetchData(token);
-  }, [token, fetchData]);
-
-  const URL = window.location.href;
-  const parts = URL.split("/");
-  const currentFlow = parts[3];
-
-  const initialJobsToDisplay1 = lgMatches ? 3 : 1;
-  const initialJobsToDisplay2 = lgMatches ? 2 : 1;
-
-  const goBackToPreviousPage = () => {
-    if (projects) {
-      navigate(EMPLOYEE_PROJECTS_ROUTE);
-    } else {
-      navigate(EMPLOYEE_JOBS_ROUTE);
+    if (currentFlow !== "admin" && jobDetails?.role?.id) {
+      fetchRecommendationsData(token, jobDetails?.role?.id);
     }
-  };
+  }, [token, fetchData, jobDetails?.role?.id]);
+
+  const editStatus = useCallback(
+    async (value) => {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      };
+
+      try {
+        // setLoading(true);
+        const response = await axiosInstance.put(
+          `job_vacancy`,
+          {
+            id,
+            status: value === "approve" ? "approved" : "declined",
+          },
+          config
+        );
+        console.log(response.data);
+        handleClickSnack(response.data);
+      } catch (error) {
+        handleClickSnack(error?.response.data);
+        console.log(error?.response.data);
+      } finally {
+        // setLoading(false);
+        // dispatch(fetchJobs());
+        fetchData(token);
+        handleCloseDialog();
+        handleMenuClose();
+      }
+    },
+    [token]
+  );
 
   const handleMenuOpen = (event) => {
     setMenuAnchorEl(event.currentTarget);
@@ -104,8 +175,50 @@ const JobDetails = ({ projects = false }) => {
     setMenuAnchorEl(null);
   };
 
+  const [clickedMenuItem, setClickedMenuItem] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
+  const handleOpenDialog = (value) => {
+    setClickedMenuItem(value);
+    setOpenDialog(true);
+  };
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  // Snackbar handlers
+  const [openSnack, setOpenSnack] = useState(false);
+  const [response, setResponse] = useState(null);
+
+  const handleClickSnack = (response) => {
+    setResponse(response);
+    setOpenSnack(true);
+  };
+
+  const handleCloseSnack = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpenSnack(false);
+  };
+
   return (
     <>
+      <Snackbar
+        open={openSnack}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        autoHideDuration={3000}
+        onClose={handleCloseSnack}
+      >
+        <Alert
+          onClose={handleCloseSnack}
+          severity={response?.success ? "success" : "error"}
+          sx={{ width: "100%" }}
+        >
+          {response?.message}
+        </Alert>
+      </Snackbar>
+
       {loading && <CircularProgress size={20} />}
       {!loading && (
         <Stack sx={{ gap: 3 }}>
@@ -172,7 +285,7 @@ const JobDetails = ({ projects = false }) => {
                 }}
               >
                 <MenuItem
-                  onClick={handleMenuClose}
+                  onClick={() => handleOpenDialog("approve")}
                   sx={{
                     fontSize: "16px",
                     color: "#788894",
@@ -184,7 +297,7 @@ const JobDetails = ({ projects = false }) => {
                   Approve
                 </MenuItem>
                 <MenuItem
-                  onClick={handleMenuClose}
+                  onClick={() => handleOpenDialog("decline")}
                   sx={{
                     fontSize: "16px",
                     color: "#788894",
@@ -196,6 +309,37 @@ const JobDetails = ({ projects = false }) => {
                   Decline
                 </MenuItem>
               </Menu>
+
+              <Dialog
+                open={openDialog}
+                onClose={handleCloseDialog}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+              >
+                <DialogTitle id="alert-dialog-title">
+                  {projects
+                    ? `Confirm Project ${clickedMenuItem}`
+                    : `Confirm Job ${clickedMenuItem}`}
+                </DialogTitle>
+                <DialogContent>
+                  <DialogContentText id="alert-dialog-description">
+                    {`Are you sure you want to ${clickedMenuItem} this ${
+                      projects ? "project" : "job"
+                    }?`}
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={handleCloseDialog} autoFocus>
+                    cancel
+                  </Button>
+                  <Button
+                    onClick={() => editStatus(clickedMenuItem)}
+                    color="error"
+                  >
+                    {clickedMenuItem}
+                  </Button>
+                </DialogActions>
+              </Dialog>
             </Stack>
           )}
 
@@ -253,9 +397,11 @@ const JobDetails = ({ projects = false }) => {
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                <IconButton onClick={goBackToPreviousPage}>
-                  <img src={leftArrow} alt="Return back icon" />
-                </IconButton>
+                {currentFlow !== "employee" && (
+                  <IconButton onClick={goBackToPreviousPage}>
+                    <img src={leftArrow} alt="Return back icon" />
+                  </IconButton>
+                )}
 
                 <Typography
                   variant="h2"
@@ -266,7 +412,7 @@ const JobDetails = ({ projects = false }) => {
                 </Typography>
               </Box>
 
-              <Link to={"/"}>
+              <Link to={`mailto:${jobDetails?.email}`}>
                 <Button
                   sx={{
                     width: { xs: "100%", sm: "220px" },
@@ -297,7 +443,7 @@ const JobDetails = ({ projects = false }) => {
               }}
             >
               <Typography variant="body1" textTransform="none">
-                Insurance Web and App
+                {jobDetails?.name}
               </Typography>
             </Link>
           )}
@@ -484,73 +630,42 @@ const JobDetails = ({ projects = false }) => {
                 </span>
               </Typography>
 
-              <Grid2
-                container
-                rowSpacing={"28px"}
-                columnSpacing={"20px"}
-                columns={{ xs: 4, lg: 8 }}
-              >
-                {showMore1
-                  ? jobs.map((job) => (
-                      <Grid2 xs={4} sm={4} md={4} lg={4} xl={4} key={job.id}>
-                        <EmployeeCard data={job} />
-                      </Grid2>
-                    ))
-                  : jobs.slice(0, initialJobsToDisplay2).map((job) => (
-                      <Grid2 xs={4} sm={4} md={4} lg={4} xl={4} key={job.id}>
-                        <EmployeeCard data={job} />
-                      </Grid2>
-                    ))}
-              </Grid2>
-
-              <Button
-                disableRipple={true}
-                variant="text"
-                sx={{
-                  color: "#66C1FF",
-                  alignSelf: "flex-start",
-                  textTransform: "capitalize",
-                  fontWeight: "400",
-                  lineHeight: "1.5",
-                  "&: hover": {
-                    backgroundColor: "transparent",
-                  },
-                  fontSize: { xs: "12px", md: "16px" },
-                  mt: { xs: -1 },
-                }}
-                onClick={() => setShowMore1(!showMore1)}
-              >
-                {showMore1 ? "Show less..." : "Show more..."}
-              </Button>
-            </Stack>
-          )}
-
-          {currentFlow === "employee" && (
-            <>
-              <Typography variant="h5" color="#707070" fontSize="18px">
-                Additional matches based on your current profile
-              </Typography>
-
-              <Stack sx={{ gap: "20px" }}>
+              {recommendationsData?.role_based?.length < 1 ? (
+                <Typography variant="h3" color="primary" mb={3.125}>
+                  No matches found
+                </Typography>
+              ) : (
                 <Grid2
                   container
                   rowSpacing={"28px"}
                   columnSpacing={"20px"}
-                  columns={{ xs: 4, md: 8, xl: 12 }}
+                  columns={{ xs: 4, lg: 8 }}
                 >
-                  {showMore2
-                    ? jobs.map((job) => (
+                  {showMore1
+                    ? recommendationsData?.role_based?.map((job) => (
                         <Grid2 xs={4} sm={4} md={4} lg={4} xl={4} key={job.id}>
-                          <JobCard data={job} />
+                          <EmployeeCard data={job} />
                         </Grid2>
                       ))
-                    : jobs.slice(0, initialJobsToDisplay1).map((job) => (
-                        <Grid2 xs={4} sm={4} md={4} lg={4} xl={4} key={job.id}>
-                          <JobCard data={job} />
-                        </Grid2>
-                      ))}
+                    : recommendationsData?.role_based
+                        ?.slice(0, initialJobsToDisplay2)
+                        .map((job) => (
+                          <Grid2
+                            xs={4}
+                            sm={4}
+                            md={4}
+                            lg={4}
+                            xl={4}
+                            key={job.id}
+                          >
+                            <EmployeeCard data={job} />
+                          </Grid2>
+                        ))}
                 </Grid2>
+              )}
 
+              {recommendationsData?.role_based?.length >
+                initialJobsToDisplay2 && (
                 <Button
                   disableRipple={true}
                   variant="text"
@@ -566,13 +681,69 @@ const JobDetails = ({ projects = false }) => {
                     fontSize: { xs: "12px", md: "16px" },
                     mt: { xs: -1 },
                   }}
-                  onClick={() => setShowMore2(!showMore2)}
+                  onClick={() => setShowMore1(!showMore1)}
                 >
-                  {showMore2 ? "Show less..." : "Show more..."}
+                  {showMore1 ? "Show less..." : "Show more..."}
                 </Button>
+              )}
+            </Stack>
+          )}
+
+          {/* {currentFlow === "employee" && (
+            <>
+              <Typography variant="h5" color="#707070" fontSize="18px">
+                Additional matches based on your current profile
+              </Typography>
+
+              <Stack sx={{ gap: "20px" }}>
+                <Grid2
+                  container
+                  rowSpacing={"28px"}
+                  columnSpacing={"20px"}
+                  columns={{ xs: 4, md: 8, xl: 12 }}
+                >
+                  {showMore2
+                    ? recommendationsBasedOnProfileData?.profile_based?.map(
+                        (job) => (
+                          <Grid2 xs={4} key={job.id}>
+                            <JobCard data={job} />
+                          </Grid2>
+                        )
+                      )
+                    : recommendationsBasedOnProfileData?.profile_based
+                        ?.slice(0, initialJobsToDisplay1)
+                        .map((job) => (
+                          <Grid2 xs={4} key={job.id}>
+                            <JobCard data={job} />
+                          </Grid2>
+                        ))}
+                </Grid2>
+
+                {recommendationsData?.role_based?.length >
+                  initialJobsToDisplay1 && (
+                  <Button
+                    disableRipple={true}
+                    variant="text"
+                    sx={{
+                      color: "#66C1FF",
+                      alignSelf: "flex-start",
+                      textTransform: "capitalize",
+                      fontWeight: "400",
+                      lineHeight: "1.5",
+                      "&: hover": {
+                        backgroundColor: "transparent",
+                      },
+                      fontSize: { xs: "12px", md: "16px" },
+                      mt: { xs: -1 },
+                    }}
+                    onClick={() => setShowMore2(!showMore2)}
+                  >
+                    {showMore2 ? "Show less..." : "Show more..."}
+                  </Button>
+                )}
               </Stack>
             </>
-          )}
+          )} */}
         </Stack>
       )}
     </>

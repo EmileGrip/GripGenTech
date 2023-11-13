@@ -21,16 +21,20 @@ import editIcon from "../assets/edit_icon.svg";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 
-const CardEmployee = ({ onOpen, data, handleOpenEditForm, setEmployeeId }) => {
+const CardEmployee = ({
+  onOpen,
+  data,
+  handleOpenEditForm,
+  setClickedEmployeeData,
+}) => {
   const dispatch = useDispatch();
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
 
   const handleClick = (event) => {
-    // setAnchorEl(event.currentTarget);
-    handleOpenEditForm();
-    setEmployeeId(data.id);
+    setAnchorEl(event.currentTarget);
+    setClickedEmployeeData(data);
   };
   const handleClose = () => {
     setAnchorEl(null);

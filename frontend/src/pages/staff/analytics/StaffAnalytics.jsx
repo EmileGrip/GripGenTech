@@ -11,13 +11,7 @@ const StaffAnalytics = () => {
   const [loading, setLoading] = useState(true);
   const { token } = useSelector((state) => state.auth);
 
-  useEffect(() => {
-    if (token) {
-      fetchAnalyticsData();
-    }
-  }, [token]);
-
-  const fetchAnalyticsData = useCallback(async () => {
+  const fetchAnalyticsData = useCallback(async (token) => {
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -35,7 +29,11 @@ const StaffAnalytics = () => {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, []);
+
+  useEffect(() => {
+    fetchAnalyticsData(token);
+  }, []);
 
   return (
     <>

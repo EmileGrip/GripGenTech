@@ -4,13 +4,16 @@ import axiosInstance from "../../../helper/axiosInstance";
 
 export const fetchJobs = createAsyncThunk(
   "fetchJobs/fetchData",
-  async (_, { getState }) => {
+  async (filter = "all", { getState }) => {
     const { token } = getState().auth;
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
         Accept: "application/json",
+      },
+      params: {
+        filter,
       },
     };
     const response = await axiosInstance.get(`job_vacancy`, config);

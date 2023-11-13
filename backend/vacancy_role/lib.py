@@ -1,5 +1,6 @@
-from schema.models import JobVacancy,VacancyRole,ProjectVacancy
+from schema.models import JobVacancy,VacancyRole,ProjectVacancy,JobPostingRole,JobProfile
 from vacancy_skill.lib import addVacancySkill,deleteVacancySkill
+from schema.utils import getNodeByID,get_node_id
 
 def getVacancyRoles(vacancy_id,vacancy_type):
     vacancy = None
@@ -12,6 +13,36 @@ def getVacancyRoles(vacancy_id,vacancy_type):
     roles = vacancy.roles.all()
     return roles
 
+def addJobPostingRole(role_title,company_id):
+    role = JobPostingRole(
+        role_title=role_title,
+        company_id=company_id
+    )
+    role.save()
+    return role
+
+def getJobProfileAndOccupation(job_id):
+    job_profile = JobProfile.objects.get(id=job_id)
+    job_id = job_profile.job_id
+    #get jobTitle by id
+    job_title = getNodeByID("JobTitle",job_id)
+    occupation = job_title.SimilarTo.all()
+    if len(occupation) == 0:
+        occupation=None
+    else:
+        occupation = occupation[0]
+        
+    return job_profile,occupation
+def connectRoleToJobPost(role,jobpost):
+    if jobpost is not None:
+        jobpost.HasRole.connect(role)
+        jobpost.save()
+        
+def connectRoleToOccupation(occupation,role):
+    if occupation is not None:
+        role.BestMatchTitle.connect(occupation)
+        role.save()
+
 def addVacancyRole(vacancy_id,vacancy_type,job_profile_id,company_id,start_date,description,skills,end_date,hours,salary):
     vacancy = None
     if vacancy_type == "job":
@@ -20,6 +51,15 @@ def addVacancyRole(vacancy_id,vacancy_type,job_profile_id,company_id,start_date,
         vacancy = ProjectVacancy.objects.get(id=vacancy_id)
     else:
         raise Exception("Invalid vacancy type")
+    #get job profile by id 
+    job_profile,occupation = getJobProfileAndOccupation(job_profile_id)
+    #create job posting role
+    job_posting_role = addJobPostingRole(
+        job_profile.title,
+        company_id
+    ) 
+    #connect role to occupation
+    connectRoleToOccupation(occupation,job_posting_role)   
     #create vacancy role
     vacancy_role = VacancyRole.objects.create(
         company_id=company_id,
@@ -29,12 +69,16 @@ def addVacancyRole(vacancy_id,vacancy_type,job_profile_id,company_id,start_date,
         hours=hours,
         salary=salary,
         description=description,
-        vacancy=vacancy
+        vacancy=vacancy,
+        role_ref_id=get_node_id(job_posting_role)
     )
     #add skills
     if skills is not None:
         for skill in skills : 
             addVacancySkill(vacancy_role.id,skill["skill_ref"],skill["level"])
+    #connect role to job post
+    jobpost = getNodeByID("JobPosting",vacancy.ref_post_id)
+    connectRoleToJobPost(job_posting_role,jobpost)
     return vacancy_role
 
 def editVacancyRole(id,job_profile_id,start_date,description,end_date,hours,salary):
@@ -60,6 +104,10 @@ def deleteVacancyRole(id):
     #disconnect skills
     for skill in role.skills.all():
         deleteVacancySkill(skill.id)
+    #get role post
+    jobpost = getNodeByID("JobPostingRole",role.role_ref_id)
+    #delete role
+    jobpost.delete()
     #delete vacancy role
     role.delete()   
     

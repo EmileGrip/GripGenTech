@@ -9,11 +9,11 @@ class ExperienceSerializer(serializers.Serializer):
     
     #define the fields related to the model Experience
     id = serializers.IntegerField(required=False)
-    company = serializers.CharField(required=False)
-    title = serializers.CharField(required=False)
+    company = serializers.CharField(required=False,max_length=50)
+    title = serializers.CharField(required=False,max_length=50)
     start_date = serializers.DateField(required=False)
     end_date = serializers.DateField(required=False)
-    description = serializers.CharField(required=False)
+    description = serializers.CharField(required=False,max_length=500)
     is_current = serializers.BooleanField(required=False)
     user_id = serializers.IntegerField(required=False)
 

@@ -14,8 +14,10 @@ import Grid2 from "@mui/material/Unstable_Grid2";
 import SearchIcon from "@mui/icons-material/Search";
 import { DatePicker } from "@mui/x-date-pickers";
 import { useCallback, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../../helper/axiosInstance";
+import { fetchSkillProfileRecommendationData } from "../../../redux/slices/admin/skillProfile/skillProfileActions";
+import { debounce } from "lodash";
 
 const boxStyles = {
   minHeight: "82px",
@@ -44,6 +46,7 @@ const Details = ({
   const [jobDepartmentOptions, setJobDepartmentOptions] = useState([]);
   const [jobRoleOptions, setJobRoleOptions] = useState([]);
   const { token } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
   const noDepartmentsMatch = "No departments match";
   const noRolesMatch = "No roles match";
 
@@ -51,7 +54,7 @@ const Details = ({
   const [loading, setLoading] = useState(false);
 
   const searchJobs = useCallback(
-    async (token, value, fieldName, isRole = false) => {
+    debounce(async (token, value, fieldName, isRole = false) => {
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -95,15 +98,62 @@ const Details = ({
       } finally {
         setLoading(false);
       }
+    }, 500),
+    [token]
+  );
+
+  const addRole = useCallback(
+    async (title) => {
+      // Remove double quotes from the title
+      const roleTitle = title.replace(/"/g, "");
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      };
+
+      try {
+        const response = await axiosInstance.post(
+          `job_profile`,
+          {
+            title: roleTitle,
+          },
+          config
+        );
+        console.log(response.data);
+        formik.setFieldValue("fullRoleObj", response.data.payload);
+        if (response.data.payload.id) {
+          dispatch(
+            fetchSkillProfileRecommendationData(response.data.payload.id)
+          );
+        }
+        return response.data.payload.id;
+      } catch (error) {
+        console.log(error.response.data);
+      } finally {
+        // dispatch(fetchSkillProfileRecommendationData(response.data.payload.id));
+      }
     },
     [token]
   );
 
-  const jobRoleHandler = async (value) => {
-    const selectedId = await searchJobs(token, value, "jobRole", true);
-    const selectedRole = await searchJobs(token, value, "jobRole");
+  const jobRoleHandler = async (fieldName, value) => {
+    let selectedId;
+    let selectedRole;
+
+    if (fieldName === "jobRole") {
+      selectedId = await searchJobs(token, value, "jobRole", true);
+      selectedRole = await searchJobs(token, value, "jobRole");
+    } else if (fieldName === "projectRole") {
+      selectedId = await searchJobs(token, value, "projectRole", true);
+      selectedRole = await searchJobs(token, value, "projectRole");
+    }
+
     if (selectedId) {
-      formik.setFieldValue("role", selectedId);
+      formik.setFieldValue("role", selectedId.id);
     } else {
       formik.setFieldValue("role", "");
     }
@@ -124,7 +174,7 @@ const Details = ({
   }, [searchJobs, token, inputProjectDepartmentValue]);
   useEffect(() => {
     if (inputProjectRoleValue !== "") {
-      jobRoleHandler(inputProjectRoleValue);
+      jobRoleHandler("projectRole", inputProjectRoleValue);
     } else {
       setProjectRoleOptions([]);
     }
@@ -139,7 +189,7 @@ const Details = ({
   }, [searchJobs, token, inputJobDepartmentValue]);
   useEffect(() => {
     if (inputJobRoleValue !== "") {
-      jobRoleHandler(inputJobRoleValue);
+      jobRoleHandler("jobRole", inputJobRoleValue);
     } else {
       setJobRoleOptions([]);
     }
@@ -238,17 +288,37 @@ const Details = ({
                 value={
                   chosenRole?.title ? chosenRole?.title : inputProjectRoleValue
                 }
-                options={
-                  projectRoleOptions.length < 1
-                    ? [noRolesMatch].map((option) => option)
-                    : projectRoleOptions.map((option) => option.title)
-                }
+                options={[
+                  ...projectRoleOptions.map((option) => option.title),
+                  // Add "Add 'string that user typed'" option conditionally
+                  inputProjectRoleValue &&
+                  !projectRoleOptions.some(
+                    (option) => option.title === inputProjectRoleValue
+                  )
+                    ? `Add "${inputProjectRoleValue}"`
+                    : null,
+                ].filter(Boolean)}
                 inputValue={inputProjectRoleValue}
                 onInputChange={(event, newValue) => {
                   handleInputChange(event, newValue, "projectRole");
                 }}
                 onBlur={formik.handleBlur}
-                onChange={(e, value) => handleFieldChange(e, "role")}
+                onChange={async (e, value) => {
+                  if (value.startsWith("Add ")) {
+                    // Handle adding the role here
+                    const newRole = value.substring(4);
+                    // Call the addRole function to add the new role
+                    const newRoleId = await addRole(newRole);
+                    if (newRoleId) {
+                      // Update your formik field with the newly added role ID
+                      formik.setFieldValue("role", newRoleId);
+                    }
+                    // Reset the input value
+                    // setInputJobRoleValue("");
+                  } else {
+                    handleFieldChange(e, "role");
+                  }
+                }}
                 sx={formControlStyles}
                 renderInput={(params) => (
                   <TextField
@@ -411,13 +481,37 @@ const Details = ({
                   value={
                     data?.role.title ? data?.role.title : inputJobRoleValue
                   }
-                  options={jobRoleOptions.map((option) => option.title)}
+                  options={[
+                    ...jobRoleOptions.map((option) => option.title),
+                    // Add "Add 'string that user typed'" option conditionally
+                    inputJobRoleValue &&
+                    !jobRoleOptions.some(
+                      (option) => option.title === inputJobRoleValue
+                    )
+                      ? `Add "${inputJobRoleValue}"`
+                      : null,
+                  ].filter(Boolean)}
                   inputValue={inputJobRoleValue}
                   onInputChange={(event, newValue) => {
                     handleInputChange(event, newValue, "jobRole");
                   }}
                   onBlur={formik.handleBlur}
-                  onChange={(e, value) => handleFieldChange(e, "role")}
+                  onChange={async (e, value) => {
+                    if (value.startsWith("Add ")) {
+                      // Handle adding the role here
+                      const newRole = value.substring(4);
+                      // Call the addRole function to add the new role
+                      const newRoleId = await addRole(newRole);
+                      if (newRoleId) {
+                        // Update your formik field with the newly added role ID
+                        formik.setFieldValue("role", newRoleId);
+                      }
+                      // Reset the input value
+                      // setInputJobRoleValue("");
+                    } else {
+                      handleFieldChange(e, "role");
+                    }
+                  }}
                   sx={formControlStyles}
                   renderInput={(params) => (
                     <TextField

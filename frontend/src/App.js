@@ -74,6 +74,8 @@ import {
   MANAGER_PROJECT_DETAILS_ROUTE,
   ADMIN_PROJECT_DETAILS_ROUTE,
   ROLES_REQUIRED_ROUTE,
+  EMPLOYEE_JOBS_OVERVIEW_ROUTE,
+  EMPLOYEE_PROJECTS_OVERVIEW_ROUTE,
 } from "./routes/paths";
 import WorkExperience from "./pages/employee/workExperience/WorkExperience";
 import LearningExperience from "./pages/employee/learningExperience/LearningExperience";
@@ -116,6 +118,8 @@ import ProjectOverview from "./components/internal_mobility_section/projects/Pro
 import ProjectDetails from "./components/internal_mobility_section/projects/ProjectDetails";
 import RolesRequired from "./components/internal_mobility_section/projects/RolesRequired";
 import SkillProfilePage from "./pages/admin/skillProfile/SkillProfilePage";
+import JobsOverview from "./components/internal_mobility_section/jobs/JobsOverview";
+import ProjectsOverview from "./components/internal_mobility_section/projects/ProjectsOverview";
 
 function App() {
   const [role, setRole] = useState(null);
@@ -180,6 +184,11 @@ function App() {
 
                 <Route path={EMPLOYEE_JOBS_ROUTE} element={<Jobs />} />
 
+                <Route
+                  path={EMPLOYEE_JOBS_OVERVIEW_ROUTE}
+                  element={<JobsOverview />}
+                />
+
                 <Route path={EMPLOYEE_NEW_JOB_ROUTE} element={<AddJobForm />} />
 
                 <Route
@@ -188,6 +197,11 @@ function App() {
                 />
 
                 <Route path={EMPLOYEE_PROJECTS_ROUTE} element={<Projects />} />
+
+                <Route
+                  path={EMPLOYEE_PROJECTS_OVERVIEW_ROUTE}
+                  element={<ProjectsOverview />}
+                />
 
                 <Route
                   path={EMPLOYEE_NEW_PROJECT_ROUTE}
@@ -201,11 +215,11 @@ function App() {
 
                 <Route
                   path={`${EMPLOYEE_PROJECT_DETAILS_ROUTE}/:id`}
-                  element={<JobDetails projects={true} />}
+                  element={<ProjectDetails />}
                 />
 
                 <Route
-                  path={`${EMPLOYEE_PROJECT_DETAILS_ROUTE}/:id${ROLES_REQUIRED_ROUTE}`}
+                  path={`${EMPLOYEE_PROJECT_DETAILS_ROUTE}/:id${ROLES_REQUIRED_ROUTE}/:roleId`}
                   element={<RolesRequired />}
                 />
               </Route>
@@ -361,7 +375,7 @@ function App() {
                 />
 
                 <Route
-                  path={`${ADMIN_PROJECT_DETAILS_ROUTE}/:id${ROLES_REQUIRED_ROUTE}`}
+                  path={`${ADMIN_PROJECT_DETAILS_ROUTE}/:id${ROLES_REQUIRED_ROUTE}/:roleId`}
                   element={<RolesRequired />}
                 />
               </Route>

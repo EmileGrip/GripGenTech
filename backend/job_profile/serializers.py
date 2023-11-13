@@ -11,7 +11,7 @@ class JobProfileSerializer(serializers.Serializer):
     #define the fields related to the model Experience
     id = serializers.IntegerField(required=False)
     company_id = serializers.IntegerField(required=False)
-    title = serializers.CharField(required=False)
+    title = serializers.CharField(required=False,max_length=50)
     
     def __get_non_null_fields(self,**kwargs):
         return {k: v for k, v in kwargs.items() if v not in [None,""]}
@@ -99,10 +99,13 @@ class JobProfileSerializer(serializers.Serializer):
             raise exceptions.ValidationError('Company does not exist')
         #check if manager has permission to create job profile for this company
         company = Company.objects.get(id=company_id)   
+        #check if job profile with the same title exists
+        if JobProfile.objects.filter(title=title,company_id=company).exists():
+            raise exceptions.ValidationError('Job profile already exists')
         #create JobTitle instance
         job_title = JobTitle.nodes.get_or_none(label=title)
         if not job_title:
-            job_title = JobTitle(label=title).save()
+            job_title = JobTitle(label=title,company_id=company_id).save()
         #create job_profile_data
         job_profile = JobProfile.objects.create(title=title,company_id=company,job_id=get_node_id(job_title))
         #connect to the best match for job title
@@ -145,7 +148,7 @@ class JobProfileSerializer(serializers.Serializer):
         job_profile = JobProfile.objects.get(id=id)
         #check if JobProfile id is valid
         #delete job title
-        job_title = JobTitle.nodes.get_or_none(label=job_profile.title)
+        job_title = JobTitle.nodes.get_or_none(label=job_profile.title,company_id=job_profile.company_id.id)
         if job_title is not None:
             job_title.delete()
         #delete job profile

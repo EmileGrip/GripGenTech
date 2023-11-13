@@ -135,6 +135,29 @@ const SkillProfile = () => {
     .slice()
     ?.sort((a, b) => a?.title?.localeCompare(b?.title));
 
+  // Prevent page from going to the top after updating skills
+  const [targetId, setTargetId] = useState(null);
+
+  const handleSetTargetId = (id, deleteCase = false) => {
+    const index = sortedSkills.findIndex((skill) => skill.id === id);
+    if (index === 0) {
+      setTargetId(sortedSkills[index + 1].id);
+    } else if (index === sortedSkills.length - 1) {
+      setTargetId(sortedSkills[index - 1].id);
+    } else if (deleteCase) {
+      setTargetId(sortedSkills[index - 1].id);
+    } else {
+      setTargetId(id);
+    }
+  };
+
+  useEffect(() => {
+    const targetElement = document.getElementById(targetId);
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [targetId, sortedSkills]);
+
   return (
     <>
       <CustomModal open={open} onClose={handleClose} title="Add Skill">
@@ -253,6 +276,7 @@ const SkillProfile = () => {
                     {sortedSkills.map((skill) => (
                       <TableRow
                         skill={skill}
+                        handleSetTargetId={handleSetTargetId}
                         key={skill.id}
                         jobTitle={selectedJob?.title}
                       />

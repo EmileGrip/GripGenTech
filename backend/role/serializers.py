@@ -189,7 +189,7 @@ class RoleSerializer(serializers.Serializer):
                 job_profile_id = JobProfile.objects.filter(title=title,company_id=company_id).first()
             else:
                 #create JobTitle instance
-                job_title = JobTitle(label=title)
+                job_title = JobTitle(label=title,company_id=company_id.id)
                 job_title.save()
                 #create job_profile_data
                 job_profile_id = JobProfile.objects.create(title=title,company_id=company_id,job_id=self.get_node_id(job_title))
@@ -365,7 +365,7 @@ class RoleSerializer(serializers.Serializer):
                 job_profile_id = JobProfile.objects.get(title=title,company_id=company_id)
             else:
                 #create JobTitle instance
-                job_title = JobTitle.get_or_create({"label":title})[0]
+                job_title = JobTitle.get_or_create({"label":title,"company_id":company_id.id})[0]
                 #job_title=JobTitle.get_or_create(title=title)
                 #job_title.save()
                 #create job_profile_data

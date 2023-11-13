@@ -145,8 +145,9 @@ class CompanySerializer(serializers.Serializer):
         #save company
         company.save()
         #create position
-        LastInsertId = (Role.objects.last()).id
-        r = Role.objects.create(parent_role=None,company_id=company,allign="bottom",selected_role_id=LastInsertId+1)
+        r = Role.objects.create(parent_role=None,company_id=company,allign="bottom",selected_role_id=0)
+        r.save()
+        r.selected_role_id = r.id
         r.save()
         #store response in self.response
         self.response = {

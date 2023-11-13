@@ -3,7 +3,7 @@ from schema.models import JobVacancy,VacancySkill,VacancyRole
 from vacancy_skill.lib import getNodeByID
 
 class VacancySkillSerializer(serializers.Serializer):
-    skill_ref = serializers.CharField(required=True,allow_blank=False)
+    skill_ref = serializers.CharField(required=True,allow_blank=False,max_length=10)
     level = serializers.ChoiceField(choices=[0,1,2,3,4],required=True)
     
     def validate(self,data):
@@ -46,7 +46,7 @@ class GetSerializer(serializers.Serializer):
 class PostSerializer(serializers.Serializer):
  
     vacancy_role_id = serializers.IntegerField(required=True)
-    skill_ref = serializers.CharField(required=True)
+    skill_ref = serializers.CharField(required=True,max_length=10)
     level = serializers.ChoiceField(choices=[0,1,2,3,4],required=True)
     user_id = serializers.IntegerField(write_only=True,required=False)
     system_role = serializers.CharField(write_only=True,required=False)

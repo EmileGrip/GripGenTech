@@ -9,8 +9,16 @@ import {
 import { useFormik } from "formik";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import axiosInstance from "../../../helper/axiosInstance";
+import { fetchSkillProfileRecommendationData } from "../../../redux/slices/admin/skillProfile/skillProfileActions";
+import { setDefaultSkills } from "../../../redux/slices/admin/skillProfile/skillProfileSlice";
 import { fetchJobs } from "../../../redux/slices/internalMobility/addJobFormSlice";
+import {
+  ADMIN_JOBS_ROUTE,
+  EMPLOYEE_JOBS_ROUTE,
+  MANAGER_JOBS_ROUTE,
+} from "../../../routes/paths";
 import Description from "./Description";
 import Details from "./Details";
 import Skills from "./Skills";
@@ -32,6 +40,23 @@ const AddJobForm = ({ onEdit, handleEditClose, data, id, onSuccess }) => {
   const noRolesMatch = "No roles match";
   const job = data?.filter((job) => job.id == id)[0];
   const dispatch = useDispatch();
+
+  const URL = window.location.href;
+  const parts = URL.split("/");
+  const currentFlow = parts[3];
+
+  const jobsLink =
+    currentFlow === "employee"
+      ? EMPLOYEE_JOBS_ROUTE
+      : currentFlow === "manager"
+      ? MANAGER_JOBS_ROUTE
+      : currentFlow === "admin"
+      ? ADMIN_JOBS_ROUTE
+      : "/"; // Default URL or handle other cases here
+
+  useEffect(() => {
+    dispatch(setDefaultSkills());
+  }, []);
 
   useEffect(() => {
     const startDate = new Date(job?.role?.start_date);
@@ -62,16 +87,6 @@ const AddJobForm = ({ onEdit, handleEditClose, data, id, onSuccess }) => {
     validationSchema,
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       // submit to the server
-      if (
-        values.department === "" ||
-        values.department === noDepartmentsMatch
-      ) {
-        // Handle "No departments match" validation
-        formik.setFieldError("department", "Please select a valid department");
-        setSubmitting(false);
-        return;
-      }
-
       if (values.role === "" || values.role === noRolesMatch) {
         // Handle "No roles match" validation
         formik.setFieldError("role", "Please select a valid role");
@@ -89,9 +104,6 @@ const AddJobForm = ({ onEdit, handleEditClose, data, id, onSuccess }) => {
 
           // Both requests succeeded, you can close the form here
           handleEditClose();
-
-          // Reset form values to their initial state
-          resetForm();
         } catch (error) {
           // Handle error
           console.log(error);
@@ -120,6 +132,12 @@ const AddJobForm = ({ onEdit, handleEditClose, data, id, onSuccess }) => {
     formik.setFieldValue("skills", value);
   };
 
+  useEffect(() => {
+    if (formik.values.role && !onEdit) {
+      dispatch(fetchSkillProfileRecommendationData(formik.values.role));
+    }
+  }, [formik.values.role, onEdit]);
+
   const sendData = useCallback(
     async (token, values) => {
       const config = {
@@ -131,7 +149,11 @@ const AddJobForm = ({ onEdit, handleEditClose, data, id, onSuccess }) => {
       };
 
       const formatStartDate = formatDate(values.startDate);
-      const formatEndDate = formatDate(values.endDate);
+      let formatEndDate = null;
+
+      if (values.endDate instanceof Date && !isNaN(values.endDate)) {
+        formatEndDate = formatDate(values.endDate);
+      }
       try {
         setLoading(true);
         const response = await axiosInstance.post(
@@ -144,11 +166,10 @@ const AddJobForm = ({ onEdit, handleEditClose, data, id, onSuccess }) => {
             hours: values.hours,
             salary: values.salary,
             description: values.description,
-            skills: values.skills.map((skill) => ({
+            skills: values.skills?.map((skill) => ({
               skill_ref: skill.id,
-              level: 1,
+              level: skill.level,
             })),
-            // skills: values.skills.map((skill) => skill.id),
           },
           config
         );
@@ -288,10 +309,10 @@ const AddJobForm = ({ onEdit, handleEditClose, data, id, onSuccess }) => {
           <Skills
             onEdit={onEdit}
             vacancyRoleId={job?.role?.id}
+            jobProfileId={job?.role?.job_profile_id}
             getSkills={getSkills}
             data={job?.role?.skills}
             onSuccess={handleClickSnack}
-            job={job}
           />
 
           <Stack
@@ -314,22 +335,42 @@ const AddJobForm = ({ onEdit, handleEditClose, data, id, onSuccess }) => {
               </Typography>
             </Button>
 
-            <Button
-              onClick={handleEditClose}
-              sx={{
-                width: { xs: "100%", sm: "190px" },
-                border: "1px solid #788894",
-              }}
-            >
-              <Typography
-                variant="h6"
-                textTransform="none"
-                color="#788894"
-                py={0.5}
+            {onEdit ? (
+              <Button
+                onClick={handleEditClose}
+                sx={{
+                  width: { xs: "100%", sm: "190px" },
+                  border: "1px solid #788894",
+                }}
               >
-                Cancel
-              </Typography>
-            </Button>
+                <Typography
+                  variant="h6"
+                  textTransform="none"
+                  color="#788894"
+                  py={0.5}
+                >
+                  Cancel
+                </Typography>
+              </Button>
+            ) : (
+              <Link to={jobsLink}>
+                <Button
+                  sx={{
+                    width: { xs: "100%", sm: "190px" },
+                    border: "1px solid #788894",
+                  }}
+                >
+                  <Typography
+                    variant="h6"
+                    textTransform="none"
+                    color="#788894"
+                    py={0.5}
+                  >
+                    Cancel
+                  </Typography>
+                </Button>
+              </Link>
+            )}
 
             {loading && <CircularProgress size={20} />}
           </Stack>

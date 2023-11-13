@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../../helper/axiosInstance";
 import { useEffect } from "react";
 import { fetchSkillProfile } from "../../../redux/slices/admin/skillProfile/skillProfileActions";
+import { debounce } from "lodash";
 
 const formControlWrapperStyle = {
   minHeight: "140px",
@@ -115,6 +116,17 @@ const AddSkillForm = ({ data, closeModal, jobProfileId }) => {
     [token]
   );
 
+  const debouncedSearchSkills = useCallback(
+    debounce((token, inputValue) => {
+      if (inputValue !== "") {
+        searchSkills(token, inputValue);
+      } else {
+        setOptions([]);
+      }
+    }, 1000),
+    []
+  );
+
   const sendData = useCallback(
     async (token, values) => {
       const config = {
@@ -152,12 +164,8 @@ const AddSkillForm = ({ data, closeModal, jobProfileId }) => {
   );
 
   useEffect(() => {
-    if (inputValue !== "") {
-      searchSkills(token, inputValue);
-    } else {
-      setOptions([]);
-    }
-  }, [searchSkills, token, inputValue]);
+    debouncedSearchSkills(token, inputValue);
+  }, [debouncedSearchSkills, token, inputValue]);
 
   const selectValue = useCallback(
     (e, optionName) => {

@@ -9,7 +9,7 @@ class SkillProfileSerializer(serializers.Serializer):
     #define the fields related to the model Experience
     id = serializers.IntegerField(required=False)
     job_profile_id = serializers.IntegerField(required=False)
-    skill_id = serializers.CharField(required=False)
+    skill_id = serializers.CharField(required=False,max_length=10)
     level = serializers.IntegerField(required=False)
 
     def __get_non_null_fields(self,**kwargs):
@@ -156,6 +156,7 @@ class SkillProfileSerializer(serializers.Serializer):
         self.response = {
             "success":True,
             "message":"Skill profile updated successfully",
+            "payload": model_to_dict(skill_requirement)
         }
         return {
             "id":id

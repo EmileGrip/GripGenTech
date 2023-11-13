@@ -1,6 +1,6 @@
 from schema.models import ProjectVacancy,JobPosting,JobProfile,Company
-from schema.utils import get_node_id,getNodeByID
-from vacancy_role.lib import addVacancyRole
+from schema.utils import get_node_id,getNodeByID,get_non_none_dict
+from vacancy_role.lib import addVacancyRole,deleteVacancyRole
 
 def getProjectVacancies(company_id,status):
     if status == 'all':
@@ -9,6 +9,31 @@ def getProjectVacancies(company_id,status):
         projects = ProjectVacancy.objects.filter(company_id=company_id,status=status)
     return projects
         
+def formatProjectVacancy(project):
+    project_reponse = {
+        "id":project.id,
+        "status":project.status,
+        "name":project.name,
+        "department":project.department,
+        "start_date":project.start_date,
+        "end_date":project.end_date,
+        "description":project.description,
+        "email":project.user.email,
+        "roles":[]
+    }
+    for role in project.roles.all():
+        project_reponse["roles"].append({
+            "id":role.id,
+            "title":role.job_profile.title,
+            "job_profile_id":role.job_profile.id,
+            "start_date":role.start_date,
+            "end_date":role.end_date,
+            "hours":role.hours,
+            "salary":role.salary,
+            "description":role.description,
+            "skills":role.skills.all().values("id","title","skill_ref","level")
+        })
+    return project_reponse
 def connectOccupationToJobPost(occupation,jobpost):
     if occupation is not None:
         jobpost.BestMatchTitle.connect(occupation)
@@ -17,6 +42,9 @@ def connectOccupationToJobPost(occupation,jobpost):
 def deleteProjectVacancy(job_id):
     #get vacancy job 
     job = ProjectVacancy.objects.get(id=job_id)
+    #delete roles
+    for role in job.roles.all():
+        deleteVacancyRole(role.id)
     #get ref post id
     jobpost = getNodeByID("JobPosting",job.ref_post_id)
     jobpost.delete()
@@ -49,11 +77,12 @@ def addProjectVacancy(name,company_id,user_id,status,department,start_date,descr
     #create job posting
     jobpost = JobPosting(
         job_title=name,
-        company_name=company.name
+        company_name=company.name,
+        company_id=company_id
     )
     jobpost.save()
-    #create vacancy    
-    vacancy = ProjectVacancy.objects.create(
+    #get non null vacancy data
+    vacancy_data = get_non_none_dict(
         company_id=company_id,
         user_id=user_id,
         status= status,
@@ -63,12 +92,14 @@ def addProjectVacancy(name,company_id,user_id,status,department,start_date,descr
         description=description,
         department=department,
         ref_post_id=get_node_id(jobpost)
-        )
+    )
+    #create vacancy    
+    vacancy = ProjectVacancy.objects.create(**vacancy_data)
     for role in roles:
         #get job profile by id 
-        job_profile,occupation = getJobProfileAndOccupation(role["job_profile_id"])
+        #job_profile,occupation = getJobProfileAndOccupation(role["job_profile_id"])
         #connect occupation if not None
-        connectOccupationToJobPost(occupation,jobpost)
+        #connectOccupationToJobPost(occupation,jobpost)
         #create vacancy role
         vacancy_role = addVacancyRole(
             vacancy.id,
@@ -84,7 +115,7 @@ def addProjectVacancy(name,company_id,user_id,status,department,start_date,descr
             )
     return vacancy
 
-def editProjectVacancy(job_id,department,name,description,start_date,end_date):
+def editProjectVacancy(job_id,department,name,description,start_date,end_date,status):
     #get vacancy job
     project = ProjectVacancy.objects.get(id=job_id)
     if name is not None:
@@ -97,6 +128,10 @@ def editProjectVacancy(job_id,department,name,description,start_date,end_date):
         project.end_date = end_date
     if department is not None:
         project.department = department
+    if status is not None:
+        if status not in ["approved","pending","declined"]:
+            raise Exception("Invalid status")
+        project.status = status
     project.save()
     
 def getAction(data,context):
@@ -105,28 +140,7 @@ def getAction(data,context):
     projects = getProjectVacancies(data["company_id"],data["filter"])
     response = []
     for project in projects:
-        project_reponse = {
-            "id":project.id,
-            "status":project.status,
-            "name":project.name,
-            "department":project.department,
-            "start_date":project.start_date,
-            "end_date":project.end_date,
-            "description":project.description,
-            "roles":[]
-        }
-        for role in project.roles.all():
-            project_reponse["roles"].append({
-                "id":role.id,
-                "title":role.job_profile.title,
-                "start_date":role.start_date,
-                "end_date":role.end_date,
-                "hours":role.hours,
-                "salary":role.salary,
-                "description":role.description,
-                "skills":role.skills.all().values("id","title","skill_ref","level")
-            })
-        response.append(project_reponse)
+        response.append(formatProjectVacancy(project))
     return {
         "success":True,
         "message":"Project vacancies fetched successfully",
@@ -139,7 +153,7 @@ def postAction(data,context):
             data["company_id"],
             data["user_id"],
             data["status"],
-            data["department"],
+            data.get("department"),
             data["start_date"],
             data["description"],
             data["roles"],
@@ -181,7 +195,8 @@ def putAction(data,context):
         data.get("name"),
         data.get("description"),
         data.get("start_date"),
-        data.get("end_date")
+        data.get("end_date"),
+        data.get("status")
         )
     return {
         "success":True,

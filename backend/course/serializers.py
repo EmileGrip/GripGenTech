@@ -11,9 +11,8 @@ class CourseSerializer(serializers.Serializer):
     user_id = serializers.IntegerField(required=False)
     start_date = serializers.DateField(required=False)
     end_date = serializers.DateField(required=False)
-    level = serializers.CharField(required=False)
-    institution = serializers.CharField(required=False)
-    degree = serializers.CharField(required=False)
+    institution = serializers.CharField(required=False,max_length=50)
+    degree = serializers.CharField(required=False,max_length=50)
     user_id = serializers.IntegerField(required=False)
     
 

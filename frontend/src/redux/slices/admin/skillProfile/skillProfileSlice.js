@@ -24,6 +24,9 @@ const skillProfileSlice = createSlice({
     setSelectedTitle: (state, action) => {
       state.selectedTitle = action.payload;
     },
+    setDefaultSkills: (state) => {
+      state.skillProfileRecommendations = [];
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -90,5 +93,6 @@ const skillProfileSlice = createSlice({
   },
 });
 
-export const { setSelectedJob, setSelectedTitle } = skillProfileSlice.actions;
+export const { setSelectedJob, setSelectedTitle, setDefaultSkills } =
+  skillProfileSlice.actions;
 export default skillProfileSlice.reducer;

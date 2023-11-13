@@ -26,7 +26,6 @@ import EmployeeProfile from "../EmployeeProfile";
 import { useDispatch, useSelector } from "react-redux";
 import {
   editUser,
-  fetchUserById,
   fetchUsers,
 } from "../../redux/slices/admin/users/usersActions";
 import { setResponse } from "../../redux/slices/admin/users/usersSlice";
@@ -45,9 +44,9 @@ const Employees = () => {
   const [title, setTitle] = useOutletContext();
   const [sortOrder, setSortOrder] = useState("asc");
   const [searchQuery, setSearchQuery] = useState("");
-  const [employeeId, setEmployeeId] = useState();
+  const [clickedEmployeeData, setClickedEmployeeData] = useState(null);
   const { token } = useSelector((state) => state.auth);
-  const { user, response } = useSelector((state) => state.users);
+  const { response } = useSelector((state) => state.users);
   const dispatch = useDispatch();
 
   const [openSnack, setOpenSnack] = useState(false);
@@ -68,12 +67,6 @@ const Employees = () => {
   const handleOpenEditForm = () => setOpenEditForm(true);
   const handleCloseEditForm = () => setOpenEditForm(false);
 
-  useEffect(() => {
-    if (token && employeeId) {
-      dispatch(fetchUserById(employeeId));
-    }
-  }, [token, dispatch, employeeId]);
-
   // Clear the response data when the component mounts
   useEffect(() => {
     return () => {
@@ -83,13 +76,13 @@ const Employees = () => {
 
   useEffect(() => {
     formik.setValues({
-      firstName: user?.first_name || "",
-      lastName: user?.last_name || "",
-      phone: user?.phone || "",
-      location: user?.location || "",
-      gender: user?.gender ? [user?.gender] : [],
+      firstName: clickedEmployeeData?.first_name || "",
+      lastName: clickedEmployeeData?.last_name || "",
+      phone: clickedEmployeeData?.phone || "",
+      location: clickedEmployeeData?.location || "",
+      gender: clickedEmployeeData?.gender ? [clickedEmployeeData?.gender] : [],
     });
-  }, [user]);
+  }, [clickedEmployeeData]);
 
   const formik = useFormik({
     initialValues: {
@@ -104,7 +97,7 @@ const Employees = () => {
       // submit to the server
       // Assuming the editUser function returns a promise
       setEditFormLoading(true);
-      dispatch(editUser({ id: employeeId, ...values }))
+      dispatch(editUser({ id: clickedEmployeeData.id, ...values }))
         .then(() => {
           dispatch(
             setResponse({ success: true, message: "User updated successfully" })
@@ -396,7 +389,7 @@ const Employees = () => {
                     onOpen={dialogHanlder}
                     data={employee}
                     handleOpenEditForm={handleOpenEditForm}
-                    setEmployeeId={setEmployeeId}
+                    setClickedEmployeeData={setClickedEmployeeData}
                   />
                 </Grid2>
               ))

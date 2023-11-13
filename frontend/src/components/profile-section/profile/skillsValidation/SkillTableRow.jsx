@@ -16,7 +16,7 @@ import {
   DialogContentText,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import hintIcon from "../../../../assets/hintIcon.svg";
 import DescriptionTooltip from "../../../../ui/DescriptionTooltip";
 import moreHoriz__icon from "../../../../assets/moreHoriz__icon.svg";
@@ -49,6 +49,7 @@ const SkillTableRow = ({
   isProfile,
   skillsWishlist,
   showOptions,
+  handleSetTargetId,
 }) => {
   const theme = useTheme();
   const smMatches = useMediaQuery(theme.breakpoints.up("sm"));
@@ -95,8 +96,17 @@ const SkillTableRow = ({
     handleClose();
   };
 
+  const [localSkillLevel, setLocalSkillLevel] = useState(skill.level);
+
+  useEffect(() => {
+    console.log("Current localSkillLevel:", localSkillLevel);
+  }, [localSkillLevel]);
+
   const increaseLevel = useCallback(async () => {
-    if (skill.level < 4) {
+    if (localSkillLevel < 4) {
+      setLocalSkillLevel((prev) => prev + 1);
+      const updatedSkillLevel = localSkillLevel + 1; // Use the updated state here
+      // handleSetTargetId(skill.id);
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -107,23 +117,30 @@ const SkillTableRow = ({
         },
       };
       try {
-        const response = await axiosInstance.put(
+        const { data } = await axiosInstance.put(
           "skill_proficiency",
-          { level: skill.level + 1 },
+          { level: updatedSkillLevel },
           config
         );
-        console.log(response.data.payload);
+
+        console.log("increased skill", data.payload);
       } catch (error) {
         console.log(error.response.data);
+
+        setLocalSkillLevel((prev) => prev - 1);
       } finally {
         // setLoading(false);
-        dispatch(fetchSkillsData(user.id));
+        // dispatch(fetchSkillsData(user.id));
       }
     }
-  }, []);
+  }, [localSkillLevel]);
 
   const decreaseLevel = useCallback(async () => {
-    if (skill.level > 1) {
+    if (localSkillLevel > 1) {
+      setLocalSkillLevel((prev) => prev - 1);
+      const updatedSkillLevel = localSkillLevel - 1; // Use the updated state here
+
+      // handleSetTargetId(skill.id);
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -136,20 +153,23 @@ const SkillTableRow = ({
       try {
         const response = await axiosInstance.put(
           "skill_proficiency",
-          { level: skill.level - 1 },
+          { level: updatedSkillLevel },
           config
         );
-        console.log(response.data.payload);
+        console.log("decreased skill", response.data.payload);
       } catch (error) {
         console.log(error.response.data);
+
+        setLocalSkillLevel((prev) => prev + 1);
       } finally {
         // setLoading(false);
-        dispatch(fetchSkillsData(user.id));
+        // dispatch(fetchSkillsData(user.id));
       }
     }
-  }, []);
+  }, [localSkillLevel]);
 
   const deleteSkill = useCallback(async () => {
+    handleSetTargetId(skill.id, true);
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -183,8 +203,12 @@ const SkillTableRow = ({
     setAnchorEl(null);
   };
 
+  const skillRef = useRef(null);
+
   return (
     <Stack
+      ref={skillRef}
+      id={skill.id}
       className="tableRow"
       sx={{
         flexDirection: "row",
@@ -643,14 +667,6 @@ const SkillTableRow = ({
                   <Tooltip
                     title={
                       <>
-                        {/* <div style={{ textAlign: "center" }}>
-                      Proficiency needed
-                    </div>
-                    <RatingBar
-                      initialValue={
-                        skill.required_level === 0 ? 0 : skill.required_level
-                      }
-                    /> */}
                         <Typography
                           variant="h5"
                           color="#0C1716"
@@ -666,7 +682,7 @@ const SkillTableRow = ({
                               color: "#0C1716",
                             }}
                           >
-                            {proficiencyMap[String(skill.level)]}
+                            {proficiencyMap[String(localSkillLevel)]}
                           </span>
                         </Typography>
                       </>
@@ -682,7 +698,7 @@ const SkillTableRow = ({
                       }}
                     >
                       <RatingBar
-                        initialValue={skill.level}
+                        initialValue={localSkillLevel}
                         requiredLevel={skill.required_level}
                       />
                     </span>

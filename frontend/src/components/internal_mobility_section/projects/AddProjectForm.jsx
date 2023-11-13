@@ -18,11 +18,14 @@ import {
   roleValidationSchema,
 } from "./validations/validationSchema";
 import {
+  ADMIN_PROJECTS_ROUTE,
   ADMIN_PROJECT_OVERVIEW_ROUTE,
+  EMPLOYEE_PROJECTS_ROUTE,
   EMPLOYEE_PROJECT_OVERVIEW_ROUTE,
+  MANAGER_PROJECTS_ROUTE,
   MANAGER_PROJECT_OVERVIEW_ROUTE,
 } from "../../../routes/paths";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -32,6 +35,8 @@ import {
 } from "../../../redux/slices/internalMobility/addProjectFormSlice";
 import axiosInstance from "../../../helper/axiosInstance";
 import { fetchProjects } from "../../../redux/slices/internalMobility/addProjectFormActions";
+import { fetchSkillProfileRecommendationData } from "../../../redux/slices/admin/skillProfile/skillProfileActions";
+import { setDefaultSkills } from "../../../redux/slices/admin/skillProfile/skillProfileSlice";
 
 function formatDate(date) {
   const options = { year: "numeric", month: "2-digit", day: "2-digit" };
@@ -67,6 +72,10 @@ const AddProjectForm = ({ onEdit, handleEditClose, data, id }) => {
   const [roles, setRoles] = useState(
     onEdit ? project?.roles : currentProjectsRoles
   );
+
+  useEffect(() => {
+    dispatch(setDefaultSkills());
+  }, []);
 
   useEffect(() => {
     const formaStartDate = startDate
@@ -114,6 +123,15 @@ const AddProjectForm = ({ onEdit, handleEditClose, data, id }) => {
       ? MANAGER_PROJECT_OVERVIEW_ROUTE
       : currentFlow === "admin"
       ? ADMIN_PROJECT_OVERVIEW_ROUTE
+      : "/"; // Default URL or handle other cases here
+
+  const projectsLink =
+    currentFlow === "employee"
+      ? EMPLOYEE_PROJECTS_ROUTE
+      : currentFlow === "manager"
+      ? MANAGER_PROJECTS_ROUTE
+      : currentFlow === "admin"
+      ? ADMIN_PROJECTS_ROUTE
       : "/"; // Default URL or handle other cases here
 
   const handleRoleOpen = () => setShowRole(true);
@@ -255,7 +273,7 @@ const AddProjectForm = ({ onEdit, handleEditClose, data, id }) => {
             id: skill.id,
             title: skill.title,
             skill_ref: skill.id,
-            level: 1,
+            level: skill.level,
           }));
 
           updatedSkills.forEach((skill) => {
@@ -306,7 +324,7 @@ const AddProjectForm = ({ onEdit, handleEditClose, data, id }) => {
                 id: skill.id,
                 title: skill.title,
                 skill_ref: skill.id,
-                level: 1,
+                level: skill.level,
               })),
             },
           ]);
@@ -318,6 +336,12 @@ const AddProjectForm = ({ onEdit, handleEditClose, data, id }) => {
       }
     },
   });
+
+  useEffect(() => {
+    if (formik.values.role && !onEdit) {
+      dispatch(fetchSkillProfileRecommendationData(formik.values.role));
+    }
+  }, [formik.values.role, onEdit]);
 
   useEffect(() => {
     formik.setFieldValue("roles", roles);
@@ -556,6 +580,7 @@ const AddProjectForm = ({ onEdit, handleEditClose, data, id }) => {
                 roles={true}
                 onEdit={onEdit}
                 vacancyRoleId={chosenRole?.id}
+                jobProfileId={chosenRole?.job_profile_id}
                 getSkills={getSkills}
                 data={onEdit ? updatedSkills : skills}
                 onSuccess={handleClickSnack}
@@ -710,22 +735,42 @@ const AddProjectForm = ({ onEdit, handleEditClose, data, id }) => {
             </Typography>
           </Button>
 
-          <Button
-            onClick={handleEditClose}
-            sx={{
-              width: { xs: "100%", sm: "190px" },
-              border: "1px solid #788894",
-            }}
-          >
-            <Typography
-              variant="h6"
-              textTransform="none"
-              color="#788894"
-              py={0.5}
+          {onEdit ? (
+            <Button
+              onClick={handleEditClose}
+              sx={{
+                width: { xs: "100%", sm: "190px" },
+                border: "1px solid #788894",
+              }}
             >
-              Cancel
-            </Typography>
-          </Button>
+              <Typography
+                variant="h6"
+                textTransform="none"
+                color="#788894"
+                py={0.5}
+              >
+                Cancel
+              </Typography>
+            </Button>
+          ) : (
+            <Link to={projectsLink}>
+              <Button
+                sx={{
+                  width: { xs: "100%", sm: "190px" },
+                  border: "1px solid #788894",
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  textTransform="none"
+                  color="#788894"
+                  py={0.5}
+                >
+                  Cancel
+                </Typography>
+              </Button>
+            </Link>
+          )}
         </Stack>
       </Stack>
     </>
