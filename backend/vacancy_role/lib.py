@@ -1,7 +1,18 @@
 from schema.models import JobVacancy,VacancyRole,ProjectVacancy,JobPostingRole,JobProfile
 from vacancy_skill.lib import addVacancySkill,deleteVacancySkill
 from schema.utils import getNodeByID,get_node_id
-
+from vacancy_skill.lib import formatSkills
+def formatVacancyRole(role):
+    return {
+        "id":role.id,
+        "title":role.job_profile.title,
+        "description":role.description,
+        "start_date":role.start_date,
+        "end_date":role.end_date,
+        "hours":role.hours,
+        "salary":role.salary,
+        "skills":formatSkills(role.skills.values("id","title","skill_ref","level"))
+    }
 def getVacancyRoles(vacancy_id,vacancy_type):
     vacancy = None
     if vacancy_type == "job":

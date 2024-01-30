@@ -418,26 +418,31 @@ const AddEducationForm = ({
             variant="contained"
             color="secondary"
             sx={{
-              alignSelf: "flex-start",
+              width: { xs: "50%", sm: "220px" },
+              background: (theme) => theme.palette.accent,
+              color: "darkGreen",
               textTransform: "capitalize",
-              fontSize: "14px",
-              px: "50px",
+              "&:hover": {
+                background: "#6AE6A480",
+              },
             }}
           >
-            finish
+            <Typography variant="h6">finish</Typography>
           </Button>
+
           <Button
             onClick={() => onClose()}
             variant="outlined"
             color="secondary"
             sx={{
+              width: { xs: "50%", sm: "220px" },
               alignSelf: "flex-start",
               textTransform: "capitalize",
               px: "50px",
               fontSize: "14px",
             }}
           >
-            cancel
+            <Typography variant="h6">cancel</Typography>
           </Button>
         </Stack>
       </Stack>

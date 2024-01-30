@@ -14,6 +14,9 @@ export const EMPLOYEE_LEARNING_EXPREIENCE_PATH =
   "/employee/experience/experience-learning";
 export const EMPLOYEE_ORGANIGRAM_ROUTE = "/employee/organigram";
 export const EMPLOYEE_EMPLOYEES_PROFILE = "/employee/organigram/profile";
+export const EMPLOYEE_LEARNING_MATCHING = "/employee/learning-matching";
+export const EMPLOYEE_LEARNING_MATCHING_COURSES =
+  "/employee/learning-matching/courses";
 export const EMPLOYEE_INTERNAL_MOBILITY_ROUTE = "/employee/internal-mobility";
 export const EMPLOYEE_JOBS_ROUTE = "/employee/internal-mobility/jobs";
 export const EMPLOYEE_JOBS_OVERVIEW_ROUTE =
@@ -32,6 +35,8 @@ export const EMPLOYEE_NEW_PROJECT_ROUTE =
 export const EMPLOYEE_PROJECT_DETAILS_ROUTE =
   "/employee/internal-mobility/projects/project-details";
 export const ROLES_REQUIRED_ROUTE = "/roles-required";
+export const EMPLOYEE_GOALS_ROUTE = "/employee/goals";
+export const EMPLOYEE_ADD_GOAL_ROUTE = "/employee/goals/add-goal";
 
 export const MANAGER_PAGE_ROUTE = "/manager";
 export const MANAGER_EMPLOYEES_ROUTE = "/manager/employees";
@@ -62,8 +67,6 @@ export const ADMIN_EMPLOYEES_LIST_ROUTE =
   "/admin/organization/organigram/employeeslist";
 
 export const ADMIN_ORGANIZATION_ROUTE = "/admin/organization";
-export const ADMIN_ORGANIZATION_COMPANY_PROFILE_ROUTE =
-  "/admin/organization/company-profile";
 export const ADMIN_ORGANIZATION_COMPANY_PROFILE_INITIAL_SETUP_ROUTE =
   "/admin/organization/company-profile/initial-setup";
 export const ADMIN_ORGANIZATION_COMPANY_PROFILE_COMPANY_INFO_ROUTE =
@@ -77,6 +80,8 @@ export const ADMIN_ANALYTICS_ROUTE = "/admin/analytics";
 export const ADMIN_ANALYTICS_SKILLS_ANALYSIS_ROUTE =
   "/admin/analytics/skills-analysis";
 export const ADMIN_ANALYTICS_USAGE_ROUTE = "/admin/analytics/usage";
+export const ADMIN_LEARNING_MATCHING_ROUTE = "/admin/learning-matching";
+export const ADMIN_PROVIDERS_ROUTE = "/admin/learning-matching/providers";
 export const ADMIN_INTERNAL_MOBILITY_ROUTE = "/admin/internal-mobility";
 export const ADMIN_JOBS_ROUTE = "/admin/internal-mobility/jobs";
 export const ADMIN_NEW_JOB_ROUTE = "/admin/internal-mobility/jobs/new-job";
@@ -89,6 +94,12 @@ export const ADMIN_NEW_PROJECT_ROUTE =
   "/admin/internal-mobility/projects/new-project";
 export const ADMIN_PROJECT_DETAILS_ROUTE =
   "/admin/internal-mobility/projects/project-details";
+export const ADMIN_SETTINGS_ROUTE = "/admin/settings";
+export const ADMIN_SETTINGS_COMPANY_PROFILE_ROUTE =
+  "/admin/settings/company-profile";
+export const ADMIN_SETTINGS_EMPLOYEE_ROLE_ROUTE =
+  "/admin/settings/employee-role";
+export const ADMIN_SETTINGS_BILLING_ROUTE = "/admin/settings/billing";
 
 export const ORGANIGRAM_PATH = "/organigram";
 

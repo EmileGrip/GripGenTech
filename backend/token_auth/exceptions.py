@@ -57,13 +57,24 @@ def _auth_failed(exc,context,response):
 def ParseExcMessage(exc):
     try:
         details = exc.get_full_details()
-    except:
+    except AttributeError:
         details = exc.detail
-    detailString =""
+
+    detailString = ""
     for key in details.keys():
         if key != "non_field_errors":
-            detailString += key +" : "
+            detailString += key + " : "
         for error in details[key]:
-            detailString += error['message'].title() + "\n"
+            if 'message' in error:
+                detailString += error['message'].title() + "\n"
+            elif 'non_field_errors' in error and isinstance(error['non_field_errors'], list):
+                for non_field_error in error['non_field_errors']:
+                    if 'message' in non_field_error:
+                        detailString += non_field_error['message'].title() + "\n"
+                    else:
+                        detailString += str(non_field_error) + "\n"
+            else:
+                detailString += str(error) + "\n"
         detailString += "\n"
+
     return detailString

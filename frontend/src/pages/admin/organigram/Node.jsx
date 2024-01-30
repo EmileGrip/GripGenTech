@@ -161,6 +161,7 @@ const Node = ({ data, isConnectable }) => {
           }}
         >
           <Avatar
+            id="admin__step__5"
             sx={{
               width: "100px",
               height: "100px",
@@ -386,6 +387,7 @@ const Node = ({ data, isConnectable }) => {
 
           {!data.hasChildren && (
             <IconButton
+              id="admin__step__4"
               onClick={() => handleAddNode("bottom")}
               sx={{
                 position: "absolute",

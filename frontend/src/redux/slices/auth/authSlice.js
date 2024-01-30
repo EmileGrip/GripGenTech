@@ -1,5 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { userLogin, userRecover, userReset } from "./authActions";
+import {
+  userLogin,
+  userLoginWithGoogleOrMicrosoft,
+  userRecover,
+  userReset,
+} from "./authActions";
 import jwt_decode from "jwt-decode";
 
 const initialAuthState = {
@@ -30,6 +35,16 @@ const authSlice = createSlice({
     setResponse: (state, action) => {
       state.response = action.payload;
     },
+    setLoginInformation: (state, action) => {
+      state.loading = false;
+      state.token = action.payload;
+      const decodedToken = jwt_decode(state.token);
+      state.userInfo = decodedToken.user;
+      state.isAuth = !!state.userInfo;
+      state.expireIn = decodedToken.expire_in;
+      state.error = null;
+      console.log(action.payload);
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(userLogin.pending, (state) => {
@@ -59,6 +74,36 @@ const authSlice = createSlice({
       state.expireIn = null;
     });
 
+    builder.addCase(userLoginWithGoogleOrMicrosoft.pending, (state) => {
+      state.loading = true;
+      state.userInfo = null;
+      state.isAuth = false;
+      state.token = null;
+      state.error = null;
+      state.expireIn = null;
+    });
+    builder.addCase(
+      userLoginWithGoogleOrMicrosoft.fulfilled,
+      (state, action) => {
+        const redirectUrl = new URL(
+          action.payload.authorization_url,
+          window.location.href
+        );
+        window.location.href = redirectUrl.href;
+      }
+    );
+    builder.addCase(
+      userLoginWithGoogleOrMicrosoft.rejected,
+      (state, action) => {
+        state.isAuth = false;
+        state.loading = false;
+        state.userInfo = null;
+        state.token = null;
+        state.error = action.payload;
+        state.expireIn = null;
+      }
+    );
+
     builder.addCase(userReset.pending, (state) => {
       state.loading = true;
     });
@@ -85,5 +130,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, setResponse } = authSlice.actions;
+export const { logout, setResponse, setLoginInformation } = authSlice.actions;
 export default authSlice.reducer;

@@ -90,10 +90,10 @@ const DropPhoto = ({ name }) => {
       <Box
         {...getRootProps({ className: "dropzone" })}
         sx={{
-          width: "35px",
-          height: "35px",
+          width: "27px",
+          height: "27px",
           background: "#FFFFFF",
-          borderRadius: "35px",
+          borderRadius: "38px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -110,7 +110,7 @@ const DropPhoto = ({ name }) => {
       <Avatar
         src={user?.profile_picture?.url}
         alt={user?.profile_picture?.name}
-        sx={{ width: "114px", height: "114px" }}
+        sx={{ width: "100px", height: "100px" }}
       />
 
       {fileRejectionItems}

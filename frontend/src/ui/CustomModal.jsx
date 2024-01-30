@@ -1,6 +1,7 @@
 import {
   Backdrop,
   Box,
+  IconButton,
   Modal,
   Stack,
   Typography,
@@ -14,14 +15,11 @@ const lgStyles = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 900,
-  height: "95%",
+  width: 800,
+  // height: "95%",
   border: "2px solid #FFF",
-  borderRadius: "25px",
-  pl: 13.625,
-  pr: 13.625,
-  pt: 9.25,
-  pb: 7.5,
+  borderRadius: "4px",
+  p: 3,
 };
 
 const xsStyle = {
@@ -36,6 +34,7 @@ const CustomModal = ({ open, onClose, title, children }) => {
   const mdMatches = useMediaQuery(theme.breakpoints.up("md"));
   const lgMatches = useMediaQuery(theme.breakpoints.up("lg"));
   const currentStyle = lgMatches ? lgStyles : xsStyle;
+
   return (
     <Modal
       open={open}
@@ -54,7 +53,7 @@ const CustomModal = ({ open, onClose, title, children }) => {
         sx={{
           bgcolor: " #FFF",
           boxShadow:
-            "0px 370px 148px rgba(0, 0, 0, 0.01), 0px 208px 125px rgba(0, 0, 0, 0.05), 0px 92px 92px rgba(0, 0, 0, 0.09), 0px 23px 51px rgba(0, 0, 0, 0.1), 0px 0px 0px rgba(0, 0, 0, 0.1)",
+            "0px 11px 15px -7px rgba(0,0,0,0.2),0px 24px 38px 3px rgba(0,0,0,0.14),0px 9px 46px 8px rgba(0,0,0,0.12)",
           ...currentStyle,
         }}
       >
@@ -71,9 +70,9 @@ const CustomModal = ({ open, onClose, title, children }) => {
               flexDirection: { xs: "row" },
               justifyContent: { xs: "space-between" },
               alignItems: { xs: "center" },
-              mb: { xs: "40px", lg: "70px" },
-              px: { xs: 2.5, lg: 0 },
-              py: { xs: 2 },
+              mb: { xs: "40px", lg: "20px" },
+              p: { xs: 2, lg: 0 },
+              pt: { lg: 2 },
             }}
           >
             {!!title && (
@@ -81,7 +80,6 @@ const CustomModal = ({ open, onClose, title, children }) => {
                 variant="h2"
                 sx={{
                   textTransform: "capitalize",
-                  fontWeight: "400",
                   position: { xs: "relative", md: "static" },
 
                   color: "secondary.main",
@@ -90,18 +88,16 @@ const CustomModal = ({ open, onClose, title, children }) => {
                 {title}
               </Typography>
             )}
-            <CloseIcon
-              sx={{
-                // position: "absolute",
-                // top: { xs: "20px", md: "36px" },
-                // right: { xs: "20px", md: "41px" },
-                color: "secondary.main",
-                cursor: "pointer",
-                zIndex: "1",
-              }}
-              fontSize="large"
-              onClick={onClose}
-            />
+
+            <IconButton onClick={onClose}>
+              <CloseIcon
+                sx={{
+                  color: "grey",
+                  cursor: "pointer",
+                  zIndex: "1",
+                }}
+              />
+            </IconButton>
           </Stack>
           {children}
         </Box>

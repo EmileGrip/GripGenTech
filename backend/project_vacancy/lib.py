@@ -1,6 +1,6 @@
 from schema.models import ProjectVacancy,JobPosting,JobProfile,Company
 from schema.utils import get_node_id,getNodeByID,get_non_none_dict
-from vacancy_role.lib import addVacancyRole,deleteVacancyRole
+from vacancy_role.lib import addVacancyRole,deleteVacancyRole,formatVacancyRole
 
 def getProjectVacancies(company_id,status):
     if status == 'all':
@@ -22,17 +22,7 @@ def formatProjectVacancy(project):
         "roles":[]
     }
     for role in project.roles.all():
-        project_reponse["roles"].append({
-            "id":role.id,
-            "title":role.job_profile.title,
-            "job_profile_id":role.job_profile.id,
-            "start_date":role.start_date,
-            "end_date":role.end_date,
-            "hours":role.hours,
-            "salary":role.salary,
-            "description":role.description,
-            "skills":role.skills.all().values("id","title","skill_ref","level")
-        })
+        project_reponse["roles"].append(formatVacancyRole(role))
     return project_reponse
 def connectOccupationToJobPost(occupation,jobpost):
     if occupation is not None:

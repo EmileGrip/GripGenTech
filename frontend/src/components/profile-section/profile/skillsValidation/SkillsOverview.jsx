@@ -446,9 +446,15 @@ const SkillsOverview = ({
               <>
                 <Box
                   onClick={handleOpenDialog}
-                  sx={{ display: "flex", justifyContent: "center", pb: 3 }}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    pb: 3,
+                    zIndex: "10",
+                  }}
                 >
                   <Fab
+                    id="employee__step__4"
                     sx={{
                       background: "#6AE6A4",
                       "&:hover": {

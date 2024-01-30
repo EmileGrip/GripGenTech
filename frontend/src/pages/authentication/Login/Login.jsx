@@ -21,30 +21,37 @@ const Login = () => {
     >
       <Stack
         sx={{
-          alignItems: { lg: "flex-end" },
-          justifyContent: "center",
-          width: { xs: "100%", lg: "45%" },
-          maxWidth: { lg: "480px" },
-          height: "100%",
-          pr: { lg: 5 },
-          position: "relative",
+          alignItems: { lg: "center" },
+          width: { xs: "100%", lg: "40%" },
         }}
       >
-        <Box className="login_page_special_width_in_firefox">
-          <img src={login_logo} alt="logo" width={150} />
-        </Box>
-        <LoginForm />
-        <Box className="login_page_copyright_in_firefox">
+        <Stack
+          sx={{
+            justifyContent: "center",
+            width: { xs: "100%", lg: "45%" },
+            maxWidth: { lg: "480px" },
+            height: "100%",
+            pr: { lg: 5 },
+            position: "relative",
+          }}
+        >
+          <Box className="login_page_special_width_in_firefox">
+            <img src={login_logo} alt="logo" width={150} />
+          </Box>
+
+          <LoginForm />
+
           <Typography
             variant="body1"
             sx={{
               color: "secondary.main",
               opacity: "0.5",
+              textAlign: { xs: "center", lg: "left" },
             }}
           >
             Adepti® All Rights Reserved
           </Typography>
-        </Box>
+        </Stack>
       </Stack>
 
       {mdMatches && (

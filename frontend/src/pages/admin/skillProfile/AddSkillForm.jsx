@@ -23,7 +23,6 @@ import { debounce } from "lodash";
 
 const formControlWrapperStyle = {
   minHeight: "140px",
-  mb: 9.375,
 };
 
 const AddSkillForm = ({ data, closeModal, jobProfileId }) => {
@@ -292,6 +291,7 @@ const AddSkillForm = ({ data, closeModal, jobProfileId }) => {
                 <SuggestedSkillChip
                   onClick={() => suggestedHandler(skill.title)}
                   selectedSkill={value}
+                  title={skill.title}
                 >
                   {skill.title}
                 </SuggestedSkillChip>
@@ -300,20 +300,23 @@ const AddSkillForm = ({ data, closeModal, jobProfileId }) => {
           </Grid2>
         </Box>
 
-        <Box>
+        <Box sx={{ pb: 1 }}>
           <Button
             type="submit"
             disabled={formik.isSubmitting}
             variant="contained"
             color="secondary"
             sx={{
-              alignSelf: "flex-start",
+              width: { xs: "100%", sm: "220px" },
+              background: (theme) => theme.palette.accent,
+              color: "darkGreen",
               textTransform: "capitalize",
-              fontSize: "14px",
-              px: "50px",
+              "&:hover": {
+                background: "#6AE6A480",
+              },
             }}
           >
-            add skill
+            <Typography variant="h6">add skill</Typography>
           </Button>
         </Box>
       </Stack>

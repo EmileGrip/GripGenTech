@@ -188,7 +188,7 @@ const SkillProfile = () => {
             }}
           >
             <Box>
-              <Stack direction="row" alignItems="center">
+              <Stack id="admin__step__7" direction="row" alignItems="center">
                 <Typography
                   variant="h2"
                   color={"primary.main"}
@@ -243,6 +243,7 @@ const SkillProfile = () => {
             </Box>
 
             <Button
+              id="admin__step__8"
               variant="contained"
               color="secondary"
               sx={{

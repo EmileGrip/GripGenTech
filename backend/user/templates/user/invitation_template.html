@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<style>
+    * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 10px;
+    }
+    body {
+    font-family: Arial, Helvetica, sans-serif;
+    }
+    img {
+    width: 250px;
+    }
+    ul {
+    margin-left: 25px;
+    }
+    @media (min-width: 1024px) {
+    body {
+        padding-left: 200px;
+    }
+    .max-w-533 {
+        max-width: 533px;
+    }
+    }
+</style>
+<body>
+    <img src="https://app.adepti.co/static/media/Adepti - Horizontal Logo 1.3d4fdebdcca63c13f3ea.png" alt="Adepti logo" />
+    <h2>Welcome to Adepti!</h2>
+    <p>The platform for development and growth.</p>
+    <p class="max-w-533">
+    Please find below your login details. You can click on the link provided
+    to access the login page, where you can create a new password using your
+    email address.
+    </p>
+    <h3>Login details:</h3>
+    <ul>
+    <li>
+        Link:
+        <a href="{{ url }}" target="_blank"
+        >{{ url }}</a
+        >
+    </li>
+    <li>Email: {{ email }}</li>
+    <li>Password: {{ password }}</li>
+    </ul>
+    <p>We hope you enjoy using Adepti!</p>
+</body>
+</html>

@@ -1,6 +1,6 @@
 from schema.models import JobVacancy,VacancySkill,JobPosting,JobProfile,Company
 from schema.utils import get_node_id,getNodeByID
-from vacancy_role.lib import addVacancyRole, getVacancyRoles,deleteVacancyRole
+from vacancy_role.lib import addVacancyRole, getVacancyRoles,deleteVacancyRole,formatVacancyRole
 
 def formatJobVacancy(job):
     vacancy_role= getVacancyRoles(job.id,'job')
@@ -14,17 +14,8 @@ def formatJobVacancy(job):
         "department":job.department,
         "status":job.status,
         "email":job.user.email,
-        "role":{
-            "id":vacancy_role.id,
-            "title":vacancy_role.job_profile.title,
-            "job_profile_id":vacancy_role.job_profile.id,
-            "description":vacancy_role.description,
-            "start_date":vacancy_role.start_date,
-            "end_date":vacancy_role.end_date,
-            "hours":vacancy_role.hours,
-            "salary":vacancy_role.salary,
-            "skills":vacancy_role.skills.all().values("id","title","skill_ref","level")
-    }}
+        "role":formatVacancyRole(vacancy_role)
+        }
 
 def formatJobVacancies(jobs):
     response = []

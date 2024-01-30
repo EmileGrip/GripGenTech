@@ -286,7 +286,7 @@ const SkillsOverview2 = () => {
 
   return (
     <Grid2 container spacing={2} mb={2}>
-      <Grid2 item xs={12} lg={6}>
+      <Grid2 id="employee__step__3" item xs={12} lg={6}>
         <Stack
           sx={{
             position: "relative",
@@ -480,7 +480,14 @@ const SkillsOverview2 = () => {
             )}
           </Stack>
 
-          <Box sx={{ display: "flex", justifyContent: "center", pb: 3 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              pb: 3,
+              zIndex: "10",
+            }}
+          >
             <Fab
               onClick={handleOpenDialog}
               sx={{

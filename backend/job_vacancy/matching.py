@@ -106,7 +106,7 @@ def getProfileMatchingvacancies(user_id,data_type,as_dict=False):
     person_id,company_name,company_id = getPersonIDAndCompany(user_id)
     query = f"""
     MATCH (n:Person)-[r]-(s:Skill)
-    WHERE ID(n) = '{person_id}' 
+    WHERE ID(n) = {person_id} 
     WITH COLLECT(DISTINCT s) AS personSkills
     OPTIONAL MATCH (n:JobPosting)-[r2]-(r:JobPostingRole)-[r3]-(s:Skill)
     WHERE n.company_id = '{company_id}'
@@ -114,7 +114,9 @@ def getProfileMatchingvacancies(user_id,data_type,as_dict=False):
     WITH n, jobSkills, personSkills,
         [skill IN jobSkills WHERE skill IN personSkills | skill.preferredLabel] AS overlappingSkills,
         [skill IN jobSkills WHERE NOT skill IN personSkills | skill.preferredLabel] AS skillsNotPresent
-    RETURN ID(n) as job_id, CASE WHEN SIZE(jobSkills) = 0 THEN 0 ELSE (SIZE(overlappingSkills) * 1.0 / SIZE(jobSkills)) END as MatchPercentage
+    WITH ID(n) as job_id, CASE WHEN SIZE(jobSkills) = 0 THEN 0 ELSE (SIZE(overlappingSkills) * 1.0 / SIZE(jobSkills)) END as MatchPercentage
+    WHERE MatchPercentage>0
+    RETURN job_id, MatchPercentage
     ORDER BY MatchPercentage DESC LIMIT 10
     """
     result,_ = db.cypher_query(query, None, resolve_objects=True)
@@ -136,7 +138,9 @@ def getCareerMatchingVacancies(user_id,data_type,as_dict=False):
     WITH n, jobSkills, personSkills,
         [skill IN jobSkills WHERE skill IN personSkills | skill.preferredLabel] AS overlappingSkills,
         [skill IN jobSkills WHERE NOT skill IN personSkills | skill.preferredLabel] AS skillsNotPresent
-    RETURN ID(n) as job_id, CASE WHEN SIZE(jobSkills) = 0 THEN 0 ELSE (SIZE(overlappingSkills) * 1.0 / SIZE(jobSkills)) END as MatchPercentage
+    WITH ID(n) as job_id, CASE WHEN SIZE(jobSkills) = 0 THEN 0 ELSE (SIZE(overlappingSkills) * 1.0 / SIZE(jobSkills)) END as MatchPercentage
+    WHERE MatchPercentage>0
+    RETURN job_id, MatchPercentage
     ORDER BY MatchPercentage DESC LIMIT 10
     """
     result,_ = db.cypher_query(query, None, resolve_objects=True)
@@ -165,7 +169,10 @@ def getMatchedUsersForVacancy(vacancy_id,data_type,as_dict=False):
     WITH n, jobSkills, personSkills,
         [skill IN jobSkills WHERE skill IN personSkills | skill.preferredLabel] AS overlappingSkills,
         [skill IN jobSkills WHERE NOT skill IN personSkills | skill.preferredLabel] AS skillsNotPresent
-    RETURN ID(n) as user_id, CASE WHEN SIZE(jobSkills) = 0 THEN 0 ELSE (SIZE(overlappingSkills) * 1.0 / SIZE(jobSkills)) END as MatchPercentage, overlappingSkills
+    WITH ID(n) as user_id, CASE WHEN SIZE(jobSkills) = 0 THEN 0 ELSE (SIZE(overlappingSkills) * 1.0 / SIZE(jobSkills)) END as MatchPercentage, overlappingSkills
+    WHERE MatchPercentage>0
+    RETURN user_id, MatchPercentage, overlappingSkills
+    
     """
     result,_ = db.cypher_query(query, None, resolve_objects=True)
     return parseResults(result,as_dict,"user")
@@ -189,7 +196,9 @@ def getMatchedUsersForVacancyRole(role_id):
     WITH n, jobSkills, personSkills,
         [skill IN jobSkills WHERE skill IN personSkills | skill.preferredLabel] AS overlappingSkills,
         [skill IN jobSkills WHERE NOT skill IN personSkills | skill.preferredLabel] AS skillsNotPresent
-    RETURN ID(n) as user_id, CASE WHEN SIZE(jobSkills) = 0 THEN 0 ELSE (SIZE(overlappingSkills) * 1.0 / SIZE(jobSkills)) END as MatchPercentage, overlappingSkills
+    WITH ID(n) as user_id, CASE WHEN SIZE(jobSkills) = 0 THEN 0 ELSE (SIZE(overlappingSkills) * 1.0 / SIZE(jobSkills)) END as MatchPercentage, overlappingSkills
+    WHERE MatchPercentage>0
+    RETURN user_id, MatchPercentage, overlappingSkills
     """
     result,_ = db.cypher_query(query, None, resolve_objects=True)
     return parseResults(result,False,"user")
@@ -209,7 +218,9 @@ def parseResults(results,as_dict,data_type,**params):
     parsed_results = []
     if len(results) < 1:
         return parsed_results
-    ids = [str(i) for i in results[:][0]]
+    ids = []
+    for item in results:
+        ids.append(item[0])
     #get related job posting 
     if data_type == "job":
         jobs = JobVacancy.objects.filter(ref_post_id__in=ids,status="approved",company_id=params["company_id"]).all()
@@ -236,13 +247,11 @@ def parseResults(results,as_dict,data_type,**params):
                         "percentage":int(100 * item[1])
                     })
     if data_type == "user":
-        users = GripUser.objects.filter(person_id__in=ids).all()
+        users = GripUser.objects.filter(person_id__in=ids).all()        
         #parse results 
         for item in results:
             for user in users:
                 if user.person_id == str(item[0]):
-                    if item[1] == 0:
-                        continue
                     parsed_results.append({
                         "id":user.id,
                         "name":f"{user.first_name} {user.last_name}",
@@ -250,8 +259,10 @@ def parseResults(results,as_dict,data_type,**params):
                         "pic":getUserProfilePic(user.profile_picture),
                         "email":user.email,
                         "percentage":int(100 * item[1]),
-                        "skills":[d[0] for d in item[2]]
+                        "skills":[d for d in item[2][0]]
                     })
+    #sort results based on percentage
+    parsed_results = sorted(parsed_results, key=lambda x: x['percentage'], reverse=True)
     return parsed_results
 
 def getUserTitle(user_id):

@@ -8,3 +8,9 @@ django-storages~=1.13.2
 boto3~=1.26.155
 affinda~=4.9.0
 openai[datalib]~=0.28.0
+environs==9.5.0
+stripe==7.9.0
+django-oauth-login==0.2.4
+redis==5.0.1
+django_redis==5.4.0
+celery==4.4.0

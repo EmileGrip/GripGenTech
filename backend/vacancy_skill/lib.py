@@ -2,6 +2,13 @@ from schema.models import VacancyRole,VacancySkill
 from neomodel import db
 from schema.utils import getNodeByID
 
+def formatSkills(skills):
+    ref_ids = [skill["skill_ref"] for skill in skills]
+    descriptions = getSkillsDescription(ref_ids)
+    for i in range(len(skills)):
+        skills[i]["description"] = descriptions[skills[i]["skill_ref"]]
+    return skills
+
 def connectSkillToRole(skill,jobpost):
     jobpost.HasExtractedSkill.connect(skill)
     jobpost.save()
@@ -9,14 +16,11 @@ def connectSkillToRole(skill,jobpost):
 def disconnectSkillFromRole(skill,jobpost):
     jobpost.HasExtractedSkill.disconnect(skill)
     jobpost.save()
+    
 def getVacancyRoleSkills(vacancy_role_id):
     role = VacancyRole.objects.get(id = vacancy_role_id)
     skills = role.skills.all().values("id","title","skill_ref","level")
-    ref_ids = [skill["skill_ref"] for skill in skills]
-    descriptions = getSkillsDescription(ref_ids)
-    for i in range(len(skills)):
-        skills[i]["description"] = descriptions[skills[i]["skill_ref"]]
-    return skills
+    return formatSkills(skills)
 
 def addVacancySkill(vacancy_role_id,skill_ref,level):
     role = VacancyRole.objects.get(id = vacancy_role_id)

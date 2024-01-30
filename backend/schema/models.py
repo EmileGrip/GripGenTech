@@ -59,7 +59,12 @@ class Company(models.Model):
     #company phone number
     phone = models.CharField(max_length=20, null=True)
     #company created at
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at  = models.DateTimeField(auto_now_add=True)
+    status      = models.CharField(max_length=255, null=True)
+    start_date  = models.DateTimeField(null=True)
+    end_date    = models.DateTimeField(null=True)
+    is_trial    = models.BooleanField(default=False)
+    plan        = models.CharField(max_length=20, default='free trial')
     def __str__(self):
         return self.name
     
@@ -70,9 +75,9 @@ class GripUser(AbstractUser):
     #user id
     id = models.AutoField(primary_key=True)
     #first name
-    first_name = models.CharField(max_length=20, null=False)
+    first_name = models.CharField(max_length=50, null=False)
     #last name
-    last_name = models.CharField(max_length=20, null=False)
+    last_name = models.CharField(max_length=50, null=False)
     #email
     email = models.EmailField(max_length=50, null=False, unique=True)
     #gender
@@ -417,6 +422,107 @@ class Endorsement(models.Model):
     timecreated = models.DateField(auto_now=True)
 
 
+class PaymentIntent(models.Model):
+    id = models.AutoField(primary_key=True)
+    stripe_customer = models.CharField(max_length=255)
+    sub_id          = models.CharField(max_length=255)
+    quantity        = models.PositiveBigIntegerField()
+    price_id        = models.CharField(max_length=255)
+    payment_status  = models.CharField(max_length=255)
+    created_at      = models.DateTimeField(auto_now_add=True)
+    company = models.ForeignKey(
+        Company,
+        on_delete=models.CASCADE,
+        related_name="payment_intents",
+    )
+    user = models.ForeignKey(
+        GripUser,
+        on_delete=models.SET_NULL,
+        related_name="payment_intents",
+        null=True
+    )
+    
+    
+class CompanyProvider(models.Model):
+    id      = models.AutoField(primary_key=True)
+    active  = models.BooleanField()
+    name    = models.CharField(max_length=255)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+        
+    def __str__(self):
+        return self.name
+    
+    
+class SkillEnhancement(models.Model):
+    id           = models.AutoField(primary_key=True)
+    title        = models.CharField(max_length=100, null=False)
+    description  = models.CharField(max_length=100, null=True)
+    provider     = models.CharField(max_length=50, null=False)
+    status       = models.CharField(max_length=50, null=False)
+    course_id    = models.IntegerField(null=True)
+    level        = models.IntegerField(null=False)
+    start_date   = models.DateField(null=False)
+    end_date     = models.DateField(null=True)
+    skill        = models.ForeignKey(SkillProficiency, on_delete=models.CASCADE)
+    user         = models.ForeignKey(GripUser, on_delete=models.CASCADE, null=False)
+    company      = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)
+    image        = models.CharField(max_length=100, null=True)
+    reference_id = models.CharField(max_length=100, null=True)
+    price_detail = models.JSONField(null=True)
+    
+    def __str__(self):
+        return self.title
+
+class OAuthUserProfile(models.Model):
+    id       = models.AutoField(primary_key=True)
+    uid      = models.CharField(max_length=255, unique=True) # Provider ID
+    provider = models.CharField(max_length=255)              # Google, Azure, etc
+    email    = models.EmailField(max_length=255)
+    user     = models.ForeignKey(GripUser, on_delete=models.CASCADE, 
+                                    null=True, related_name='oauth_profile')
+
+    def __str__(self):
+        return self.email
+
+
+class Goal(models.Model):
+    name        = models.CharField(max_length=100, null=False)
+    description = models.CharField(max_length=300, null=True)
+    start_date  = models.DateField(null=False)
+    due_date    = models.DateField(null=True)
+    status      = models.CharField(max_length=50, null=True)
+    user        = models.ForeignKey(GripUser, on_delete=models.CASCADE, null=False)
+    company     = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)
+    skills      = models.JSONField(null=True)
+    
+    def __str__(self):
+        return self.name
+    
+    
+class GoalAction(models.Model):
+    company    = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)
+    user       = models.ForeignKey(GripUser, on_delete=models.CASCADE, null=False)
+    goal       = models.ForeignKey(Goal, on_delete=models.CASCADE, null=False, related_name='actions')
+    reference  = models.IntegerField(null=True)   
+    type       = models.CharField(max_length=50, null=True)
+    percentage = models.IntegerField(null=True, default=0)
+    details    = models.JSONField(null=True)
+    
+    def __str__(self):
+        return self.type
+    
+    
+class GoalFeedback(models.Model):
+    user       = models.ForeignKey(GripUser, on_delete=models.CASCADE, null=False)
+    company    = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)  
+    text       = models.TextField(null=True)
+    goal       = models.ForeignKey(Goal, on_delete=models.CASCADE, null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f'{self.user} - {self.goal}'    
+    
+    
 ##########################################
 ##              Neo4j Models            ##
 ##########################################

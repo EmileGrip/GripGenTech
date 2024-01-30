@@ -15,7 +15,7 @@ import {
   AMDIN_EMPLOYEE_ROUTE,
   ADMIN_ANALYTICS_SKILLS_ANALYSIS_ROUTE,
   ADMIN_ANALYTICS_USAGE_ROUTE,
-  ADMIN_ORGANIZATION_COMPANY_PROFILE_ROUTE,
+  ADMIN_SETTINGS_COMPANY_PROFILE_ROUTE,
   ADMIN_SKILL_PROFILE,
   ADMIN_ORGANIZATION_ORGRANIGRAM_ROUTE,
   EMPLOYEE_ORGANIGRAM_ROUTE,
@@ -29,6 +29,10 @@ import {
   MANAGER_PROJECTS_ROUTE,
   ADMIN_JOBS_ROUTE,
   ADMIN_PROJECTS_ROUTE,
+  EMPLOYEE_LEARNING_MATCHING,
+  ADMIN_PROVIDERS_ROUTE,
+  EMPLOYEE_LEARNING_MATCHING_COURSES,
+  EMPLOYEE_GOALS_ROUTE,
 } from "../routes/paths";
 
 import profile_active from "../assets/profile_active.svg";
@@ -45,6 +49,10 @@ import skillProfile_active from "../assets/skillProfile_active.svg";
 import skillProfile_inactive from "../assets/skillProfile_inactive.svg";
 import internalMobility_active from "../assets/internalMobility_active.svg";
 import internalMobility_inactive from "../assets/internalMobility_inactive.svg";
+import learningMatching_active from "../assets/learningMatching_active.svg";
+import learningMatching_inactive from "../assets/learningMatching_inactive.svg";
+import goals_active from "../assets/goals_active.svg";
+import goals_inactive from "../assets/goals_inactive.svg";
 
 export const sidebarEmployeeData = [
   {
@@ -53,6 +61,15 @@ export const sidebarEmployeeData = [
     iconsPath: {
       active: profile_active,
       inactive: profile_inactive,
+    },
+    subCategory: [],
+  },
+  {
+    categoryName: "Goals",
+    catergoryPath: EMPLOYEE_GOALS_ROUTE,
+    iconsPath: {
+      active: goals_active,
+      inactive: goals_inactive,
     },
     subCategory: [],
   },
@@ -79,6 +96,15 @@ export const sidebarEmployeeData = [
       { name: "Work Experience", path: EMPLOYEE_WORK_EXPREIENCE_PATH },
       { name: "Learning Experience", path: EMPLOYEE_LEARNING_EXPREIENCE_PATH },
     ],
+  },
+  {
+    categoryName: "Learning Matching",
+    catergoryPath: EMPLOYEE_LEARNING_MATCHING_COURSES,
+    iconsPath: {
+      active: learningMatching_active,
+      inactive: learningMatching_inactive,
+    },
+    subCategory: [],
   },
   {
     categoryName: "Internal Mobility",
@@ -163,18 +189,12 @@ export const sidebarAdminData = [
   },
   {
     categoryName: "Organization",
-    catergoryPath: ADMIN_ORGANIZATION_COMPANY_PROFILE_ROUTE,
+    catergoryPath: ADMIN_ORGANIZATION_ORGRANIGRAM_ROUTE,
     iconsPath: {
       active: usertag_active,
       inactive: usertag_inactive,
     },
-    subCategory: [
-      {
-        name: "Company Profile",
-        path: ADMIN_ORGANIZATION_COMPANY_PROFILE_ROUTE,
-      },
-      { name: "Organigram", path: ADMIN_ORGANIZATION_ORGRANIGRAM_ROUTE },
-    ],
+    subCategory: [],
   },
   {
     categoryName: "Skill Profile",
@@ -184,6 +204,15 @@ export const sidebarAdminData = [
       inactive: skillProfile_inactive,
     },
     subCategory: [],
+  },
+  {
+    categoryName: "Learning Matching",
+    catergoryPath: ADMIN_PROVIDERS_ROUTE,
+    iconsPath: {
+      active: learningMatching_active,
+      inactive: learningMatching_inactive,
+    },
+    subCategory: [{ name: "Providers", path: ADMIN_PROVIDERS_ROUTE }],
   },
   {
     categoryName: "Internal Mobility",

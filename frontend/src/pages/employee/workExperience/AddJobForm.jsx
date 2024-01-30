@@ -64,18 +64,27 @@ const AddJobForm = ({
 
       const formatStartDate = formatDate(values.joinedDate);
       const formatEndDate = formatDate(values.leftDate);
+
+      // Create a function to filter out keys with empty string or null values
+      const removeEmptyKeys = (obj) =>
+        Object.fromEntries(
+          Object.entries(obj).filter(([_, v]) => v !== "" && v !== null)
+        );
+
+      const requestBody = removeEmptyKeys({
+        title: values.position,
+        company: values.company,
+        start_date: formatStartDate,
+        end_date: formatEndDate,
+        description: values.description,
+        user_id: userInfo.id,
+        is_current: values.current,
+      });
+
       try {
         const response = await axiosInstance.post(
           `experience`,
-          {
-            title: values.position,
-            company: values.company,
-            start_date: formatStartDate,
-            end_date: formatEndDate,
-            description: values.description,
-            user_id: userInfo.id,
-            is_current: values.current,
-          },
+          requestBody,
           config
         );
         console.log(response.data);
@@ -167,7 +176,6 @@ const AddJobForm = ({
       <Stack sx={{ px: { xs: 2.5, lg: 0 } }}>
         <Grid2
           container
-          rowSpacing={4}
           columnSpacing={{ xs: 4, md: 8 }}
           sx={{ flexGrow: 1 }}
           mb={"50px"}
@@ -453,26 +461,31 @@ const AddJobForm = ({
             variant="contained"
             color="secondary"
             sx={{
-              alignSelf: "flex-start",
+              width: { xs: "50%", sm: "220px" },
+              background: (theme) => theme.palette.accent,
+              color: "darkGreen",
               textTransform: "capitalize",
-              fontSize: "14px",
-              px: "50px",
+              "&:hover": {
+                background: "#6AE6A480",
+              },
             }}
           >
-            {editMode ? "edit" : "finish"}
+            <Typography variant="h6">{editMode ? "edit" : "finish"}</Typography>
           </Button>
+
           <Button
             onClick={() => onClose()}
             variant="outlined"
             color="secondary"
             sx={{
+              width: { xs: "50%", sm: "220px" },
               alignSelf: "flex-start",
               textTransform: "capitalize",
               px: "50px",
               fontSize: "14px",
             }}
           >
-            cancel
+            <Typography variant="h6">cancel</Typography>
           </Button>
         </Stack>
       </Stack>

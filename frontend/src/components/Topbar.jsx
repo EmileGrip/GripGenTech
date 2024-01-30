@@ -138,6 +138,10 @@ const Topbar = ({ title, onMenu }) => {
 
   const routeTitle = title.replace(/-/g, " ");
 
+  const URL = window.location.href;
+  const parts = URL.split("/");
+  const currentFlow = parts[3];
+
   return (
     <Stack
       className="topbar"
@@ -251,6 +255,9 @@ const Topbar = ({ title, onMenu }) => {
             )} */}
 
             <Stack
+              id={
+                currentFlow === "admin" ? "admin__step__11" : "manager__step__5"
+              }
               ref={stackRef}
               onClick={handleMenuOpen}
               flexDirection={"row"}
@@ -260,6 +267,7 @@ const Topbar = ({ title, onMenu }) => {
                 pr: 3,
                 border: "1px solid #E9E9E9",
                 borderRadius: "30px",
+                backgroundColor: "background.white",
                 // cursor: "pointer",
               }}
             >
@@ -285,6 +293,7 @@ const Topbar = ({ title, onMenu }) => {
           </Stack>
         )}
 
+        {/* Roles Menu  */}
         <Menu
           anchorEl={stackRef.current}
           open={Boolean(anchorEl)}

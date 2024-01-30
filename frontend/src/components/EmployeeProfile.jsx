@@ -43,7 +43,7 @@ const EmployeeProfile = ({ data }) => {
       sx={{
         flexDirection: { xs: "column", md: "row" },
         gap: { xs: "0", md: "45px" },
-        p: 3,
+        px: { xs: 3, lg: 0 },
         pt: 0,
         mt: { xs: "-40px", lg: "-70px" },
       }}
@@ -103,7 +103,7 @@ const EmployeeProfile = ({ data }) => {
           </Typography>
         </Box>
 
-        <Box className="contact__section" sx={{ mb: { xs: 3, md: 6 } }}>
+        <Box className="contact__section" sx={{ mb: { xs: 3 } }}>
           <Typography
             variant="h4"
             color={"secondary"}
@@ -152,7 +152,7 @@ const EmployeeProfile = ({ data }) => {
           </Stack>
         </Box>
 
-        <Box className="info__section" sx={{ mb: { xs: 3, md: 6 } }}>
+        <Box className="info__section" sx={{ mb: { xs: 3 } }}>
           <Typography
             variant="h4"
             color={"secondary"}

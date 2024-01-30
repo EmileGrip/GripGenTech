@@ -1,4 +1,4 @@
-
+from datetime import datetime, timedelta
 from rest_framework import serializers, exceptions
 from schema.models import Company,Role,GripFile
 from django.forms.models import model_to_dict
@@ -141,7 +141,9 @@ class CompanySerializer(serializers.Serializer):
             phone=phone,
         )
         #create new company
-        company = Company.objects.create(name=name,**company_data)
+        company = Company.objects.create(name=name,**company_data, status="active", is_trial=True,
+                                         start_date=datetime.now(), plan="free-trial",
+                                         end_date=datetime.now() + timedelta(days=30))
         #save company
         company.save()
         #create position

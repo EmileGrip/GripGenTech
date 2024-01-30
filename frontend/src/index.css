@@ -85,25 +85,6 @@ a {
   }
 }
 
-.login_page_copyright_in_firefox {
-  width: 100%;
-  text-align: center;
-  position: relative;
-}
-@media (min-width: 1200px) {
-  .login_page_copyright_in_firefox {
-    text-align: left;
-    left: 161px;
-  }
-}
-@media (min-width: 1200px) {
-  @-moz-document url-prefix() {
-    .login_page_copyright_in_firefox {
-      left: 121px;
-    }
-  }
-}
-
 /* Recover page */
 .recover_page_special_width_in_firefox {
   margin-bottom: 40px;

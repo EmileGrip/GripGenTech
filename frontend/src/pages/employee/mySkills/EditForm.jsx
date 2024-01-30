@@ -281,7 +281,7 @@ const EditForm = ({ formik, loading }) => {
               flexDirection: "row",
               alignItems: "center",
               gap: "16px",
-              my: 3.75,
+              pb: 1,
             }}
           >
             <Button
@@ -290,13 +290,16 @@ const EditForm = ({ formik, loading }) => {
               variant="contained"
               color="secondary"
               sx={{
-                alignSelf: "flex-start",
+                width: { xs: "100%", sm: "220px" },
+                background: (theme) => theme.palette.accent,
+                color: "darkGreen",
                 textTransform: "capitalize",
-                fontSize: "14px",
-                px: "50px",
+                "&:hover": {
+                  background: "#6AE6A480",
+                },
               }}
             >
-              edit
+              <Typography variant="h6">edit</Typography>
             </Button>
             {loading && <CircularProgress size={20} />}
           </Stack>

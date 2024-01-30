@@ -154,23 +154,32 @@ const AddJobForm = ({ onEdit, handleEditClose, data, id, onSuccess }) => {
       if (values.endDate instanceof Date && !isNaN(values.endDate)) {
         formatEndDate = formatDate(values.endDate);
       }
+
+      // Create a function to filter out keys with empty string or null values
+      const removeEmptyKeys = (obj) =>
+        Object.fromEntries(
+          Object.entries(obj).filter(([_, v]) => v !== "" && v !== null)
+        );
+
+      const requestBody = removeEmptyKeys({
+        department: values.department,
+        job_profile_id: values.role,
+        start_date: formatStartDate,
+        end_date: formatEndDate,
+        hours: values.hours,
+        salary: values.salary,
+        description: values.description,
+        skills: values.skills?.map((skill) => ({
+          skill_ref: skill.id,
+          level: skill.level,
+        })),
+      });
+
       try {
         setLoading(true);
         const response = await axiosInstance.post(
           `job_vacancy`,
-          {
-            department: values.department,
-            job_profile_id: values.role,
-            start_date: formatStartDate,
-            end_date: formatEndDate,
-            hours: values.hours,
-            salary: values.salary,
-            description: values.description,
-            skills: values.skills?.map((skill) => ({
-              skill_ref: skill.id,
-              level: skill.level,
-            })),
-          },
+          requestBody,
           config
         );
         console.log(skills);
@@ -199,14 +208,22 @@ const AddJobForm = ({ onEdit, handleEditClose, data, id, onSuccess }) => {
         },
       };
 
+      // Create a function to filter out keys with empty string or null values
+      const removeEmptyKeys = (obj) =>
+        Object.fromEntries(
+          Object.entries(obj).filter(([_, v]) => v !== "" && v !== null)
+        );
+
+      const requestBody = removeEmptyKeys({
+        id: job?.id,
+        department: values.department,
+      });
+
       try {
         setLoading(true);
         const response = await axiosInstance.put(
           `job_vacancy`,
-          {
-            id: job?.id,
-            department: values.department,
-          },
+          requestBody,
           config
         );
         console.log(response.data);
@@ -234,19 +251,28 @@ const AddJobForm = ({ onEdit, handleEditClose, data, id, onSuccess }) => {
 
       const formatStartDate = formatDate(values.startDate);
       const formatEndDate = formatDate(values.endDate);
+
+      // Create a function to filter out keys with empty string or null values
+      const removeEmptyKeys = (obj) =>
+        Object.fromEntries(
+          Object.entries(obj).filter(([_, v]) => v !== "" && v !== null)
+        );
+
+      const requestBody = removeEmptyKeys({
+        id: job?.role?.id,
+        title: values.title,
+        start_date: formatStartDate,
+        end_date: formatEndDate,
+        hours: values.hours,
+        salary: values.salary,
+        description: values.description,
+      });
+
       try {
         setLoading(true);
         const response = await axiosInstance.put(
           `vacancy_role`,
-          {
-            id: job?.role?.id,
-            title: values.title,
-            start_date: formatStartDate,
-            end_date: formatEndDate,
-            hours: values.hours,
-            salary: values.salary,
-            description: values.description,
-          },
+          requestBody,
           config
         );
         console.log(response.data);

@@ -158,7 +158,7 @@ class RoleSerializer(serializers.Serializer):
         user_id = data.get('user_id')
         company_id = self.context['request'].user.company_id.id
         department = data.get('department')
-        title = data.get('title')
+        job_profile_id = data.get('job_profile_id')
         parent_role_id = data.get('parent_role_id')
         selected_role_id = data.get('selected_role_id')
         position = data.get('position')
@@ -183,28 +183,15 @@ class RoleSerializer(serializers.Serializer):
         
         #get company instance
         company_id = Company.objects.get(id=company_id)
-        if title is not None:
+        if job_profile_id is not None:
+            #check if job_profile_id is numeric 
+            if str(job_profile_id).isnumeric() is False:
+                raise exceptions.ValidationError('Invalid job_profile_id, It should be numeric')
             #check if job profile with the same title exists
-            if JobProfile.objects.filter(title=title,company_id=company_id).exists():
-                job_profile_id = JobProfile.objects.filter(title=title,company_id=company_id).first()
-            else:
-                #create JobTitle instance
-                job_title = JobTitle(label=title,company_id=company_id.id)
-                job_title.save()
-                #create job_profile_data
-                job_profile_id = JobProfile.objects.create(title=title,company_id=company_id,job_id=self.get_node_id(job_title))
-                #connect to the best match for job title
-                occupation = get_best_matched_occupation(job_title.label)
-                if occupation is not None:
-                    #generate similar to relationship between jobtitle and occupation
-                    job_title.SimilarTo.connect(occupation)
-                #add relationship between person and job title
-                person,_ = db.cypher_query(f'MATCH (s:Person) WHERE ID(s) = {self.context["request"].user.person_id} RETURN s', None, resolve_objects=True)
-                person = person[0][0]
-                person.HasJob.connect(job_title)
+            if JobProfile.objects.filter(id=job_profile_id,company_id=company_id).exists() is False:
+                raise exceptions.ValidationError('job profile does not exist')
+            job_profile_id = JobProfile.objects.filter(id=job_profile_id,company_id=company_id).first()
                 
-        else:
-            job_profile_id = None
         if user_id is not None:
             #get user instance
             user_id = GripUser.objects.get(id=user_id)
@@ -252,7 +239,7 @@ class RoleSerializer(serializers.Serializer):
             company_id = company_id,
             job_profile_id = job_profile_id,
             department = department,
-            title = title,
+            title = job_profile_id.title if job_profile_id is not None else None,
             parent_role_id = parent_role_id,
             allign= position,
             selected_role_id=selected_role_id
@@ -279,7 +266,7 @@ class RoleSerializer(serializers.Serializer):
         return {
             "company_id":company_id.id,
             "department":department,
-            "title":title,
+            "title":job_profile_id.title if job_profile_id is not None else None,
         }
 
     def validate_put(self,data):
@@ -287,7 +274,7 @@ class RoleSerializer(serializers.Serializer):
         user_id = data.get('user_id')
         id = data.get('id')
         department = data.get('department')
-        title = data.get('title')
+        job_profile_id = data.get('job_profile_id')
         reset = data.get('reset')
 
         company_id = Company.objects.get(id=self.context['request'].user.company_id.id)
@@ -359,22 +346,11 @@ class RoleSerializer(serializers.Serializer):
                 old_person.HasJob.disconnect_all()
             
         
-        if title is not None:
+        if job_profile_id is not None:
             #check if job profile with the same title exists
-            if JobProfile.objects.filter(title=title,company_id=company_id).exists():
-                job_profile_id = JobProfile.objects.get(title=title,company_id=company_id)
-            else:
-                #create JobTitle instance
-                job_title = JobTitle.get_or_create({"label":title,"company_id":company_id.id})[0]
-                #job_title=JobTitle.get_or_create(title=title)
-                #job_title.save()
-                #create job_profile_data
-                job_profile_id = JobProfile.objects.create(title=title,company_id=company_id,job_id=self.get_node_id(job_title))
-                #connect to the best match for job title
-                occupation = get_best_matched_occupation(job_title.label)
-                if occupation is not None:
-                    #generate similar to relationship between jobtitle and occupation
-                    job_title.SimilarTo.connect(occupation)
+            if JobProfile.objects.filter(id=job_profile_id,company_id=company_id).exists() is False:
+                raise exceptions.ValidationError('job profile does not exist')    
+            job_profile_id = JobProfile.objects.get(id=job_profile_id,company_id=company_id)
                     
             if role.user_id is not None:
                 #get old person instance
@@ -388,7 +364,7 @@ class RoleSerializer(serializers.Serializer):
         role_data = self.__get_non_null_fields(
             user_id=user_id,
             department=department,
-            title=title,
+            title=job_profile_id.title,
             job_profile_id=job_profile_id
         )
         #update role
@@ -403,8 +379,8 @@ class RoleSerializer(serializers.Serializer):
             role.department = department
             role.save()
 
-        if title is not None:
-            role.title = title
+        if job_profile_id is not None:
+            role.title = job_profile_id.title
             role.save()
         role = Role.objects.get(id=id)
         #update person relationship with job title

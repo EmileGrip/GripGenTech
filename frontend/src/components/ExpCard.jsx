@@ -47,15 +47,17 @@ const ExpCard = ({ data, onEdit, onDelete, hideOptions = false }) => {
   const mdMatches = useMediaQuery(theme.breakpoints.up("md"));
 
   const [showMore, setShowMore] = useState(false);
-  const listItems = data.description.split("-").map((line) => (
-    <li
-      className="list__item"
-      style={{ fontSize: mdMatches ? "16px" : "12px" }}
-      key={line}
-    >
-      {line}
-    </li>
-  ));
+  const listItems = data.description
+    ? data.description.split("-").map((line, index) => (
+        <li
+          className="list__item"
+          style={{ fontSize: mdMatches ? "16px" : "12px" }}
+          key={index}
+        >
+          {line}
+        </li>
+      ))
+    : "";
 
   return (
     <Stack

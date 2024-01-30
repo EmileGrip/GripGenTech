@@ -19,6 +19,7 @@ import { userReset } from "../../../../redux/slices/auth/authActions";
 import ResetPasswordForm from "../ResetPasswordForm";
 import { setResponse } from "../../../../redux/slices/auth/authSlice";
 import { useEffect } from "react";
+import Turnstile from "react-turnstile";
 
 const formControlStyles = {
   maxWidth: { xs: "400px", lg: "307px" },
@@ -29,6 +30,7 @@ const RecoverForm = () => {
   const dispatch = useDispatch();
   const { response, loading } = useSelector((state) => state.auth);
   const [open, setOpen] = useState(false);
+  const [cloudFlareToken, setCloudFlareToken] = useState("");
 
   // Clear the response data when the component mounts
   useEffect(() => {
@@ -58,7 +60,7 @@ const RecoverForm = () => {
       setTimeout(() => {
         // Submit to the server
         // Assuming the userReset function returns a promise
-        dispatch(userReset(values.email))
+        dispatch(userReset({ email: values.email, token: cloudFlareToken }))
           .then((response) => {
             // Password recovery request is successful, show the ResetPasswordForm
             dispatch(setResponse(response.payload));
@@ -111,6 +113,12 @@ const RecoverForm = () => {
                 fullWidth
               />
             </Box>
+
+            <Turnstile
+              className="dave"
+              sitekey={process.env.REACT_APP_TURNSTILE_SITE_KEY}
+              onVerify={(token) => setCloudFlareToken(token)}
+            />
 
             <Stack sx={{ maxWidth: { xs: "400px", lg: "307px" } }}>
               <Button

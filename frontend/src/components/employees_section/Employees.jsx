@@ -384,7 +384,11 @@ const Employees = () => {
           >
             {modifiedUsersData?.length > 0 ? (
               modifiedUsersData.map((employee, index) => (
-                <Grid2 xs={4} sm={4} md={4} lg={4} xl={4} key={index}>
+                <Grid2
+                  id={index === 0 ? "manager__step__1" : `${employee.id}`}
+                  xs={4}
+                  key={index}
+                >
                   <CardEmployee
                     onOpen={dialogHanlder}
                     data={employee}

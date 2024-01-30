@@ -210,6 +210,7 @@ const JobCard = ({
               justifyContent: { xs: "center", lg: "flex-start" },
               alignItems: "center",
               gap: "12px",
+              width: { xs: "250px", sm: "500px" },
               maxWidth: "100%",
               overflowX: "auto",
               overflowY: "hidden",
@@ -228,6 +229,7 @@ const JobCard = ({
                   justifyContent: "center",
                   alignItems: "center",
                   gap: "12px",
+                  ml: { xs: "350px", sm: "100px", md: "260px", lg: "0px" },
                 }}
               >
                 {data?.role?.skills.map((skill) => (

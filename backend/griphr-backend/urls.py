@@ -8,6 +8,7 @@ urlpatterns = [
     path('', include('company.urls')),
     path('', include('experience.urls')),
     path('', include('education.urls')),
+    path("oauth/", include("oauthlogin.urls", namespace='oauthlogin')),
     path('auth/', include('token_auth.urls')),
     path('', include('search.urls')),
     path('', include('job_profile.urls')),
@@ -25,4 +26,7 @@ urlpatterns = [
     path('', include('vacancy_skill.urls')),
     path('', include('project_vacancy.urls')),
     path('', include('endorsement.urls')),
-]
+    path('subscription/', include('subscription.urls')),
+    path('learning_matching/', include('learning_matching.urls')),
+    path('goals/', include('goals.urls')),
+] 

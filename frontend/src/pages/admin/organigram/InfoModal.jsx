@@ -175,17 +175,13 @@ const InfoModal = ({ data, editRoleData, closeModal, hideOptions = false }) => {
           px: { xs: "44px", sm: "95px", lg: "0px" },
         }}
       >
-        <Stack
-          sx={{
-            mb: { xs: "40px" },
-          }}
-        >
+        <Stack>
           <Stack
             sx={{
               flexDirection: { xs: "column", sm: "row" },
               alignItems: { xs: "center" },
               gap: { xs: "12px", sm: "45px" },
-              mb: { xs: "87px" },
+              mb: { xs: "20px" },
             }}
           >
             <Avatar
@@ -231,6 +227,7 @@ const InfoModal = ({ data, editRoleData, closeModal, hideOptions = false }) => {
                     sx={{
                       color: "#1E394C",
                       fontSize: { xs: "13px", sm: "20px" },
+                      textTransform: "capitalize",
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",

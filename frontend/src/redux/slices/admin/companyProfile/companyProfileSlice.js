@@ -62,6 +62,10 @@ const companyProfileSlice = createSlice({
       address2: "",
       postal_code: "",
       logo: null,
+      status: "",
+      start_date: "",
+      end_date: "",
+      plan: "",
     },
   },
   reducers: {

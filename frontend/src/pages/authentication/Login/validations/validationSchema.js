@@ -7,7 +7,7 @@ const validationsForm = {
     .required("Email is required"),
   password: yup
     .string()
-    .min(8, "Password must contain at least 8 characters")
+    .min(6, "Password must contain at least 6 characters")
     .required("Enter your password"),
 };
 

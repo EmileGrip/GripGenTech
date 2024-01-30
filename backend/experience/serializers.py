@@ -13,7 +13,7 @@ class ExperienceSerializer(serializers.Serializer):
     title = serializers.CharField(required=False,max_length=50)
     start_date = serializers.DateField(required=False)
     end_date = serializers.DateField(required=False)
-    description = serializers.CharField(required=False,max_length=500)
+    description = serializers.CharField(required=False,max_length=500,allow_blank=True)
     is_current = serializers.BooleanField(required=False)
     user_id = serializers.IntegerField(required=False)
 
@@ -104,7 +104,8 @@ class ExperienceSerializer(serializers.Serializer):
         
         #check if is_current is valid
         if is_current is None:
-            raise exceptions.ValidationError('Is current field is required')
+            raise exceptions.ValidationError('Is current field is required') 
+
         
         if is_current is True:
             end_date = None
@@ -178,7 +179,7 @@ class ExperienceSerializer(serializers.Serializer):
 
         #check if description is valid
         
-        if description is not None:
+        if description not in [None,'']:
             if len(description) > 1000 and len(description) < 3:
                 raise exceptions.ValidationError('Description must be between 3 and 1000 characters')
             experience.description = description

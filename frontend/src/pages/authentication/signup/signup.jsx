@@ -21,48 +21,48 @@ const Signup = () => {
         px: "0 !important",
         display: "flex",
         minHeight: "100vh",
-        pt: "16px",
       }}
     >
       <Stack
         sx={{
-          alignItems: { lg: "flex-end" },
-          justifyContent: "center",
-          width: { xs: "100%", lg: "45%" },
-          maxWidth: { lg: "480px" },
-          height: "100%",
-          pr: { lg: 5 },
-          position: "relative",
+          alignItems: { lg: "center" },
+          width: { xs: "100%", lg: "60%" },
         }}
       >
-        <Box
+        <Stack
           sx={{
-            width: { lg: "307px" },
-            textAlign: { xs: "center", lg: "left" },
-            mb: 5,
-          }}
-        >
-          <img src={login_logo} alt="logo" width={150} />
-        </Box>
-        <SignupForm />
-        <Box
-          sx={{
-            width: "100%",
-            textAlign: "center",
+            justifyContent: "center",
+            width: { xs: "100%", lg: "60%" },
+            height: "100%",
+            pr: { lg: 5 },
             position: "relative",
-            // pl: { xs: 2, lg: 0 },
           }}
         >
-          <Typography
-            variant="body1"
+          <Box
             sx={{
-              color: "secondary.main",
-              opacity: "0.5",
+              width: { lg: "307px" },
+              textAlign: { xs: "center", lg: "left" },
+              mb: 5,
             }}
           >
-            Adepti® All Rights Reserved
-          </Typography>
-        </Box>
+            <img src={login_logo} alt="logo" width={150} />
+          </Box>
+
+          <SignupForm />
+
+          <Box>
+            <Typography
+              variant="body1"
+              sx={{
+                color: "secondary.main",
+                opacity: "0.5",
+                textAlign: { xs: "center", lg: "left" },
+              }}
+            >
+              Adepti® All Rights Reserved
+            </Typography>
+          </Box>
+        </Stack>
       </Stack>
 
       {mdMatches && (

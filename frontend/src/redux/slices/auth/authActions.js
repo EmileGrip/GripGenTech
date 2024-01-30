@@ -4,7 +4,7 @@ import axiosInstance from "../../../helper/axiosInstance";
 
 export const userLogin = createAsyncThunk(
   "auth/login",
-  async ({ email, password }, { rejectWithValue }) => {
+  async ({ email, password, token }, { rejectWithValue }) => {
     try {
       const config = {
         headers: {
@@ -13,7 +13,7 @@ export const userLogin = createAsyncThunk(
       };
       const { data } = await axiosInstance.post(
         `auth/login`,
-        { email, password },
+        { email, password, token },
         config
       );
 
@@ -28,9 +28,35 @@ export const userLogin = createAsyncThunk(
   }
 );
 
+export const userLoginWithGoogleOrMicrosoft = createAsyncThunk(
+  "auth/loginWithGoogleOrMicrosoft",
+  async ({ api, token, operation }, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const { data } = await axiosInstance.post(
+        api,
+        { token, operation },
+        config
+      );
+
+      return data.payload;
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue(error.message);
+      }
+    }
+  }
+);
+
 export const userReset = createAsyncThunk(
   "auth/forgot_password",
-  async (email, { rejectWithValue }) => {
+  async ({ email, token }, { rejectWithValue }) => {
     try {
       const config = {
         headers: {
@@ -39,7 +65,7 @@ export const userReset = createAsyncThunk(
       };
       const { data } = await axiosInstance.post(
         `auth/forgot_password`,
-        { email },
+        { email, token },
         config
       );
 

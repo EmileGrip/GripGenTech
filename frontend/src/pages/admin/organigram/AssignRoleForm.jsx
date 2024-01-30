@@ -251,14 +251,14 @@ const AssignRoleForm = ({ data, closeModal }) => {
   }, [token, fetchUsersData]);
 
   return (
-    <Box sx={{ px: { xs: 2.5 } }}>
+    <Box sx={{ px: { xs: 2.5, lg: 0 } }}>
       {data && (
         <Stack
           sx={{
             flexDirection: "row",
             justifyContent: { xs: "space-between", md: "initial" },
             gap: { md: 25.25 },
-            mb: { xs: 9.375, md: 9.375 },
+            mb: { xs: 3 },
           }}
         >
           <Button
@@ -311,7 +311,7 @@ const AssignRoleForm = ({ data, closeModal }) => {
 
       {currentTab === "exist_employee" && data ? (
         <form onSubmit={existingEmployeeForm.handleSubmit}>
-          <Box mb={4}>
+          <Box>
             <Typography
               variant="h3"
               component="label"
@@ -388,7 +388,6 @@ const AssignRoleForm = ({ data, closeModal }) => {
                 flexDirection: "row",
                 alignItems: "center",
                 gap: "16px",
-                mt: "50px",
               }}
             >
               <Button
@@ -397,13 +396,16 @@ const AssignRoleForm = ({ data, closeModal }) => {
                 variant="contained"
                 color="secondary"
                 sx={{
-                  alignSelf: "flex-start",
+                  width: { xs: "100%", sm: "220px" },
+                  background: (theme) => theme.palette.accent,
+                  color: "darkGreen",
                   textTransform: "capitalize",
-                  fontSize: "14px",
-                  px: "50px",
+                  "&:hover": {
+                    background: "#6AE6A480",
+                  },
                 }}
               >
-                finish
+                <Typography variant="h6">finish</Typography>
               </Button>
               {existingEmployeeForm.isSubmitting && <CircularProgress />}
             </Stack>
@@ -813,7 +815,7 @@ const AssignRoleForm = ({ data, closeModal }) => {
                 flexDirection: "row",
                 alignItems: "center",
                 gap: "16px",
-                my: 3.75,
+                pb: 1,
               }}
             >
               <Button
@@ -822,13 +824,16 @@ const AssignRoleForm = ({ data, closeModal }) => {
                 variant="contained"
                 color="secondary"
                 sx={{
-                  alignSelf: "flex-start",
+                  width: { xs: "100%", sm: "220px" },
+                  background: (theme) => theme.palette.accent,
+                  color: "darkGreen",
                   textTransform: "capitalize",
-                  fontSize: "14px",
-                  px: "50px",
+                  "&:hover": {
+                    background: "#6AE6A480",
+                  },
                 }}
               >
-                finish
+                <Typography variant="h6">finish</Typography>
               </Button>
               {loading && <CircularProgress />}
             </Stack>

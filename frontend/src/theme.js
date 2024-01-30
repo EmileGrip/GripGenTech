@@ -1,5 +1,26 @@
 import { createTheme, responsiveFontSizes } from "@mui/material/styles";
-
+// DarkGreen: {
+//     100: "#ced1d0",
+//     200: "#9ea2a2",
+//     300: "#6d7473",
+//     400: "#3d4545",
+//     500: "#0c1716",
+//     600: "#0a1212",
+//     700: "#070e0d",
+//     800: "#050909",
+//     900: "#020504"
+// },
+// green: {
+//     100: "#e1faed",
+//     200: "#c3f5db",
+//     300: "#a6f0c8",
+//     400: "#88ebb6",
+//     500: "#6ae6a4",
+//     600: "#55b883",
+//     700: "#408a62",
+//     800: "#2a5c42",
+//     900: "#152e21"
+// },
 const theme = createTheme({
   palette: {
     primary: {
@@ -8,8 +29,16 @@ const theme = createTheme({
     secondary: {
       main: "#1E394C",
     },
+    darkerGreen: "#0a1212",
     darkGreen: "#0C1716",
+    lightGreen: "#3d4545",
+    softGreen: "#A2AEAD",
+    lightGrey: "#eee",
+    darkGrey: "#C0C0C0",
     accent: "#6AE6A4",
+    softAccent: "#E1FAED",
+    darkAccent: "#55b883",
+    darkGreenAccent: "#173433",
     inactive: {
       main: "#788894",
     },
@@ -26,6 +55,9 @@ const theme = createTheme({
     },
     background: {
       default: "#fcfcfc",
+      dark: "#fafafa",
+      newMain: "#F8F8F8",
+      white: "#fff",
     },
   },
   typography: {

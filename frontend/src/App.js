@@ -1,14 +1,8 @@
-import { responsiveTheme, theme } from "./theme";
+import { responsiveTheme } from "./theme";
 import { ThemeProvider } from "@mui/material/styles";
 import DevelopmentPage from "./pages/employee/development/DevelopmentPage";
 import { CssBaseline } from "@mui/material";
-import {
-  Route,
-  Router,
-  Routes,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import MySkills from "./pages/employee/mySkills/MySkills";
 import NoMatch from "./pages/NoMatch";
 import Login from "./pages/authentication/Login/Login";
@@ -18,8 +12,6 @@ import {
   EMPLOYEE_DEVELOPMENT_ROUTE,
   EMPLOYEE_MY_SKILLS_ROUTE,
   EMPLOYEE_WORK_EXPREIENCE_PATH,
-  EMPLOYEE_MY_SKILLS_INITIAL_ROUTE,
-  EMPLOYEE_MY_SKILLS_OVERVIEW_ROUTE,
   MANAGER_PAGE_ROUTE,
   MANAGER_EMPLOYEES_ROUTE,
   MANAGER_ORGANIGRAM_ROUTE,
@@ -32,13 +24,9 @@ import {
   ADMIN_ANALYTICS_ROUTE,
   ADMIN_ANALYTICS_SKILLS_ANALYSIS_ROUTE,
   ADMIN_ANALYTICS_USAGE_ROUTE,
-  ADMIN_FRAMEWORK,
-  ADMIN_ORGANIZATION_COMPANY_PROFILE_INITIAL_SETUP_ROUTE,
-  ADMIN_ORGANIZATION_COMPANY_PROFILE_ROUTE,
-  ADMIN_ORGANIZATION_COMPANY_PROFILE_COMPANY_INFO_ROUTE,
+  ADMIN_SETTINGS_COMPANY_PROFILE_ROUTE,
   ADMIN_SKILL_PROFILE,
   ADMIN_ORGANIZATION_ORGRANIGRAM_ROUTE,
-  EMPLOYEE_MY_SKILLS_PROFILE,
   EMPLOYEE_ORGANIGRAM_ROUTE,
   ADMIN_EMPLOYEES_LIST_ROUTE,
   STAFF_PAGE_ROUTE,
@@ -76,10 +64,18 @@ import {
   ROLES_REQUIRED_ROUTE,
   EMPLOYEE_JOBS_OVERVIEW_ROUTE,
   EMPLOYEE_PROJECTS_OVERVIEW_ROUTE,
+  EMPLOYEE_LEARNING_MATCHING,
+  ADMIN_LEARNING_MATCHING_ROUTE,
+  ADMIN_PROVIDERS_ROUTE,
+  EMPLOYEE_LEARNING_MATCHING_COURSES,
+  ADMIN_SETTINGS_ROUTE,
+  ADMIN_SETTINGS_EMPLOYEE_ROLE_ROUTE,
+  ADMIN_SETTINGS_BILLING_ROUTE,
+  EMPLOYEE_GOALS_ROUTE,
+  EMPLOYEE_ADD_GOAL_ROUTE,
 } from "./routes/paths";
 import WorkExperience from "./pages/employee/workExperience/WorkExperience";
 import LearningExperience from "./pages/employee/learningExperience/LearningExperience";
-import InitialSetup from "./pages/employee/mySkills/InitialSetup";
 import Overview from "./pages/employee/mySkills/Overview";
 import ManagerDashBoard from "./pages/manager/ManagerDashBoard";
 import Employees from "./components/employees_section/Employees";
@@ -102,12 +98,10 @@ import Recover from "./pages/authentication/recover/recover";
 import StaffDashboard from "./pages/staff/StaffDashboard";
 import ProtectedStaff from "./components/ProtectedStaff";
 import { useSelector } from "react-redux";
-import { useEffect } from "react";
 import AddCompany from "./pages/staff/companies/AddCompany";
 import CompaniesOverview from "./pages/staff/companies/CompaniesOverview";
 import StaffAnalytics from "./pages/staff/analytics/StaffAnalytics";
 import StaffCompanyProfile from "./pages/staff/companies/StaffCompanyProfile";
-import ProfilePage from "./pages/employee/mySkills/ProfilePage";
 import InternalMobility from "./components/internal_mobility_section/InternalMobility";
 import Jobs from "./components/internal_mobility_section/jobs/Jobs";
 import Projects from "./components/internal_mobility_section/projects/Projects";
@@ -120,6 +114,17 @@ import RolesRequired from "./components/internal_mobility_section/projects/Roles
 import SkillProfilePage from "./pages/admin/skillProfile/SkillProfilePage";
 import JobsOverview from "./components/internal_mobility_section/jobs/JobsOverview";
 import ProjectsOverview from "./components/internal_mobility_section/projects/ProjectsOverview";
+import EmployeeLearningMatching from "./pages/employee/learningMatching/EmployeeLearningMatching";
+import LearningMatching from "./pages/admin/learningMatching/LearningMatching";
+import AdminLearningMatching from "./pages/admin/learningMatching/AdminLearningMatching";
+import CoursePreview from "./pages/employee/learningMatching/CoursePreview";
+import SettingsPage from "./pages/settings/SettingsPage";
+import Settings from "./pages/settings/Settings";
+import EmployeeRole from "./pages/settings/employeeRole/EmployeeRole";
+import BillingPlans from "./pages/settings/billing/BillingPlans";
+import HomePage from "./pages/employee/profile/HomePage";
+import GoalsPreview from "./pages/employee/goals/GoalsPreview";
+import AddGoal from "./pages/employee/goals/AddGoal";
 
 function App() {
   const [role, setRole] = useState(null);
@@ -127,12 +132,12 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    // Check if the user is logged out (you might have a more specific condition)
-    if (!token && location.pathname !== "/recover") {
-      navigate("/login"); // Redirect to the login page
-    }
-  }, [token, navigate]);
+  // useEffect(() => {
+  //   // Check if the user is logged out (you might have a more specific condition)
+  //   if (!token && location.pathname !== "/recover") {
+  //     navigate("/login"); // Redirect to the login page
+  //   }
+  // }, [token, navigate]);
 
   return (
     <ThemeProvider theme={responsiveTheme}>
@@ -150,8 +155,9 @@ function App() {
                 </ProtectedEmployee>
               }
             >
-              <Route path={EMPLOYEE_PROFILE_PATH} element={<ProfilePage />} />
-
+              <Route path={EMPLOYEE_PROFILE_PATH} element={<HomePage />} />
+              <Route path={EMPLOYEE_GOALS_ROUTE} element={<GoalsPreview />} />
+              <Route path={EMPLOYEE_ADD_GOAL_ROUTE} element={<AddGoal />} />
               <Route path={EMPLOYEE_MY_SKILLS_ROUTE} element={<MySkills />}>
                 <Route index element={<Overview />} />
               </Route>
@@ -175,6 +181,23 @@ function App() {
                 path={EMPLOYEE_ORGANIGRAM_ROUTE}
                 element={<Organigram />}
               />
+
+              <Route
+                path={EMPLOYEE_LEARNING_MATCHING}
+                element={<LearningMatching />}
+              >
+                <Route index element={<EmployeeLearningMatching />} />
+
+                <Route
+                  path={EMPLOYEE_LEARNING_MATCHING_COURSES}
+                  element={<EmployeeLearningMatching />}
+                />
+
+                <Route
+                  path={`${EMPLOYEE_LEARNING_MATCHING}/:courseId`}
+                  element={<CoursePreview />}
+                />
+              </Route>
 
               <Route
                 path={EMPLOYEE_INTERNAL_MOBILITY_ROUTE}
@@ -318,11 +341,6 @@ function App() {
               )}
 
               <Route
-                path={ADMIN_ORGANIZATION_COMPANY_PROFILE_ROUTE}
-                element={<CompanyProfile />}
-              />
-
-              <Route
                 path={ADMIN_ORGANIZATION_ORGRANIGRAM_ROUTE}
                 element={<ChartTree />}
               />
@@ -340,6 +358,18 @@ function App() {
                   element={<SkillsAnalysis />}
                 />
                 <Route path={ADMIN_ANALYTICS_USAGE_ROUTE} element={<Usage />} />
+              </Route>
+
+              <Route
+                path={ADMIN_LEARNING_MATCHING_ROUTE}
+                element={<LearningMatching />}
+              >
+                <Route index element={<AdminLearningMatching />} />
+
+                <Route
+                  path={ADMIN_PROVIDERS_ROUTE}
+                  element={<AdminLearningMatching />}
+                />
               </Route>
 
               <Route
@@ -379,6 +409,25 @@ function App() {
                   element={<RolesRequired />}
                 />
               </Route>
+
+              <Route path={ADMIN_SETTINGS_ROUTE} element={<SettingsPage />}>
+                <Route index element={<Settings />} />
+              </Route>
+
+              <Route
+                path={ADMIN_SETTINGS_COMPANY_PROFILE_ROUTE}
+                element={<CompanyProfile />}
+              />
+
+              <Route
+                path={ADMIN_SETTINGS_EMPLOYEE_ROLE_ROUTE}
+                element={<EmployeeRole />}
+              />
+
+              <Route
+                path={ADMIN_SETTINGS_BILLING_ROUTE}
+                element={<BillingPlans />}
+              />
             </Route>
 
             <Route

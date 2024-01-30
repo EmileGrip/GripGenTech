@@ -155,7 +155,7 @@ const DropResume = ({ title, name }) => {
         </Alert>
       </Snackbar>
 
-      <Box className="container" sx={containerStyle}>
+      <Box id="employee__step__1" className="container" sx={containerStyle}>
         <Stack
           sx={{
             flexDirection: "row",

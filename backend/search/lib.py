@@ -5,13 +5,8 @@ from schema.utils import get_node_id
 from django.conf import settings
 from rest_framework.exceptions import ValidationError
 
-def sanitize_input(search_term):
-    #sanitize input
-    search_term = re.sub(r'[^a-zA-Z0-9\s]', '', search_term)
-    return search_term
 def search_neo4j(search_term,label,company_id,limit=10):
     #sanitize input
-    search_term = sanitize_input(search_term)
     if not label in settings.SEARCH_INDECES.keys():
         assert ValidationError("Invalid label")
     if settings.SEARCH_INDECES[label]['global'] is False:
@@ -80,6 +75,13 @@ def postAction(data,context):
         value = data.get('value')
         limit = data.get('limit')
         company_id = data.get('company_id')
+                
+        if value == "":
+            return {
+                "success":True,
+                "message":"Search results fetched successfully",
+                "payload": []
+            }
         if search_key == "user":
             results= search_user(value,company_id,limit)
         elif search_key == "skill":

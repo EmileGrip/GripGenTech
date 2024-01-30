@@ -40,6 +40,22 @@ env_vars = {
     "AFFINDA_COLLECTION":os.environ.get('AFFINDA_COLLECTION'),
     "OPENAI_API_KEY":os.environ.get('OPENAI_API_KEY'),
     "SECRET_KEY":os.environ.get('SECRET_KEY'),
+    "SITE_DOMAIN":os.environ.get('SITE_DOMAIN'),
+    "DEBUG":os.environ.get('DEBUG'),
+    'CLOUDFLARE_TURNSTILE_SECRET':os.environ.get('CLOUDFLARE_TURNSTILE_SECRET'),
+    "STRIPE_PUBLISHABLE_KEY":os.environ.get('STRIPE_PUBLISHABLE_KEY'),
+    "STRIPE_SECRET_KEY":os.environ.get('STRIPE_SECRET_KEY'),
+    "STRIPE_WEBHOOK_SECRET":os.environ.get('STRIPE_WEBHOOK_SECRET'),
+    "UDEMY_CLIENT_ID":os.environ.get('UDEMY_CLIENT_ID'),
+    "UDEMY_CLIENT_SECRET":os.environ.get('UDEMY_CLIENT_SECRET'),
+    "GOOGLE_OAUTH2_CLIENT_ID":os.environ.get('GOOGLE_OAUTH2_CLIENT_ID'),
+    "GOOGLE_OAUTH2_CLIENT_SECRET":os.environ.get('GOOGLE_OAUTH2_CLIENT_SECRET'),
+    "AZURE_OAUTH2_CLIENT_ID":os.environ.get('AZURE_OAUTH2_CLIENT_ID'),
+    "AZURE_OAUTH2_TENANT_ID":os.environ.get('AZURE_OAUTH2_TENANT_ID'),
+    "AZURE_OAUTH2_CLIENT_SECRET_VALUE":os.environ.get('AZURE_OAUTH2_CLIENT_SECRET_VALUE'),
+    "AZURE_OAUTH2_CLIENT_SECRET_ID":os.environ.get('AZURE_OAUTH2_CLIENT_SECRET_ID'),
+    "REDIS_HOST":os.environ.get("REDIS_HOST"),
+    "REDIS_PORT":os.environ.get("REDIS_PORT")
 }
 #iterate through all environment variables and check if they are set
 not_set = []
@@ -55,9 +71,17 @@ if len(not_set) > 0:
 SECRET_KEY = env_vars["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True if env_vars["DEBUG"] == "true" else False
 
-ALLOWED_HOSTS = [env_vars["GRIP_HOST"], 'localhost', '127.0.0.1']
+EMAIL_INVITATION_TEMPLATE = "user/invitation_template.html"
+EMAIL_PASSWORD_RESET_TEMPLATE = "token_auth/password_reset_template.html"
+EMAIL_CONFIRMATION_TEMPLATE = "token_auth/confirmation_template.html"
+
+CLOUDFLARE_TURNSTILE_SECRET= env_vars["CLOUDFLARE_TURNSTILE_SECRET"]
+
+SITE_DOMAIN = env_vars["SITE_DOMAIN"]
+GRIP_HOST= env_vars["GRIP_HOST"]
+ALLOWED_HOSTS = [GRIP_HOST, SITE_DOMAIN, 'localhost', '127.0.0.1']
 
 # Application references
 # https://docs.djangoproject.com/en/2.1/ref/settings/#std:setting-INSTALLED_APPS
@@ -84,6 +108,8 @@ INSTALLED_APPS = [
     'vacancy_skill',
     'project_vacancy',
     'endorsement',
+    'subscription',
+    'learning_matching',
     # Add your apps here to enable them
     'django.contrib.admin',
     'django.contrib.auth',
@@ -96,8 +122,12 @@ INSTALLED_APPS = [
     'django_neomodel',
     'corsheaders',
     "storages",
+    'oauthlogin',
 ]
-
+# AUTHENTICATION_BACKENDS = (
+#     'oauth2_provider.backends.OAuth2Backend',
+#     'django.contrib.auth.backends.ModelBackend',
+# )
 # Middleware framework
 # https://docs.djangoproject.com/en/2.1/topics/http/middleware/
 MIDDLEWARE = [
@@ -152,7 +182,7 @@ DATABASES = {
 
 NEOMODEL_NEO4J_BOLT_URL = env_vars["NEO4J_BOLT_URL"]
 
-
+DEBUG = True
 AUTH_USER_MODEL = "schema.GripUser" 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -171,7 +201,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 LANGUAGE_CODE = 'en-us'
@@ -186,16 +215,22 @@ STATIC_URL = '/static/'
 STATIC_ROOT = posixpath.join(*(BASE_DIR.split(os.path.sep) + ['static']))
 
 
+# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env_vars["GOOGLE_OAUTH2_CLIENT_ID"]
+# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env_vars["GOOGLE_OAUTH2_CLEINT_SECRET"]
+# OAUTH2_PROVIDER = {
+#     'SCOPES': {'read', 'write', 'openid'},
+# }
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-               'token_auth.backends.JWTAuthentication',
+        'token_auth.backends.JWTAuthentication',
+        # 'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        # 'token_auth.backends.start_authentication',     
     ),
     'EXCEPTION_HANDLER': 'token_auth.exceptions.core_exception_handler',
-
 }
 JWT_EXPIRATION_DAYS = 30
 
-PASSWORD_RESET_TIMEOUT = 300
+PASSWORD_RESET_TIMEOUT = 3600
 
 #EMAIL_BACKEND='django.core.mail.backends.filebased.EmailBackend'
 #EMAIL_FILE_PATH=BASE_DIR+'/tmp/django-email-dev'
@@ -230,13 +265,39 @@ AFFINDA_ORGANISATION = env_vars["AFFINDA_ORGANISATION"]
 AFFINDA_WORKSPACE = env_vars["AFFINDA_WORKSPACE"]
 AFFINDA_COLLECTION = env_vars["AFFINDA_COLLECTION"]
 
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+#         "LOCATION": "unique-snowflake",
+#     }
+# }
+REDIS_HOST = env_vars["REDIS_HOST"]
+REDIS_PORT = env_vars["REDIS_PORT"]
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "unique-snowflake",
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
     }
 }
 
+# Cache time to live is 15 minutes.
+CACHE_TTL = 60 * 15
+
+# Celery settings
+CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_BEAT_SCHEDULE = {
+    'process-new-company-every-10-seconds': {
+        'task': 'company.tasks.process_new_company',
+        'schedule': 10.0,
+        'args': ('default company', 0),
+    },
+}
 
 OPENAI_API_KEY = env_vars["OPENAI_API_KEY"]
 
@@ -274,4 +335,46 @@ SEARCH_INDECES = {
         "global":False
     }
     
+}
+
+
+# Stripe settings
+STRIPE_PUBLISHABLE_KEY = env_vars["STRIPE_PUBLISHABLE_KEY"]
+STRIPE_SECRET_KEY = env_vars["STRIPE_SECRET_KEY"]
+# DJSTRIPE_WEBHOOK_SECRET = env_vars["DJSTRIPE_WEBHOOK_SECRET"]
+# DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
+STRIPE_TEST_SECRET_KEY = STRIPE_SECRET_KEY
+STRIPE_WEBHOOK_SECRET = env_vars["STRIPE_WEBHOOK_SECRET"]
+
+
+PROVIDERS = {
+    "udemy":{
+        "class_name": "UdemyProvider",
+        "description": "Udemy is an online learning and teaching marketplace with over 213,000 courses and 62 million students, offering a wide variety of categories and subcategories from business, design, personal development, and much more, where courses are designed, created, and published by independent instructors and learners can pay for each individual course.",
+        "variables":{
+            "UDEMY_CLIENT_ID": env_vars["UDEMY_CLIENT_ID"],
+            "UDEMY_CLIENT_SECRET": env_vars["UDEMY_CLIENT_SECRET"]
+        },
+        "image": "https://www.udemy.com/staticx/udemy/images/v7/logo-udemy.svg"
+    }
+}
+
+# OAuth2 
+OAUTH_LOGIN_PROVIDERS = {
+    "google":{
+        "class": "token_auth.oauth.GoogleOAuthProvider",
+        "kwargs":{
+            "client_id": env_vars["GOOGLE_OAUTH2_CLIENT_ID"],
+            "client_secret": env_vars["GOOGLE_OAUTH2_CLIENT_SECRET"],
+        }
+    },
+    "azure":{
+        "class": "token_auth.oauth.AzureOAuthProvider",
+        "kwargs":{
+            "client_id": env_vars["AZURE_OAUTH2_CLIENT_ID"],
+            "tenant_id": env_vars["AZURE_OAUTH2_TENANT_ID"],
+            "client_secret": env_vars["AZURE_OAUTH2_CLIENT_SECRET_ID"],
+            "client_value_secret": env_vars["AZURE_OAUTH2_CLIENT_SECRET_VALUE"],
+        }
+    }
 }

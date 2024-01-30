@@ -103,7 +103,7 @@ class JobProfileSerializer(serializers.Serializer):
         if JobProfile.objects.filter(title=title,company_id=company).exists():
             raise exceptions.ValidationError('Job profile already exists')
         #create JobTitle instance
-        job_title = JobTitle.nodes.get_or_none(label=title)
+        job_title = JobTitle.nodes.get_or_none(label=title,company_id=company_id)
         if not job_title:
             job_title = JobTitle(label=title,company_id=company_id).save()
         #create job_profile_data
@@ -113,11 +113,6 @@ class JobProfileSerializer(serializers.Serializer):
         if occupation is not None:
             #generate similar to relationship between jobtitle and occupation
             job_title.SimilarTo.connect(occupation)
-        #add relationship between person and job title
-        person,_ = db.cypher_query(f'MATCH (s:Person) WHERE ID(s) = {self.context["request"].user.person_id} RETURN s', None, resolve_objects=True)
-        if len(person) != 0:
-            person = person[0][0]
-            person.HasJob.connect(job_title)
         self.response = {
             "success":True,
             "message":"Experience created successfully",

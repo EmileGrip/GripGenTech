@@ -1,24 +1,25 @@
-
 from rest_framework import serializers, exceptions
 from schema.models import GripUser
-from schema.models import Token
+from schema.models import Token, OAuthUserProfile
 from datetime import datetime, timedelta
 from time import mktime
-from django.core.mail import EmailMessage
+from django.core.mail import send_mail
 from django.conf import settings
 import jwt
 import logging
 from secrets import choice
 from  string import ascii_uppercase, digits
 from django.forms.models import model_to_dict
-
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from requests import post
 
 
 class LoginRequestSerilizer(serializers.Serializer):
 
     email = serializers.EmailField()
     password = serializers.CharField(max_length=128)
-    token = serializers.SerializerMethodField()
+    token = serializers.CharField(max_length=1000)
 
     def get_token(self):
         return self.access_token
@@ -30,7 +31,7 @@ class LoginRequestSerilizer(serializers.Serializer):
 
         email = data.get("email", None)
         password = data.get("password", None)
-
+        token = data.get("token", None)
 
         if email is None:
             raise exceptions.ValidationError(
@@ -44,6 +45,10 @@ class LoginRequestSerilizer(serializers.Serializer):
         if not GripUser.objects.filter(email=email).exists():
             raise exceptions.ValidationError(
                 'email dose not exist.'
+            )
+        if validate_turnsite_token(token) is False:
+            raise exceptions.ValidationError(
+                'invalid token.'
             )
         user = GripUser.objects.filter(email=email).first()
         if not user.check_password(password):
@@ -84,14 +89,14 @@ class LoginRequestSerilizer(serializers.Serializer):
 
 class ForgotPasswordRequestSerilizer(serializers.Serializer):
     email = serializers.EmailField()
-
+    token = serializers.CharField(max_length=1000)
     def get_response(self):
         return self.response
     
     def validate(self, data):
 
         email = data.get("email", None)
-        
+        token = data.get("token", None)
 
         if email is None:
             raise exceptions.ValidationError(
@@ -106,6 +111,14 @@ class ForgotPasswordRequestSerilizer(serializers.Serializer):
             return {
                 'email': email,
             }
+        if token is None:
+            raise exceptions.ValidationError(
+                'token is required to reset password.'
+            )
+        if validate_turnsite_token(token) is False:
+            raise exceptions.ValidationError(
+                'invalid token.'
+            )
         user = GripUser.objects.filter(email=email).first()
         #deactivate all previous tokens
         Token.objects.filter(user_id=user,type="reset_password").update(is_active=False)
@@ -119,16 +132,20 @@ class ForgotPasswordRequestSerilizer(serializers.Serializer):
             )
         
         try:
-            TokenMessage = EmailMessage('User Account Password Reset',
-                                    'your account password reset tocken is {}'.format(token.token),
-                                    to=[email],from_email=settings.EMAIL_HOST_USER)
-            TokenMessage.send()
+            html_message, plain_message = get_formatted_email(settings.EMAIL_PASSWORD_RESET_TEMPLATE,token=token.token)
+            send_mail(
+                'User Account Password Reset',
+                plain_message,
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                html_message=html_message,
+                fail_silently=False,
+            )
             self.response = {
                 "success":True,
                 "message":"Email sent successfully, please check your email for password reset token"
             }
         except Exception as e:
-        
             self.response = {
                 "success":False,
                 "message":"Error sending email, please try again later"
@@ -210,10 +227,15 @@ class ResetPasswordRequestSerilizer(serializers.Serializer):
         Token.objects.filter(user_id=user,type="reset_password").update(is_active=False)
         #send email to user that password has been changed
         try:
-            TokenMessage = EmailMessage('User Account Password Changed',
-                                    'your account password has been changed successfully',
-                                    to=[email],from_email=settings.EMAIL_HOST_USER)
-            TokenMessage.send()
+            html_message, plain_message = get_formatted_email(settings.EMAIL_CONFIRMATION_TEMPLATE)
+            send_mail(
+                'User Account Password Changed',
+                plain_message,
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                html_message=html_message,
+                fail_silently=False,
+            )
         except Exception as e:
             logging.error(e)
         
@@ -283,3 +305,66 @@ class ChangePasswordRequestSerilizer(serializers.Serializer):
             'new_password2': new_password2
         }
 
+
+def get_formatted_email(template,**vars):
+    html_content = render_to_string(template, dict(vars)) # render with dynamic value
+    text_content = strip_tags(html_content) # Strip the html tag. So people can see the pure text at least.
+    return html_content,text_content
+
+def validate_turnsite_token(token):
+    if settings.DEBUG:
+        return True
+    resp = post('https://challenges.cloudflare.com/turnstile/v0/siteverify', data={'response': token,'secret': settings.CLOUDFLARE_TURNSTILE_SECRET})
+    data = resp.json()
+    if data['success']:
+        return True
+    else:
+        return False
+    
+
+class OAuthSerializer(serializers.ModelSerializer):
+    uid           = serializers.CharField(required=False)
+    provider      = serializers.CharField(max_length=20, required=False)
+    first_name    = serializers.CharField(max_length=50, required=False)
+    last_name     = serializers.CharField(max_length=50, required=False)
+    phone         = serializers.CharField(required=False)
+    id            = serializers.CharField(required=False)
+    gender        = serializers.CharField(required=False)
+    location      = serializers.CharField(required=False)
+    username      = serializers.CharField(required=False)
+    system_role   = serializers.CharField(required=False)
+    person_id     = serializers.CharField(required=False)
+    resume        = serializers.CharField(required=False)
+    profile_pic   = serializers.CharField(required=False)
+    email         = serializers.EmailField(required=False)
+    is_staff      = serializers.BooleanField(required=False)
+    is_active     = serializers.BooleanField(required=False)    
+    is_superuser  = serializers.BooleanField(required=False)
+    company_id_id = serializers.IntegerField(required=False)
+
+    
+    class Meta:
+        model  = OAuthUserProfile
+        fields = ['uid', 'email', 'provider', 'first_name', 'last_name', 
+                  'is_staff', 'is_active', 'id', 'is_superuser', 'username',
+                  'system_role', 'company_id_id', 'person_id', 'resume',
+                  'profile_pic', 'gender', 'phone', 'location']
+    
+    
+class OAuthLoginRequestSerilizer(serializers.ModelSerializer):
+    provider = serializers.CharField(max_length=20, required=False)
+    token    = serializers.CharField(max_length=1000)
+    operation= serializers.ChoiceField(choices=['login','signup'],required=False)
+    
+    class Meta:
+        model  = OAuthUserProfile
+        fields = ['provider', 'token', 'operation']
+    
+    def validate(self, data): 
+        # get token from body
+        token = data.get("token", None)
+        if validate_turnsite_token(token) is False:
+            raise exceptions.ValidationError(
+                'invalid token.'
+            )
+        return data 

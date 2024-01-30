@@ -33,11 +33,13 @@ const ExperienceCard = ({ data, onEdit, onDelete, hideOptions = false }) => {
   const lgMatches = useMediaQuery(theme.breakpoints.up("lg"));
   const mdMatches = useMediaQuery(theme.breakpoints.up("md"));
 
-  const listItems = data.description.split("-").map((line) => (
-    <li className="list__item" style={{ fontSize: "12px" }} key={line}>
-      {line}
-    </li>
-  ));
+  const listItems = data.description
+    ? data.description.split("-").map((line, index) => (
+        <li className="list__item" style={{ fontSize: "12px" }} key={index}>
+          {line}
+        </li>
+      ))
+    : "";
 
   return (
     <Stack

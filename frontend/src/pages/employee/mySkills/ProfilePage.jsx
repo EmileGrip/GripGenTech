@@ -389,6 +389,7 @@ const ProfilePage = () => {
                     display: "flex",
                     justifyContent: "center",
                     mt: { xs: "25px", lg: "10px" },
+                    zIndex: "10",
                   }}
                 >
                   <Link to={EMPLOYEE_MY_SKILLS_ROUTE}>
@@ -461,6 +462,7 @@ const ProfilePage = () => {
                     display: "flex",
                     justifyContent: "center",
                     mt: { xs: "25px", lg: "10px" },
+                    zIndex: "10",
                   }}
                 >
                   <Link to={EMPLOYEE_WORK_EXPREIENCE_PATH}>
@@ -533,6 +535,7 @@ const ProfilePage = () => {
                     display: "flex",
                     justifyContent: "center",
                     mt: { xs: "25px", lg: "10px" },
+                    zIndex: "10",
                   }}
                 >
                   <Link to={EMPLOYEE_LEARNING_EXPREIENCE_PATH}>
@@ -601,6 +604,7 @@ const ProfilePage = () => {
                     display: "flex",
                     justifyContent: "center",
                     mt: { xs: "25px", lg: "10px" },
+                    zIndex: "10",
                   }}
                 >
                   <Link to={EMPLOYEE_LEARNING_EXPREIENCE_PATH}>

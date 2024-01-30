@@ -7,8 +7,11 @@ from token_auth.permissions import *
 
 
 class PathApi(APIView):
-    permission_classes = [IsAuthenticated]             # <-- And here
+    # permission_classes = [IsAuthenticated, IsActiveSubscription,
+    #                       (IsFreeTrial or IsEssentialsPlan or IsProfessionalPlan)]
+    permission_classes = [IsAuthenticated]
     serializer_class = PathSerializer
+
     @method_permission_classes([IsAdmin,IsManager,IsEmployee])
     def get(self, request):
         return self.__handle(request)

@@ -4,7 +4,9 @@ from schema.models import GripUser,Company,GripFile,Person,Role,JobProfile
 from django.forms.models import model_to_dict
 from random import choices
 from string import ascii_uppercase, digits
-from django.core.mail import EmailMessage,send_mail
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from django.conf import settings
 import logging
 from django.core.files.storage import default_storage
@@ -16,8 +18,8 @@ class UserSerializer(serializers.Serializer):
     first_name = serializers.CharField(max_length=20,required=False)
     last_name = serializers.CharField(max_length=20,required=False)
     email = serializers.EmailField(max_length=50,required=False)
-    phone = serializers.CharField(max_length=20,required=False)
-    location = serializers.CharField(max_length=150,required=False)
+    phone = serializers.CharField(max_length=20,required=False,allow_blank=True)
+    location = serializers.CharField(max_length=150,required=False,allow_blank=True)
     gender = serializers.CharField(max_length=10,required=False)
     department = serializers.CharField(max_length=100,required=False)
     company_id = serializers.CharField(max_length=100,required=False)
@@ -232,18 +234,13 @@ class UserSerializer(serializers.Serializer):
         
         try:
             #send email to user with password
+            html_message,text_message = self.get_invitation_message(email,password)
             send_mail(
                 'Login details for Adepti',
-                """We would like to invite you to access Adepti. Please find below your login details for the platform. You can click on the link provided to access the login page, where you can create a new password using your email address.
-                Login details:
-                Login link: https://adepti.gen-tech.io/login
-                Email: {}
-                Password: {}
-                We hope you enjoy using Adepti!
-                Your colleagues from HR
-                """.format(email,password),
+                text_message,
                 settings.DEFAULT_FROM_EMAIL,
                 [email],
+                html_message=html_message,
                 fail_silently=False,
             )
             self.response = {
@@ -273,6 +270,7 @@ class UserSerializer(serializers.Serializer):
         gender = data.get('gender',None)
         resume = data.get('resume',None)
         profile_picture = data.get('profile_picture',None)
+        system_role = data.get('system_role', None)
         
         if self.context['request'].user.system_role == 'admin':
             if not GripUser.objects.filter(id=id,company_id=self.context['request'].user.company_id).exists():
@@ -295,7 +293,20 @@ class UserSerializer(serializers.Serializer):
                 raise exceptions.ValidationError('Resume is not an image')
             elif GripFile.objects.get(id=resume).user_id != self.context['request'].user.id:
                 raise exceptions.ValidationError('Resume is not owned by you')
-            
+        
+        # change system_role 
+        # first check that the user is an admin
+        if system_role:
+            if self.context['request'].user.system_role != 'admin':
+                raise exceptions.ValidationError('You are not authorized to update this user')
+            elif system_role in ['admin', 'manager', 'employee']:
+                if GripUser.objects.get(id=id).company_id.id != self.context['request'].user.company_id.id:
+                    raise exceptions.ValidationError('You are not authorized to update this user')
+                else:
+                    GripUser.objects.filter(id=id).update(system_role=system_role)
+            else: 
+                raise exceptions.ValidationError('Invalid system role, must be admin, manager or employee')
+         
         #get non null fields
         user_data = self.__get_non_null_fields(
             first_name=first_name,
@@ -305,6 +316,7 @@ class UserSerializer(serializers.Serializer):
             gender=gender,
             resume=resume,
             profile_picture=profile_picture,
+            system_role=system_role
         )
         #update user
         if not GripUser.objects.filter(id=id).update(**user_data):
@@ -350,4 +362,8 @@ class UserSerializer(serializers.Serializer):
     def get_node_id(self,node):
         #split element_id 
         return node.element_id.split(":")[-1]
-  
+    
+    def get_invitation_message(self,email,password):
+        html_content = render_to_string(settings.EMAIL_INVITATION_TEMPLATE, {'url':f"https://{settings.SITE_DOMAIN}", 'email':email, 'password':password}) # render with dynamic value
+        text_content = strip_tags(html_content) # Strip the html tag. So people can see the pure text at least.
+        return html_content,text_content

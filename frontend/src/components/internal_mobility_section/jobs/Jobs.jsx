@@ -428,6 +428,7 @@ const Jobs = ({ projects = false }) => {
 
               <Link to={newJobLink}>
                 <Button
+                  id={!projects ? "manager__step__3" : "post__new__project"}
                   sx={{
                     width: "220px",
                     background: (theme) => theme.palette.accent,

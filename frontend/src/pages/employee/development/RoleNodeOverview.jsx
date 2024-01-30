@@ -50,9 +50,11 @@ const RoleNodeOverview = ({ jobId }) => {
           ) : (
             <Box className="tableContent__section">
               <RoleSkillsHeaders />
-              {sortedSkills?.map((skill) => (
-                <RoleSkillTableRow skill={skill} key={skill.title} />
-              ))}
+              <Box sx={{ maxHeight: "300px", overflowY: "auto", pr: 2 }}>
+                {sortedSkills?.map((skill) => (
+                  <RoleSkillTableRow skill={skill} key={skill.title} />
+                ))}
+              </Box>
             </Box>
           )}
         </>

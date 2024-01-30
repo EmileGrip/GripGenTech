@@ -1,7 +1,8 @@
 import * as yup from "yup";
 
 const validationsForm = {
-  name: yup.string().required("Name is required"),
+  firstName: yup.string().required("First name is required"),
+  lastName: yup.string().required("Last name is required"),
   email: yup
     .string()
     .email("Enter a valid email")

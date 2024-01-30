@@ -154,14 +154,10 @@ const Details = ({
 
     if (selectedId) {
       formik.setFieldValue("role", selectedId.id);
-    } else {
-      formik.setFieldValue("role", "");
     }
 
     if (selectedRole) {
       formik.setFieldValue("fullRoleObj", selectedRole);
-    } else {
-      formik.setFieldValue("fullRoleObj", null);
     }
   };
 
